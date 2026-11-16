@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Raphael Scharf Passos — Portfólio 3D",
+    "description": "Portfólio 3D de Raphael Scharf Passos, estudante de Engenharia de Software em Curitiba: back-ends em C# e Python, projetos, skills e contato dentro de uma cobertura dos anos 80."
+  },
+  "nav": {
+    "label": "Seções do portfólio",
+    "home": "Início",
+    "projects": "Projetos",
+    "about": "Sobre mim",
+    "skills": "Skills",
+    "certificates": "Certificados",
+    "records": "Discos",
+    "contact": "Contato",
+    "garage": "Garagem",
+    "menu": "Menu",
+    "close": "Fechar"
+  },
+  "ui": {
+    "skip": "Pular para o conteúdo",
+    "back": "Voltar para a sala",
+    "mute": "Silenciar o som",
+    "unmute": "Ativar o som",
+    "lang": "Mudar idioma para inglês",
+    "textVersion": "Versão em texto",
+    "view3d": "Ver em 3D",
+    "hint": "Clique nos objetos para explorar",
+    "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
+    "room": "Sala"
+  },
+  "loader": {
+    "title": "Subindo para a cobertura",
+    "ready": "Pronto"
+  },
+  "home": {
+    "name": "Raphael Scharf Passos",
+    "role": "Estudante de Engenharia de Software",
+    "place": "Curitiba, PR",
+    "phrase": "Construo back-ends em C# e Python e gosto de transformar trabalho manual em sistema.",
+    "status": "Procurando estágio em TI, à tarde, presencial ou híbrido em Curitiba, ou remoto.",
+    "downloadCv": "Baixar currículo",
+    "seeProjects": "Ver projetos"
+  },
+  "projects": {
+    "title": "Projetos",
+    "channel": "Canal",
+    "tech": "Tecnologias",
+    "link": "Ver repositório",
+    "linkSoon": "Repositório de demonstração em breve",
+    "unicar": {
+      "name": "UniCar",
+      "description": "Aplicativo de caronas para universitários de Curitiba. API com login JWT e confirmação pelo e-mail da faculdade, posição do motorista e chat em tempo real, rotas e preço com Google Maps, testes de integração."
+    },
+    "frotas": {
+      "name": "Automação de Frotas",
+      "description": "Sistema interno para uma corretora de seguros de Curitiba: lê apólices de frota em PDF de várias seguradoras, extrai os veículos e gera o Excel padronizado, com revisão de pendências, histórico e versões."
+    }
+  },
+  "about": {
+    "title": "Sobre mim",
+    "aboutFile": "sobre_mim.txt",
+    "aboutText": "Moro em Curitiba e estudo de manhã. Gosto de entender como uma operação funciona por dentro e de cortar o trabalho repetitivo dela.",
+    "education": "Formação",
+    "educationUni": "Engenharia de Software, Universidade Positivo, 2º ano, formatura prevista em 2028.",
+    "educationTech": "Técnico em Análise e Desenvolvimento de Sistemas, SENAI, 2024.",
+    "experience": "Experiência",
+    "experienceSupport": "Suporte técnico autônomo no Biobanco (2024–2025): manutenção de computadores, diagnóstico de hardware e software, atendimento aos usuários do laboratório.",
+    "languages": "Idiomas",
+    "langPt": "Português nativo",
+    "langEn": "Inglês básico, estudando para Cambridge",
+    "langEs": "Espanhol básico",
+    "langIt": "Italiano iniciante"
+  },
+  "certificates": {
+    "title": "Certificados",
+    "inProgress": "em estudo",
+    "python": "Python Avançado",
+    "c": "Linguagem C",
+    "office": "Pacote Office Avançado",
+    "salesforce": "Salesforce"
+  },
+  "skills": {
+    "title": "Skills",
+    "languages": "Linguagens",
+    "backend": "Back-end",
+    "frontend": "Front-end e mobile",
+    "databases": "Bancos de dados",
+    "tools": "Ferramentas",
+    "partBlock": "Bloco do motor",
+    "partIntake": "Admissão de ar",
+    "partRadiator": "Radiador",
+    "partBattery": "Bateria",
+    "partFuses": "Caixa de fusíveis"
+  },
+  "contact": {
+    "title": "Contato",
+    "email": "E-mail",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "cv": "Currículo",
+    "cvPt": "Currículo em PDF (português)",
+    "cvEn": "Currículo em PDF (inglês)",
+    "copy": "Copiar e-mail",
+    "copied": "E-mail copiado"
+  },
+  "records": {
+    "title": "Discos",
+    "classics": "Clássicos",
+    "rap": "Rap",
+    "onPlatter": "No prato",
+    "soon": "em breve",
+    "nowPlaying": "Tocando agora",
+    "paused": "Pausado",
+    "ready": "No prato, esperando o clique",
+    "play": "Tocar",
+    "pause": "Pausar",
+    "next": "Próximo disco",
+    "volume": "Volume",
+    "pick": "Escolha um disco",
+    "note": "A música só começa quando você clica num disco."
+  },
+  "objects": {
+    "records": "discos",
+    "turntable": "toca-discos",
+    "knob": "volume",
+    "tv": "projetos",
+    "pc": "sobre mim",
+    "magazines": "certificados",
+    "keys": "contato",
+    "car": "garagem",
+    "window": "início",
+    "bar": "bar",
+    "clock": "hora certa"
+  }
+}

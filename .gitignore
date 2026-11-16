@@ -1,0 +1,19 @@
+# dependências e build
+node_modules
+dist
+*.tsbuildinfo
+
+# áudio fica fora do Git (vai para o bucket R2 em produção)
+public/audio
+
+# ambiente e ferramentas locais
+.env
+.env.local
+.vercel
+.claude
+*.log
+.DS_Store
+Thumbs.db
+
+# prints de rascunho
+docs/prints/tmp

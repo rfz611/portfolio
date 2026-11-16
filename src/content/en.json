@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Raphael Scharf Passos — 3D Portfolio",
+    "description": "3D portfolio of Raphael Scharf Passos, a Software Engineering student in Curitiba, Brazil: back-ends in C# and Python, projects, skills and contact inside an 80s penthouse."
+  },
+  "nav": {
+    "label": "Portfolio sections",
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About me",
+    "skills": "Skills",
+    "certificates": "Certificates",
+    "records": "Records",
+    "contact": "Contact",
+    "garage": "Garage",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "ui": {
+    "skip": "Skip to content",
+    "back": "Back to the room",
+    "mute": "Mute sound",
+    "unmute": "Unmute sound",
+    "lang": "Switch language to Portuguese",
+    "textVersion": "Text version",
+    "view3d": "View in 3D",
+    "hint": "Click the objects to explore",
+    "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
+    "room": "Room"
+  },
+  "loader": {
+    "title": "Going up to the penthouse",
+    "ready": "Ready"
+  },
+  "home": {
+    "name": "Raphael Scharf Passos",
+    "role": "Software Engineering student",
+    "place": "Curitiba, Brazil",
+    "phrase": "I build back-ends in C# and Python, and I like turning manual work into systems.",
+    "status": "Looking for an IT internship: afternoons, on-site or hybrid in Curitiba, or remote.",
+    "downloadCv": "Download résumé",
+    "seeProjects": "See projects"
+  },
+  "projects": {
+    "title": "Projects",
+    "channel": "Channel",
+    "tech": "Tech",
+    "link": "View repository",
+    "linkSoon": "Demo repository coming soon",
+    "unicar": {
+      "name": "UniCar",
+      "description": "Carpooling app for university students in Curitiba. API with JWT login and college e-mail verification, real-time driver location and chat, routes and pricing with Google Maps, and integration tests."
+    },
+    "frotas": {
+      "name": "Fleet Automation",
+      "description": "Internal system for an insurance brokerage in Curitiba: it reads fleet policies in PDF from several insurers, extracts the vehicles and generates a standardized Excel file, with pending-item review, history and versions."
+    }
+  },
+  "about": {
+    "title": "About me",
+    "aboutFile": "about_me.txt",
+    "aboutText": "I live in Curitiba and study in the mornings. I like understanding how an operation works on the inside and cutting out its repetitive work.",
+    "education": "Education",
+    "educationUni": "Software Engineering, Universidade Positivo, 2nd year, expected graduation in 2028.",
+    "educationTech": "Technical degree in Systems Analysis and Development, SENAI, 2024.",
+    "experience": "Experience",
+    "experienceSupport": "Freelance technical support at Biobanco (2024–2025): computer maintenance, hardware and software troubleshooting, and support for the lab's users.",
+    "languages": "Languages",
+    "langPt": "Portuguese, native",
+    "langEn": "English, basic, studying for the Cambridge exam",
+    "langEs": "Spanish, basic",
+    "langIt": "Italian, beginner"
+  },
+  "certificates": {
+    "title": "Certificates",
+    "inProgress": "in progress",
+    "python": "Advanced Python",
+    "c": "C Language",
+    "office": "Advanced Office Suite",
+    "salesforce": "Salesforce"
+  },
+  "skills": {
+    "title": "Skills",
+    "languages": "Languages",
+    "backend": "Back-end",
+    "frontend": "Front-end and mobile",
+    "databases": "Databases",
+    "tools": "Tools",
+    "partBlock": "Engine block",
+    "partIntake": "Air intake",
+    "partRadiator": "Radiator",
+    "partBattery": "Battery",
+    "partFuses": "Fuse box"
+  },
+  "contact": {
+    "title": "Contact",
+    "email": "E-mail",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "cv": "Résumé",
+    "cvPt": "Résumé in PDF (Portuguese)",
+    "cvEn": "Résumé in PDF (English)",
+    "copy": "Copy e-mail",
+    "copied": "E-mail copied"
+  },
+  "records": {
+    "title": "Records",
+    "classics": "Classics",
+    "rap": "Rap",
+    "onPlatter": "On the platter",
+    "soon": "coming soon",
+    "nowPlaying": "Now playing",
+    "paused": "Paused",
+    "ready": "On the platter, waiting for your click",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next record",
+    "volume": "Volume",
+    "pick": "Pick a record",
+    "note": "Music only starts when you click a record."
+  },
+  "objects": {
+    "records": "records",
+    "turntable": "turntable",
+    "knob": "volume",
+    "tv": "projects",
+    "pc": "about me",
+    "magazines": "certificates",
+    "keys": "contact",
+    "car": "garage",
+    "window": "home",
+    "bar": "bar",
+    "clock": "local time"
+  }
+}
