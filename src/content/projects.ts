@@ -6,6 +6,8 @@ export interface Project {
   /** null = repositório de demonstração ainda sem link. */
   link: string | null;
   image: string;
+  /** Vídeo curto que passa sozinho na TV no lugar do print (sem som, em loop). */
+  video?: string;
 }
 
 export const projects: Project[] = [
@@ -24,6 +26,7 @@ export const projects: Project[] = [
     ],
     link: 'https://github.com/rfz611/unicar-app',
     image: '/textures/projects/unicar.webp',
+    video: '/videos/unicar.webm',
   },
   {
     id: 'frotas',

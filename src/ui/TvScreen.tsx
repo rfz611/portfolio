@@ -48,6 +48,7 @@ export function TvScreen() {
   const [booting, setBooting] = useState(true);
   const [switching, setSwitching] = useState(false);
   const [imageOk, setImageOk] = useState(true);
+  const [videoOk, setVideoOk] = useState(true);
   const first = useRef(true);
   const project = projects[channel];
 
@@ -61,6 +62,7 @@ export function TvScreen() {
   // ao trocar de canal: chiado curto
   useEffect(() => {
     setImageOk(true);
+    setVideoOk(true);
     if (first.current) {
       first.current = false;
       return;
@@ -92,7 +94,19 @@ export function TvScreen() {
         </p>
         <div className="tv__body">
           <figure className="tv__shot">
-            {imageOk ? (
+            {project.video && videoOk ? (
+              <video
+                key={project.video}
+                src={project.video}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                onError={() => setVideoOk(false)}
+              />
+            ) : imageOk ? (
               <img src={project.image} alt="" onError={() => setImageOk(false)} />
             ) : (
               <span>{t('projects.noImage').toUpperCase()}</span>

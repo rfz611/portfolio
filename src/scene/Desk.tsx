@@ -98,7 +98,7 @@ function Laptop() {
   const keys = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        map: tex(makeCanvas(256, 112, paintLaptopKeys), { clamp: true }),
+        map: tex(makeCanvas(1024, 352, paintLaptopKeys), { clamp: true }),
         roughness: 0.5,
       }),
     [],
@@ -113,6 +113,17 @@ function Laptop() {
   );
   const bezel = useMemo(
     () => new THREE.MeshStandardMaterial({ color: '#0b0b0d', roughness: 0.18, metalness: 0.2 }),
+    [],
+  );
+  // trackpad de vidro fosco, um pouco mais escuro que o alumínio
+  const trackpad = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#a9adb4',
+        roughness: 0.38,
+        metalness: 0.55,
+        envMapIntensity: 1,
+      }),
     [],
   );
   const silver = useMemo(
@@ -143,7 +154,7 @@ function Laptop() {
     >
       <mesh geometry={geo.base} material={silver} />
       <mesh geometry={geo.keys} material={keys} />
-      <mesh geometry={geo.pad} material={mat.darkMetal} />
+      <mesh geometry={geo.pad} material={trackpad} />
       <group position={[0, 0.0045, d / 2]} rotation={[tilt, 0, 0]}>
         <mesh geometry={geo.lid} material={silver} />
         <mesh position={[0, lid / 2 + 0.006, 0.0024]} material={apple}>
@@ -278,7 +289,7 @@ function DeskClutter() {
           />
         </group>
       </Interactive>
-      <group position={[0.36, 0.002, -0.22]} rotation={[0, -0.4, 0]}>
+      <group position={[0.47, 0.002, -0.28]} rotation={[0, -0.35, 0]}>
         <Notebook />
       </group>
       {/* caneca perto da mão de quem senta, com a alça virada para a pessoa */}

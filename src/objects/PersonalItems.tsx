@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { box, crease, cyl, merge } from '../scene/geo';
-import { sweep } from '../scene/sweep';
 import { makeCanvas, tex } from '../textures/canvas';
 import { lib } from '../textures/library';
+import { paintGloveBody, paintGloveCuff } from '../textures/gloves';
 import { Interactive } from './Interactive';
 
 const HALF_PI = Math.PI / 2;
@@ -20,26 +20,26 @@ const smooth = (a: number, b: number, v: number) => {
 };
 
 /**
- * Corpo da luva de boxe: um ovo achatado moldado vértice a vértice, com a
- * frente cheia (o punho fechado), a dobra dos dedos por baixo e a parte
- * de trás afinando até o pulso. A luva aponta para +z.
+ * Corpo da luva de boxe: um ovo deitado ao longo do comprimento (os polos
+ * ficam na ponta e no pulso, para o nome nas costas da mão não deformar),
+ * moldado vértice a vértice: frente cheia (o punho fechado), rolo dos dedos
+ * em cima, dobra dos dedos embaixo e afinando até o pulso. Aponta para +z.
  */
 function gloveBody() {
-  const g = new THREE.SphereGeometry(1, 28, 20);
+  const g = new THREE.SphereGeometry(1, 44, 30).rotateX(Math.PI / 2);
   const p = g.attributes.position as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i);
     let y = p.getY(i);
     const z = p.getZ(i);
-    // afina para trás (pulso) e incha na frente (punho)
-    const taper = 1 - 0.32 * smooth(0, -1, z);
+    const taper = 1 - 0.3 * smooth(0, -1, z);
     x *= taper;
     y *= taper;
-    // rolo dos dedos por cima, na frente
-    if (y > 0) y += 0.18 * smooth(0.2, 0.75, z) * (1 - Math.abs(x) * 0.6);
-    // dobra dos dedos fechados por baixo
-    if (y < 0) y += 0.16 * Math.exp(-((z - 0.55) ** 2) / 0.02);
-    p.setXYZ(i, x * 0.064, y * 0.056, z * 0.105);
+    if (y > 0) y += 0.16 * smooth(0.2, 0.75, z) * (1 - Math.abs(x) * 0.6);
+    if (y < 0) y += 0.14 * Math.exp(-((z - 0.55) ** 2) / 0.02);
+    // lado do polegar um pouco mais reto, como luva de verdade
+    x *= 1 - 0.06 * smooth(0.2, 1, Math.abs(x));
+    p.setXYZ(i, x * 0.064, y * 0.057, z * 0.1);
   }
   g.computeVertexNormals();
   return g;
@@ -47,116 +47,98 @@ function gloveBody() {
 
 /** Polegar colado na lateral do punho, apontando para a frente. */
 function gloveThumb(side: number) {
-  const g = new THREE.CapsuleGeometry(0.021, 0.06, 6, 12);
+  const g = new THREE.CapsuleGeometry(0.02, 0.065, 8, 14);
   g.rotateX(Math.PI / 2);
-  g.rotateY(side * 0.35);
-  g.rotateZ(side * 0.4);
-  g.translate(side * 0.056, -0.008, 0.035);
+  g.rotateY(side * 0.28);
+  g.rotateZ(side * 0.45);
+  g.translate(side * 0.052, -0.006, 0.03);
   return g;
 }
 
 /**
- * Luvas de boxe brancas com detalhes pretos, largadas no assento do sofá, perto da ponta: uma de
- * barriga para baixo, a outra tombada de lado, com uma atadura enrolada e
- * outra desenrolada, como quem acabou de voltar do treino.
+ * Luvas de boxe brancas (como as da foto do Raphael): couro branco,
+ * punho longo branco com a tira de velcro, MAXIMUM BOXING em preto nas
+ * costas da mão e a etiqueta preta na tira. Largadas no assento do sofá,
+ * uma de barriga para baixo e a outra tombada de lado.
  */
 export function LooseGloves() {
   const geo = useMemo(() => {
-    const cuff = new THREE.CylinderGeometry(0.047, 0.052, 0.12, 20, 1, true)
+    const cuff = new THREE.CylinderGeometry(0.049, 0.053, 0.13, 28, 1, true)
       .rotateX(Math.PI / 2)
-      .translate(0, -0.004, -0.13);
-    const strap = new THREE.CylinderGeometry(0.055, 0.055, 0.055, 20, 1, false)
+      .translate(0, -0.004, -0.14);
+    const strap = new THREE.CylinderGeometry(0.0565, 0.0565, 0.06, 28, 1, true)
       .rotateX(Math.PI / 2)
-      .translate(0, -0.004, -0.115);
-    const patch = box([0.04, 0.012, 0.05], [0, 0.052, -0.115]);
-    const liner = new THREE.CircleGeometry(0.046, 20).rotateY(Math.PI).translate(0, -0.004, -0.19);
-    // atadura desenrolada: uma fita larga e fina fazendo curvas no assento
-    const strip = sweep(
-      [
-        [0.0, 0.0],
-        [0.07, 0.03],
-        [0.14, 0.0],
-        [0.2, -0.05],
-        [0.27, -0.03],
-        [0.33, 0.03],
-      ],
-      [
-        [-0.022, 0.003],
-        [0.022, 0.003],
-      ],
-    );
+      .translate(0, -0.004, -0.135);
+    const strapEdge = new THREE.TorusGeometry(0.0565, 0.0025, 6, 28).translate(0, -0.004, 0);
+    const liner = new THREE.CircleGeometry(0.048, 24).rotateY(Math.PI).translate(0, -0.004, -0.2);
     return {
-      left: merge([gloveBody(), gloveThumb(1)]),
-      right: merge([gloveBody(), gloveThumb(-1)]),
+      body: gloveBody(),
+      thumbL: gloveThumb(1),
+      thumbR: gloveThumb(-1),
       cuff,
       strap,
-      patch,
+      edges: merge([
+        strapEdge.clone().translate(0, 0, -0.105),
+        strapEdge.clone().translate(0, 0, -0.165),
+      ]),
       liner,
-      roll: cyl(0.03, 0.03, 0.05, [0, 0.03, 0], { seg: 16, rot: [0, 0, HALF_PI] }),
-      strip,
     };
   }, []);
-  const leather = useMemo(
-    () =>
+  const mats = useMemo(() => {
+    const leather = (map?: THREE.Texture) =>
       new THREE.MeshStandardMaterial({
-        color: '#f1eee8',
-        roughness: 0.3,
-        metalness: 0.05,
-        envMapIntensity: 1.1,
-        side: THREE.DoubleSide,
-      }),
-    [],
-  );
-  const white = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({ color: '#ece6da', roughness: 0.5, side: THREE.DoubleSide }),
-    [],
-  );
-  const dark = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#121214',
-        roughness: 0.35,
+        map,
+        color: '#ffe0bc',
+        roughness: 0.34,
+        metalness: 0.02,
         envMapIntensity: 1,
+        // um fundo quente, para o branco não ficar azulado com a luz da cidade
+        emissive: '#6e6052',
+        emissiveIntensity: 0.55,
+      });
+    return {
+      body: leather(tex(makeCanvas(1024, 512, paintGloveBody), { aniso: 8 })),
+      plain: leather(),
+      strap: new THREE.MeshStandardMaterial({
+        map: tex(makeCanvas(512, 128, paintGloveCuff), { aniso: 8 }),
+        emissive: '#6e6052',
+        emissiveIntensity: 0.5,
+        roughness: 0.4,
         side: THREE.DoubleSide,
+        envMapIntensity: 0.9,
       }),
-    [],
-  );
-  const wrap = useMemo(
-    () => new THREE.MeshLambertMaterial({ color: '#1c1c1e', side: THREE.DoubleSide }),
-    [],
+      cuff: new THREE.MeshStandardMaterial({
+        color: '#f1eee8',
+        emissive: '#6e6052',
+        emissiveIntensity: 0.5,
+        roughness: 0.38,
+        side: THREE.DoubleSide,
+        envMapIntensity: 0.9,
+      }),
+      liner: new THREE.MeshStandardMaterial({ color: '#2a2724', roughness: 0.8 }),
+    };
+  }, []);
+  const glove = (side: 1 | -1) => (
+    <>
+      <mesh geometry={geo.body} material={mats.body} />
+      <mesh geometry={side === 1 ? geo.thumbL : geo.thumbR} material={mats.plain} />
+      <mesh geometry={geo.cuff} material={mats.cuff} />
+      <mesh geometry={geo.strap} material={mats.strap} />
+      <mesh geometry={geo.edges} material={mats.cuff} />
+      <mesh geometry={geo.liner} material={mats.liner} />
+    </>
   );
   return (
     <Interactive id="gloves" label="objects.gloves">
       <group name="boxing-gloves">
-        {/* de barriga para baixo */}
-        <group position={[0, 0.056, 0]} rotation={[0.04, 0.6, 0]}>
-          <mesh geometry={geo.left} material={leather} />
-          <mesh geometry={geo.cuff} material={dark} />
-          <mesh geometry={geo.strap} material={dark} />
-          <mesh geometry={geo.patch} material={white} />
-          <mesh geometry={geo.liner} material={dark} />
+        {/* de barriga para baixo, com as costas da mão (e o nome) para cima */}
+        <group position={[0, 0.058, 0]} rotation={[0.04, 0.6, 0]}>
+          {glove(1)}
         </group>
         {/* tombada de lado, encostada na outra */}
-        <group position={[0.17, 0.062, 0.07]} rotation={[0, -0.5, 1.35]}>
-          <mesh geometry={geo.right} material={leather} />
-          <mesh geometry={geo.cuff} material={dark} />
-          <mesh geometry={geo.strap} material={dark} />
-          <mesh geometry={geo.patch} material={white} />
-          <mesh geometry={geo.liner} material={dark} />
+        <group position={[0.19, 0.064, 0.08]} rotation={[0, -0.5, 1.35]}>
+          {glove(-1)}
         </group>
-        <mesh
-          geometry={geo.roll}
-          material={wrap}
-          position={[-0.16, 0, 0.1]}
-          rotation={[0, 0.7, 0]}
-        />
-        <mesh
-          geometry={geo.strip}
-          material={wrap}
-          position={[-0.13, 0, 0.12]}
-          rotation={[0, 0.3, 0]}
-        />
       </group>
     </Interactive>
   );

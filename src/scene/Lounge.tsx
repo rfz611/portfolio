@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
@@ -103,7 +104,7 @@ function PitSofa() {
       skirt: sweep(path, PROFILE.skirt, { uScale: 1.6, vRepeat: 0.3 }),
       plinth: sweep(path, PROFILE.plinth, { uScale: 1.6, vRepeat: 0.1 }),
       arm,
-      pillow: new THREE.SphereGeometry(1, 12, 8),
+      pillow: pillowGeometry(0.44, 0.42, 0.15),
     };
   }, []);
 
@@ -136,12 +137,41 @@ function PitSofa() {
           geometry={geo.pillow}
           material={mat.fabricGold}
           position={[x, y, z]}
-          rotation={[0.35, yaw, 0.25, 'YXZ']}
-          scale={[0.21, 0.2, 0.08]}
+          rotation={[0.3, yaw, 0.12, 'YXZ']}
         />
       ))}
     </group>
   );
+}
+
+/**
+ * Almofada quadrada de veludo: cheia no meio, fina na costura das bordas e
+ * com os quatro cantos levemente puxados para fora, como almofada de verdade.
+ */
+function pillowGeometry(w: number, h: number, t: number) {
+  let g: THREE.BufferGeometry = new THREE.BoxGeometry(1, 1, 1, 14, 14, 4);
+  g.deleteAttribute('normal');
+  g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i) * 2;
+    const y = p.getY(i) * 2;
+    const z = p.getZ(i);
+    const puff = Math.sqrt(Math.max(0, (1 - x * x) * (1 - y * y)));
+    p.setXYZ(
+      i,
+      (x / 2) * w * (1 + 0.05 * Math.pow(y, 4)),
+      (y / 2) * h * (1 + 0.05 * Math.pow(x, 4)),
+      z * t * (0.12 + 0.88 * puff),
+    );
+    uv[i * 2] = x / 2 + 0.5;
+    uv[i * 2 + 1] = y / 2 + 0.5;
+  }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.computeVertexNormals();
+  return g;
 }
 
 /** Dois degraus de carpete no lado aberto do rebaixo, com fio de luz. */

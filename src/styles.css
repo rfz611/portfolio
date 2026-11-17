@@ -472,6 +472,7 @@ main:focus {
   text-align: center;
 }
 
+.tv__shot video,
 .tv__shot img {
   width: 100%;
   height: 100%;

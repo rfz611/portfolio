@@ -203,21 +203,27 @@ export function Decor() {
       ))}
       <Sconce position={[-2.55, 1.85, south]} rotationY={Math.PI} />
       <Sconce position={[0.15, 1.85, south]} rotationY={Math.PI} />
-      <Painting
-        map={pieces.landscape}
-        size={[1.3, 0.8]}
-        position={[2.6, 1.78, south]}
-        rotationY={Math.PI}
-      />
+      {/* Caravaggio, Natividade (roubada pela Cosa Nostra em Palermo, 1969):
+          à vista de quem senta na cadeira do escritório, ao lado dos filmes */}
+      <Interactive id="nativity" label="objects.nativity">
+        <Painting
+          map={pieces.nativity}
+          size={[0.92, 1.27]}
+          position={[2.45, 1.8, south]}
+          rotationY={Math.PI}
+        />
+      </Interactive>
       {/* parede esquerda (oeste): disco emoldurado à direita de quem está no sofá
-          e o tigre de Rousseau grande à esquerda */}
+          e o Rembrandt grande à esquerda */}
       <FramedRecord position={[west, 1.72, -3.2]} rotationY={HALF_PI} />
       <Sconce position={[west, 1.85, -2.25]} rotationY={HALF_PI} />
-      <Interactive id="tiger" label="objects.tiger">
+      {/* Rembrandt, A Tempestade no Mar da Galileia (roubada em 1990, nunca achada),
+          um pouco mais para o centro da parede do que o quadro antigo */}
+      <Interactive id="storm" label="objects.storm">
         <Painting
-          map={pieces.tiger}
-          size={[1.45, 1.09]}
-          position={[west, 1.78, 3.35]}
+          map={pieces.storm}
+          size={[1.12, 1.4]}
+          position={[west, 1.8, 3.1]}
           rotationY={HALF_PI}
         />
       </Interactive>
