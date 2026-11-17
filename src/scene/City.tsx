@@ -1,176 +1,299 @@
-import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { BILLBOARD, GARAGE, ROOM } from '../config/layout';
-import { retile } from '../textures/canvas';
+import { GARAGE, ROOM } from '../config/layout';
+import { makeCanvas, retile, tex } from '../textures/canvas';
+import { paintAd, paintNoirWindows, type AdKind } from '../textures/city';
 import { hdr, lib } from '../textures/library';
 import { mulberry32 } from '../textures/random';
-import { Billboard } from './Billboard';
 import { box, merge } from './geo';
 
 const GROUND_Y = -95;
 const CENTER_X = (ROOM.x0 + GARAGE.x1) / 2;
+/** Uma repetição da fachada a cada 15 m: janelas pequenas e muitas, como de longe. */
+const FACADE_UV = 15;
+/** Quadra de 64 m com ruas de 16 m. */
+const PITCH = 80;
+const BLOCK = 64;
 
-/** Pinta o prédio inteiro com um brilho (mais longe = mais apagado) e escurece a laje. */
+/** Brilho do prédio (mais longe = mais apagado) e laje escura no telhado. */
 function tint(g: THREE.BufferGeometry, brightness: number) {
   const count = g.attributes.position.count;
   const colors = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
     const roof = i >= 8 && i < 16;
-    // telhado em tom grafite: a textura de janelas aparece fraquinha, como luzes de cobertura
-    colors[i * 3] = roof ? 0.16 : brightness * 0.95;
-    colors[i * 3 + 1] = roof ? 0.17 : brightness * 0.97;
-    colors[i * 3 + 2] = roof ? 0.22 : brightness * 1.1;
+    const b = roof ? 0.12 : brightness;
+    colors.set([b, b, b * 1.04], i * 3);
   }
   g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   return g;
 }
 
-/** Parque no meio da cidade, ao norte (em metros, a partir da sala). */
-const PARK = { x0: CENTER_X - 140, x1: CENTER_X + 140, z0: -620, z1: -200 } as const;
-const inPark = (x: number, z: number) =>
-  x > PARK.x0 - 12 && x < PARK.x1 + 12 && z > PARK.z0 - 12 && z < PARK.z1 + 12;
-const nearBillboard = (x: number, z: number) =>
-  Math.abs(x - BILLBOARD.x) < 40 && Math.abs(z - BILLBOARD.z) < 40;
-
-function buildCity() {
-  const r = mulberry32(77);
-  const groups: THREE.BufferGeometry[][] = [[], [], []];
-  const beacons: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < 92; i++) {
-    // a maioria dos prédios fica ao norte, atrás da parede de vidro
-    const north = r() < 0.72;
-    const angle = north ? -Math.PI * (0.1 + r() * 0.8) : r() * Math.PI * 2;
-    const distance = 36 + Math.pow(r(), 1.6) * 250;
-    // perto da janela (ao norte) ficam poucos prédios, para a vista ir longe
-    if (north && distance < 210 && Math.abs(Math.cos(angle)) < 0.55 && r() < 0.9) continue;
-    const x = CENTER_X + Math.cos(angle) * distance;
-    const z = Math.sin(angle) * distance;
-    if (Math.abs(x - CENTER_X) < 20 && Math.abs(z) < 16) continue;
-    if (inPark(x, z)) continue;
-    const w = 11 + r() * 22;
-    const d = 11 + r() * 22;
-    const tall = distance > 75 && r() < 0.16;
-    const top = tall ? 8 + r() * 55 : -72 + r() * 62;
-    const h = top - GROUND_Y;
-    const brightness = Math.max(0.22, Math.min(1, 1.2 - distance / 270));
-    groups[i % 3].push(tint(box([w, h, d], [x, top - h / 2, z], { uv: 8 }), brightness));
-    if (tall) {
-      const lamp = new THREE.SphereGeometry(0.7, 6, 4);
-      lamp.translate(x, top + 1.2, z);
-      beacons.push(lamp);
-    }
-  }
-
-  // skyline à frente da janela: torres acesas ao norte, a 85–260 m
-  const crowns: THREE.BufferGeometry[] = [];
-  const accents: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < 20; i++) {
-    // torres nas laterais; o centro fica aberto para o parque
-    const side = i % 2 === 0 ? 0.1 + r() * 0.26 : 0.64 + r() * 0.26;
-    const angle = -Math.PI * side;
-    const distance = 110 + r() * 240;
-    const x = CENTER_X + Math.cos(angle) * distance;
-    const z = Math.sin(angle) * distance;
-    if (inPark(x, z) || nearBillboard(x, z)) continue;
-    const w = 12 + r() * 14;
-    const d = 12 + r() * 14;
-    const top = -30 + Math.pow(r(), 1.3) * 80;
-    const h = top - GROUND_Y;
-    groups[i % 3].push(tint(box([w, h, d], [x, top - h / 2, z], { uv: 7 }), 0.95));
-    // coroa de luz no topo (âmbar ou branca)
-    crowns.push(box([w + 0.6, 1.4, d + 0.6], [x, top - 2.5, z]));
-    if (r() > 0.45) {
-      // recuo com antena e luz piscando
-      groups[(i + 1) % 3].push(tint(box([w * 0.6, 8, d * 0.6], [x, top + 4, z], { uv: 7 }), 0.9));
-      const spire = new THREE.CylinderGeometry(0.25, 0.4, 14, 6);
-      spire.translate(x, top + 15, z);
-      crowns.push(spire);
-      const lamp = new THREE.SphereGeometry(0.9, 6, 4);
-      lamp.translate(x, top + 22.5, z);
-      beacons.push(lamp);
-    }
-    if (r() > 0.7) {
-      // friso de luz azul subindo pela quina
-      accents.push(box([0.5, h * 0.7, 0.5], [x - w / 2, top - h * 0.35, z + d / 2]));
-    }
-  }
-
-  const ground = new THREE.PlaneGeometry(1500, 1500, 30, 30);
-  ground.rotateX(-Math.PI / 2);
-  ground.translate(CENTER_X, GROUND_Y, 0);
-  const pos = ground.attributes.position as THREE.BufferAttribute;
-  const uv = ground.attributes.uv as THREE.BufferAttribute;
-  const colors = new Float32Array(pos.count * 3);
-  for (let i = 0; i < pos.count; i++) {
-    const dist = Math.hypot(pos.getX(i) - CENTER_X, pos.getZ(i));
-    const b = Math.max(0, Math.min(1, 1.12 - dist / 560));
-    colors.set([b, b, b], i * 3);
-    uv.setXY(i, uv.getX(i) * 5, uv.getY(i) * 5);
-  }
-  ground.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-  return {
-    blocks: groups.map((g) => merge(g)),
-    beacons: merge(beacons),
-    crowns: merge(crowns),
-    accents: accents.length ? merge(accents) : null,
-    ground,
-  };
+interface Ad {
+  kind: AdKind;
+  /** Centro do painel, em metros. */
+  at: [number, number, number];
+  size: [number, number];
+  yaw: number;
 }
 
 /**
- * A cidade lá fora: céu, um tapete de luzes até o horizonte e prédios de
- * janelas acesas. Tudo feito no código, com poucas chamadas de desenho.
+ * Anúncios espalhados pela cidade (inventados): o maior de frente para a
+ * janela, os outros de lado, em prédios diferentes e alturas diferentes.
+ */
+const ADS: Ad[] = [
+  { kind: 'whisky', at: [CENTER_X + 14, -18, -205], size: [40, 13], yaw: -0.06 },
+  { kind: 'casino', at: [CENTER_X - 118, -42, -150], size: [22, 8.5], yaw: 0.62 },
+  { kind: 'jazz', at: [CENTER_X + 150, -30, -128], size: [20, 7.5], yaw: -0.7 },
+  { kind: 'cigars', at: [CENTER_X - 70, -6, -395], size: [24, 9], yaw: 0.25 },
+  { kind: 'cinema', at: [CENTER_X + 92, -46, -262], size: [5, 26], yaw: -0.35 },
+];
+
+/** Torres marcantes ao fundo: topo iluminado em degraus e antena com luz vermelha. */
+const LANDMARKS: [number, number, number, number][] = [
+  // x, z, largura, topo
+  [CENTER_X - 210, -480, 34, 150],
+  [CENTER_X + 40, -620, 30, 175],
+  [CENTER_X + 260, -430, 32, 120],
+  [CENTER_X - 380, -700, 28, 110],
+  [CENTER_X + 430, -760, 30, 140],
+  [CENTER_X - 30, -880, 26, 95],
+  [CENTER_X + 170, -300, 26, 70],
+];
+
+/** O lote está na frente de um anúncio ou de uma torre marcante? */
+function reserved(x: number, z: number) {
+  for (const ad of ADS) {
+    if (Math.abs(x - ad.at[0]) < 22 && Math.abs(z - ad.at[2]) < 22) return true;
+  }
+  for (const [lx, lz, w] of LANDMARKS) {
+    if (Math.abs(x - lx) < w && Math.abs(z - lz) < w) return true;
+  }
+  return false;
+}
+
+function buildCity() {
+  const r = mulberry32(1979);
+  const groups: THREE.BufferGeometry[][] = [[], [], []];
+  const litTops: THREE.BufferGeometry[] = [];
+  const beacons: THREE.BufferGeometry[] = [];
+  const spires: THREE.BufferGeometry[] = [];
+
+  /** Prédio com recuos: base, um ou dois andares menores e às vezes uma antena. */
+  const tower = (
+    x: number,
+    z: number,
+    w: number,
+    d: number,
+    top: number,
+    b: number,
+    lit = false,
+  ) => {
+    const group = groups[Math.floor(r() * 3)];
+    const tiers = top > 0 ? 3 : top > -40 ? 2 : 1;
+    let bottom = GROUND_Y;
+    let cw = w;
+    let cd = d;
+    for (let t = 0; t < tiers; t++) {
+      const last = t === tiers - 1;
+      const height = last ? top - bottom : (top - bottom) * (t === 0 ? 0.72 : 0.6);
+      const g = box([cw, height, cd], [x, bottom + height / 2, z], { uv: FACADE_UV });
+      if (lit && last) litTops.push(g);
+      else group.push(tint(g, b));
+      bottom += height;
+      cw *= 0.72;
+      cd *= 0.72;
+    }
+    if (lit || (top > 10 && r() > 0.4)) {
+      spires.push(new THREE.CylinderGeometry(0.3, 0.9, 22, 6).translate(x, top + 11, z));
+      beacons.push(new THREE.SphereGeometry(1, 6, 4).translate(x, top + 23, z));
+    }
+  };
+
+  // quadras em grade ao norte e dos lados: perto, prédios mais baixos na
+  // frente da janela (a vista vai longe); mais longe, mais altos e apagados
+  for (let gx = -8; gx <= 8; gx++) {
+    for (let gz = 0; gz < 13; gz++) {
+      const bx = CENTER_X + gx * PITCH;
+      const bz = -40 - gz * PITCH - BLOCK / 2;
+      const lots = 1 + Math.floor(r() * 3);
+      const lotW = BLOCK / lots;
+      for (let k = 0; k < lots; k++) {
+        const x = bx - BLOCK / 2 + lotW * (k + 0.5);
+        const z = bz + (r() - 0.5) * 10;
+        if (reserved(x, z)) continue;
+        const dist = Math.hypot(x - CENTER_X, z);
+        const ahead = Math.abs(Math.atan2(x - CENTER_X, -z)) < 0.45;
+        let top = -70 + r() * 55 + Math.min(60, dist * 0.06) * r();
+        if (ahead && dist < 260) top = Math.min(top, -28);
+        if (!ahead && dist < 200 && r() < 0.25) top = 5 + r() * 35; // vizinhos altos dos lados
+        const w = lotW - 4 - r() * 6;
+        const d = BLOCK - 6 - r() * 14;
+        const brightness = Math.max(0.35, 1.05 - dist / 1300);
+        tower(x, z, w, d, top, brightness);
+      }
+    }
+  }
+  for (const [x, z, w, top] of LANDMARKS) {
+    tower(x, z, w, w * 0.9, top, 0.85, true);
+  }
+
+  // avenidas de luz de sódio e faróis de carro, no chão entre as quadras
+  const streets: THREE.BufferGeometry[] = [];
+  const cars: THREE.BufferGeometry[] = [];
+  const tails: THREE.BufferGeometry[] = [];
+  const length = 13 * PITCH + 200;
+  for (let gx = -8; gx <= 9; gx++) {
+    const x = CENTER_X + gx * PITCH - PITCH / 2;
+    streets.push(box([1.4, 0.2, length], [x, GROUND_Y + 0.2, -length / 2 + 40]));
+    for (let c = 0; c < 26; c++) {
+      const z = -20 - r() * length;
+      (r() > 0.5 ? cars : tails).push(
+        box([0.9, 0.3, 2.2], [x + (r() > 0.5 ? 3 : -3), GROUND_Y + 0.4, z]),
+      );
+    }
+  }
+  for (let gz = 0; gz <= 13; gz++) {
+    const z = -40 - gz * PITCH + PITCH / 2 - PITCH;
+    streets.push(box([17 * PITCH, 0.2, 1.4], [CENTER_X, GROUND_Y + 0.2, z]));
+  }
+
+  return {
+    blocks: groups.map((g) => merge(g)),
+    litTops: merge(litTops),
+    spires: merge(spires),
+    beacons: merge(beacons),
+    streets: merge(streets),
+    cars: merge(cars),
+    tails: merge(tails),
+  };
+}
+
+function AdBoard({ ad }: { ad: Ad }) {
+  const { mat } = lib();
+  const [w, h] = ad.size;
+  const face = useMemo(() => {
+    const vertical = h > w;
+    const map = tex(
+      makeCanvas(vertical ? 160 : 1024, vertical ? 832 : Math.round((1024 * h) / w), (c, cw, ch) =>
+        paintAd(c, cw, ch, ad.kind),
+      ),
+      { clamp: true, aniso: 8 },
+    );
+    return new THREE.MeshBasicMaterial({ map, color: hdr('#ffffff', 1.05), toneMapped: false });
+  }, [ad.kind, w, h]);
+  const geo = useMemo(
+    () => ({
+      frame: merge([
+        box([w + 1, 0.8, 0.8], [0, h / 2 + 0.4, -0.4]),
+        box([w + 1, 0.8, 0.8], [0, -h / 2 - 0.4, -0.4]),
+        box([0.8, h + 1.6, 0.8], [-w / 2 - 0.5, 0, -0.4]),
+        box([0.8, h + 1.6, 0.8], [w / 2 + 0.5, 0, -0.4]),
+      ]),
+      // prédio onde o anúncio está pendurado
+      building: box([w + 14, h + 120, 26], [0, -(h + 120) / 2 + h / 2 + 8, -14], {
+        uv: FACADE_UV,
+      }),
+    }),
+    [w, h],
+  );
+  const facade = mat.cityB;
+  return (
+    <group position={ad.at} rotation={[0, ad.yaw, 0]}>
+      <mesh geometry={geo.building} material={facade} />
+      <mesh geometry={geo.frame} material={mat.darkMetal} />
+      <mesh position={[0, 0, 0.05]} material={face}>
+        <planeGeometry args={[w, h]} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * A cidade lá fora, em clima neo-noir: quadras de prédios escuros e
+ * variados com janelas quentes, torres com o topo iluminado, avenidas de
+ * luz de sódio correndo até o horizonte e uma neblina arroxeada que dá a
+ * profundidade. Anúncios inventados espalhados em prédios diferentes.
  */
 export function City() {
-  const { mat, tex } = lib();
+  const { mat, tex: t } = lib();
+  const scene = useThree((s) => s.scene);
   const geo = useMemo(buildCity, []);
+
+  // neblina só a partir de 140 m: não mexe na sala, apaga a cidade ao longe
+  useEffect(() => {
+    scene.fog = new THREE.Fog('#1d1636', 110, 950);
+    return () => {
+      scene.fog = null;
+    };
+  }, [scene]);
+
+  const mats = useMemo(() => {
+    const windows = (seed: number, lit: number) =>
+      new THREE.MeshBasicMaterial({
+        map: tex(
+          makeCanvas(256, 256, (c, w, h) => paintNoirWindows(c, w, h, seed, lit)),
+          {
+            aniso: 8,
+          },
+        ),
+        vertexColors: true,
+      });
+    return {
+      blocks: [windows(211, 0.3), windows(223, 0.42), windows(227, 0.2)],
+      // topo das torres marcantes iluminado por refletores (como os arranha-céus antigos)
+      litTop: new THREE.MeshBasicMaterial({
+        map: tex(makeCanvas(256, 256, (c, w, h) => paintNoirWindows(c, w, h, 229, 0.5))),
+        color: hdr('#ffdcb0', 1.9),
+        toneMapped: false,
+      }),
+      spire: new THREE.MeshBasicMaterial({ color: '#2a2630' }),
+      street: new THREE.MeshBasicMaterial({ color: hdr('#ffa64a', 1.1), toneMapped: false }),
+      car: new THREE.MeshBasicMaterial({ color: hdr('#fff3dc', 1.3), toneMapped: false }),
+      tail: new THREE.MeshBasicMaterial({ color: hdr('#ff2a1a', 1.3), toneMapped: false }),
+      ground: new THREE.MeshBasicMaterial({ color: '#06060a' }),
+      sky: (() => {
+        const m = mat.sky.clone();
+        m.fog = false;
+        return m;
+      })(),
+      facade: new THREE.MeshBasicMaterial({ map: retile(t.facade, 3, 10), color: '#4a4a55' }),
+    };
+  }, [mat, t]);
+
   const beacon = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
   const base = useRef(hdr('#ff2418', 3));
-  const crown = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.25), toneMapped: false }),
-    [],
-  );
-  const accent = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: hdr('#5f8dff', 1.4), toneMapped: false }),
-    [],
-  );
-  const facade = useMemo(
-    () => new THREE.MeshBasicMaterial({ map: retile(tex.facade, 3, 10), color: '#4a4a55' }),
-    [tex],
-  );
-
-  // luzes de topo de prédio piscando devagar
   useFrame(({ clock }) => {
     const pulse = 0.25 + 0.75 * Math.pow(0.5 + 0.5 * Math.sin(clock.elapsedTime * 2.1), 3);
     beacon.color.copy(base.current).multiplyScalar(pulse);
   });
 
-  const blocks = [mat.cityA, mat.cityB, mat.cityC];
   return (
     <group name="city">
-      <mesh material={mat.sky} renderOrder={-10} frustumCulled={false}>
-        <sphereGeometry args={[760, 24, 16]} />
+      <mesh material={mats.sky} renderOrder={-10} frustumCulled={false}>
+        <sphereGeometry args={[1100, 24, 16]} />
       </mesh>
-      <mesh geometry={geo.ground} material={mat.cityGround} />
-      {/* parque no meio da cidade */}
       <mesh
-        position={[(PARK.x0 + PARK.x1) / 2, GROUND_Y + 0.3, (PARK.z0 + PARK.z1) / 2]}
+        position={[CENTER_X, GROUND_Y, -600]}
         rotation={[-Math.PI / 2, 0, 0]}
-        material={mat.park}
+        material={mats.ground}
       >
-        <planeGeometry args={[PARK.x1 - PARK.x0, PARK.z1 - PARK.z0]} />
+        <planeGeometry args={[3000, 3000]} />
       </mesh>
-      <Billboard />
+      <mesh geometry={geo.streets} material={mats.street} />
+      <mesh geometry={geo.cars} material={mats.car} />
+      <mesh geometry={geo.tails} material={mats.tail} />
       {geo.blocks.map((g, i) => (
-        <mesh key={i} geometry={g} material={blocks[i]} />
+        <mesh key={i} geometry={g} material={mats.blocks[i]} />
       ))}
+      <mesh geometry={geo.litTops} material={mats.litTop} />
+      <mesh geometry={geo.spires} material={mats.spire} />
       <mesh geometry={geo.beacons} material={beacon} />
-      <mesh geometry={geo.crowns} material={crown} />
-      {geo.accents && <mesh geometry={geo.accents} material={accent} />}
+      {ADS.map((ad) => (
+        <AdBoard key={ad.kind} ad={ad} />
+      ))}
       {/* o prédio abaixo da cobertura */}
-      <mesh position={[CENTER_X, -33.1, ROOM.z1 + 0.02]} material={facade}>
+      <mesh position={[CENTER_X, -33.1, ROOM.z1 + 0.02]} material={mats.facade}>
         <planeGeometry args={[GARAGE.x1 - ROOM.x0 + 0.2, 64]} />
       </mesh>
     </group>

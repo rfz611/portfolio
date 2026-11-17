@@ -439,13 +439,15 @@ export function paintBlob(ctx: Ctx, w: number, h: number) {
 
 /** Céu noturno: quase preto no alto, névoa arroxeada no horizonte. */
 export function paintSky(ctx: Ctx, w: number, h: number) {
+  // noite neo-noir: alto bem escuro, horizonte com bruma arroxeada da luz da cidade
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, '#020309');
-  g.addColorStop(0.36, '#050716');
-  g.addColorStop(0.47, '#0f0f2c');
-  g.addColorStop(0.5, '#2a1a3c');
-  g.addColorStop(0.53, '#120d24');
-  g.addColorStop(1, '#03040b');
+  g.addColorStop(0, '#04050f');
+  g.addColorStop(0.3, '#0c0e26');
+  g.addColorStop(0.42, '#1a1838');
+  g.addColorStop(0.49, '#2c2350');
+  g.addColorStop(0.52, '#3a2a58');
+  g.addColorStop(0.56, '#1d1636');
+  g.addColorStop(1, '#0a0814');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
 }

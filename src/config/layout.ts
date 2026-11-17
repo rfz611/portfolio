@@ -69,4 +69,3 @@ export const LAPTOP = {
 } as const;
 
 /** Outdoor com o nome, na fachada de um prédio em frente à janela. */
-export const BILLBOARD = { x: 42, y: 6, z: -112, w: 34, h: 12.5, yaw: -0.36 } as const;
