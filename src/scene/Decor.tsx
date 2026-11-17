@@ -9,7 +9,7 @@ import { hdr, lib } from '../textures/library';
 import { paintPoster } from '../textures/art';
 import { box, crease, cyl, merge } from './geo';
 import { Interactive } from '../objects/Interactive';
-import { coverUrl, DEFAULT_TRACK } from '../content/tracks';
+import { coverUrl } from '../content/tracks';
 
 const HALF_PI = Math.PI / 2;
 
@@ -133,25 +133,6 @@ function SideTable({ position }: { position: V3 }) {
   );
 }
 
-/** Manta dobrada largada sobre o encosto do sofá. */
-function Throw({ position, rotationY }: { position: V3; rotationY: number }) {
-  const geo = useMemo(
-    () =>
-      crease(
-        merge([
-          box([0.7, 0.03, 0.34], [0, 0, 0.0]),
-          box([0.7, 0.36, 0.03], [0, -0.17, 0.17], { rot: [0.12, 0, 0] }),
-        ]),
-        40,
-      ),
-    [],
-  );
-  const material = useMemo(() => new THREE.MeshLambertMaterial({ color: '#cdbb98' }), []);
-  return (
-    <mesh geometry={geo} material={material} position={position} rotation={[0, rotationY, 0.04]} />
-  );
-}
-
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const { t } = useTranslation();
@@ -188,13 +169,13 @@ export function Decor() {
         />
       </Interactive>
       {/* parede esquerda (oeste): disco emoldurado à direita de quem está no sofá
-          e "A Noite Estrelada" grande à esquerda */}
+          e o tigre de Rousseau grande à esquerda */}
       <FramedRecord position={[west, 1.72, -3.2]} rotationY={HALF_PI} />
       <Sconce position={[west, 1.85, -2.25]} rotationY={HALF_PI} />
-      <Interactive id="starry" label="objects.starry">
+      <Interactive id="tiger" label="objects.tiger">
         <Painting
-          map={pieces.starry}
-          size={[1.4, 1.1]}
+          map={pieces.tiger}
+          size={[1.45, 1.09]}
           position={[west, 1.78, 3.35]}
           rotationY={HALF_PI}
         />
@@ -202,16 +183,29 @@ export function Decor() {
       {/* pontas do sofá */}
       <SideTable position={[PIT.x0 + 0.42, -PIT.depth, PIT.z0 + 0.42]} />
       <SideTable position={[PIT.x0 + 0.42, -PIT.depth, PIT.z1 - 0.42]} />
-      <Throw position={[1.05, -0.03, PIT.z0 + 0.1]} rotationY={0} />
     </group>
   );
 }
 
 /**
- * Disco emoldurado (como os discos de ouro em estúdio): caixa de mogno
- * com fundo de veludo escuro, a capa de "Raining but It's Ok" e o vinil
- * vermelho saindo dela, com uma plaquinha de latão.
+ * Disco de platina emoldurado, como os de estúdio: "Pearls", da Sade,
+ * com a capa, o disco prateado brilhante e a plaquinha gravada.
  */
+const PLATINUM_TRACK = 'pearls';
+
+/** Plaquinha de latão gravada do disco de platina. */
+function paintPlaque(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = '#b8893a';
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#2a1a08';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'italic 600 22px "Bodoni Moda", serif';
+  ctx.fillText('Sade · Pearls', w / 2, h * 0.42);
+  ctx.font = '700 9px "Manrope Variable", sans-serif';
+  ctx.fillText('DISCO DE PLATINA', w / 2, h * 0.8);
+}
+
 function FramedRecord({ position, rotationY }: { position: V3; rotationY: number }) {
   const { mat } = lib();
   const w = 0.92;
@@ -235,7 +229,7 @@ function FramedRecord({ position, rotationY }: { position: V3; rotationY: number
   );
   const cover = useMemo(() => {
     const m = new THREE.MeshStandardMaterial({ color: '#333', roughness: 0.6 });
-    new THREE.TextureLoader().load(coverUrl(DEFAULT_TRACK), (t) => {
+    new THREE.TextureLoader().load(coverUrl(PLATINUM_TRACK), (t) => {
       t.colorSpace = THREE.SRGBColorSpace;
       m.map = t;
       m.color.set('#ffffff');
@@ -244,6 +238,26 @@ function FramedRecord({ position, rotationY }: { position: V3; rotationY: number
     return m;
   }, []);
   const velvet = useMemo(() => new THREE.MeshLambertMaterial({ color: '#120a0c' }), []);
+  const platinum = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#e8eaee',
+        metalness: 1,
+        roughness: 0.12,
+        envMapIntensity: 2.2,
+      }),
+    [],
+  );
+  const plaque = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        map: tex(makeCanvas(256, 48, paintPlaque), { clamp: true }),
+        metalness: 0.8,
+        roughness: 0.3,
+        envMapIntensity: 1.4,
+      }),
+    [],
+  );
   return (
     <Interactive id="framed-record" label="objects.framedRecord">
       <group position={position} rotation={[0, rotationY, 0]}>
@@ -251,12 +265,12 @@ function FramedRecord({ position, rotationY }: { position: V3; rotationY: number
         <mesh position={[0, 0, 0.008]} material={velvet}>
           <planeGeometry args={[w, h]} />
         </mesh>
-        <mesh geometry={geo.disc} material={mat.vinylRed} position={[0.12, 0.02, 0.014]} />
+        <mesh geometry={geo.disc} material={platinum} position={[0.12, 0.02, 0.014]} />
         <mesh geometry={geo.label} material={mat.labelCream} position={[0.12, 0.02, 0.0145]} />
         <mesh position={[-0.13, 0.02, 0.018]} material={cover}>
           <planeGeometry args={[0.34, 0.34]} />
         </mesh>
-        <mesh geometry={geo.plaque} material={mat.brass} />
+        <mesh geometry={geo.plaque} material={plaque} />
         {/* vidro da moldura */}
         <mesh position={[0, 0, 0.066]} material={mat.clearGlass} renderOrder={6}>
           <planeGeometry args={[w, h]} />

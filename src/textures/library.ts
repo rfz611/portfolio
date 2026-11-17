@@ -426,7 +426,7 @@ function makeMaterials(t: Textures) {
     sky: new THREE.MeshBasicMaterial({ map: t.sky, side: THREE.BackSide, depthWrite: false }),
     neonSign: new THREE.MeshBasicMaterial({
       map: t.neonName,
-      color: hdr('#ffffff', 2.6),
+      color: hdr('#ffffff', 1.7),
       transparent: true,
       depthWrite: false,
       toneMapped: false,
@@ -440,7 +440,7 @@ function makeMaterials(t: Textures) {
     marbleFloor: std({ map: t.marbleTiles, roughness: 0.2, metalness: 0.1, envMapIntensity: 1 }),
     paperSheet: matte({ map: t.paper }),
     aluminum: std({ color: '#b9bcc2', roughness: 0.32, metalness: 0.85, envMapIntensity: 1.1 }),
-    mirror: std({ color: '#5d6a86', roughness: 0.06, metalness: 1, envMapIntensity: 1.5 }),
+    mirror: std({ color: '#5d6a86', roughness: 0.3, metalness: 1, envMapIntensity: 1.2 }),
     bankerShade: new THREE.MeshStandardMaterial({
       color: '#0f4a2a',
       emissive: '#2a8a4a',

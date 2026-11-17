@@ -65,6 +65,11 @@ export interface SceneState {
   setVolume: (volume: number) => void;
   toggleMuted: () => void;
   requestTrack: (id: string) => void;
+  /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
+  drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
+  drinkServed: boolean;
+  orderDrink: (kind: 'whisky' | 'martini' | 'negroni') => void;
+  setDrinkServed: (served: boolean) => void;
   setDeck: (deck: DeckState, trackId?: string) => void;
   setAvailability: (id: string, value: Availability) => void;
   setLoadProgress: (progress: number) => void;
@@ -114,6 +119,11 @@ export const useScene = create<SceneState>()(
       setVolume: (volume) => set({ volume: clamp(volume, 0, MAX_VOLUME) }),
       toggleMuted: () => set((s) => ({ muted: !s.muted })),
       requestTrack: (id) => set({ requestedTrackId: id, deck: 'changing' }),
+      drink: null,
+      drinkServed: false,
+      orderDrink: (kind) =>
+        set((s) => ({ drink: { kind, order: (s.drink?.order ?? 0) + 1 }, drinkServed: false })),
+      setDrinkServed: (drinkServed) => set({ drinkServed }),
       setDeck: (deck, trackId) =>
         set((s) => ({
           deck,

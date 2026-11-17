@@ -8,11 +8,11 @@ type V3 = [number, number, number];
  * clica-se no marcador do chão ou nas setas do seletor.
  */
 export interface Spot extends Shot {
-  id: 'sofa' | 'entrada' | 'escritorio' | 'bar' | 'janela' | 'geral';
+  id: 'sofa' | 'entrada' | 'escritorio' | 'cadeira' | 'bar' | 'janela' | 'geral';
   /** Chave de tradução do nome do lugar. */
   label: string;
-  /** Onde fica o marcador no chão. */
-  marker: V3;
+  /** Onde fica o marcador no chão (null = sem marcador). */
+  marker: V3 | null;
 }
 
 export const SPOTS: Spot[] = [
@@ -44,6 +44,15 @@ export const SPOTS: Spot[] = [
     marker: [-2.45, 0.012, -0.95],
   },
   {
+    id: 'cadeira',
+    label: 'spots.cadeira',
+    position: [-3.23, 1.2, -3.78],
+    target: [-3.25, 0.78, -2.55],
+    hfov: 80,
+    portrait: { hfov: 66, target: [-3.25, 0.6, -2.6] },
+    marker: null,
+  },
+  {
     id: 'bar',
     label: 'spots.bar',
     position: [4.6, 1.6, -0.45],
@@ -56,7 +65,7 @@ export const SPOTS: Spot[] = [
     id: 'janela',
     label: 'spots.janela',
     position: [-0.4, 1.62, -2.35],
-    target: [-0.4, 1.55, -9],
+    target: [-0.4, 0.9, -9],
     hfov: 82,
     portrait: { hfov: 66 },
     marker: [-0.4, 0.012, -2.35],

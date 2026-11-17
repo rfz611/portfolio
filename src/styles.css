@@ -77,6 +77,17 @@ main:focus {
   outline: none;
 }
 
+/* ---------- corte de cinema entre planos ---------- */
+
+.cut {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ---------- controles (VT323, canto de baixo) ---------- */
 
 .visually-hidden {
@@ -336,6 +347,35 @@ main:focus {
   color: var(--amber);
   text-transform: uppercase;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.95);
+}
+
+.bar-menu {
+  position: fixed;
+  left: 50%;
+  bottom: 58px;
+  z-index: 30;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.bar-menu__title {
+  margin: 0 0 4px;
+  font: 1.5rem/1 var(--font-crt);
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.95);
+}
+
+.bar-menu__options {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.bar-menu .ctl[disabled] {
+  opacity: 0.4;
+  cursor: default;
 }
 
 @keyframes hint {

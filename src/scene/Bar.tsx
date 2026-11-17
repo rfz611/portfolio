@@ -6,7 +6,9 @@ import { palette } from '../config/palette';
 import { BarService } from '../objects/BarService';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
-import { lib } from '../textures/library';
+import { hdr, lib } from '../textures/library';
+import { makeCanvas, tex } from '../textures/canvas';
+import { LABELS, paintLabel } from '../textures/labels';
 import { mulberry32 } from '../textures/random';
 import { box, crease, cyl, flat, lathe, merge } from './geo';
 import { OptionalModel } from './OptionalModel';
@@ -42,7 +44,7 @@ function zoneShape(r: number) {
   return s;
 }
 
-/** Três formatos de garrafa (raio, altura). Rótulos lisos, sem marca. */
+/** Cinco formatos de garrafa (raio, altura). */
 const BOTTLES: [number, number][][] = [
   [
     [0.001, 0],
@@ -68,46 +70,131 @@ const BOTTLES: [number, number][][] = [
     [0.012, 0.3],
     [0.012, 0.37],
   ],
+  [
+    [0.001, 0],
+    [0.045, 0],
+    [0.047, 0.15],
+    [0.02, 0.18],
+    [0.016, 0.23],
+  ],
+  [
+    [0.001, 0],
+    [0.038, 0],
+    [0.04, 0.03],
+    [0.04, 0.2],
+    [0.02, 0.22],
+    [0.015, 0.29],
+  ],
 ];
+const LABEL_Y = [0.07, 0.04, 0.09, 0.05, 0.07];
 
-/** Garrafas espalhadas numa prateleira (largura em x, a partir do centro). */
-function bottles(seed: number, y: number, z: number, width: number, count: number) {
+/** Garrafas lado a lado numa prateleira, com alturas e rótulos variados. */
+function bottleRow(seed: number, y: number, width: number, count: number) {
   const r = mulberry32(seed);
-  const glass: THREE.BufferGeometry[][] = [[], [], []];
-  const labels: THREE.BufferGeometry[] = [];
+  const glass: THREE.BufferGeometry[][] = [[], [], [], []];
+  const labels: THREE.BufferGeometry[][] = LABELS.map(() => []);
   const caps: THREE.BufferGeometry[] = [];
   for (let i = 0; i < count; i++) {
-    const shape = BOTTLES[Math.floor(r() * 3)];
-    const x = -width / 2 + ((i + 0.5) / count) * width + (r() - 0.5) * 0.05;
-    const zz = z + (r() - 0.5) * 0.08;
+    const kind = Math.floor(r() * BOTTLES.length);
+    const shape = BOTTLES[kind];
+    const x = -width / 2 + ((i + 0.5) / count) * width + (r() - 0.5) * 0.015;
+    const z = -0.05 + (i % 2) * 0.07 + (r() - 0.5) * 0.02;
     const top = shape[shape.length - 1][1];
-    glass[Math.floor(r() * 3)].push(lathe(shape, { seg: 10 }, [x, y, zz]));
-    const radius = shape[1][0];
-    labels.push(
-      cyl(radius + 0.001, radius + 0.001, 0.07, [x, y + 0.09, zz], { seg: 10, open: true }),
+    glass[Math.floor(r() * 4)].push(lathe(shape, { seg: 10 }, [x, y, z]));
+    const radius = Math.max(shape[1][0], shape[2][0]);
+    labels[Math.floor(r() * LABELS.length)].push(
+      new THREE.CylinderGeometry(radius + 0.0015, radius + 0.0015, 0.075, 12, 1, true)
+        .rotateY(Math.PI)
+        .translate(x, y + LABEL_Y[kind] + 0.035, z),
     );
-    caps.push(cyl(0.014, 0.014, 0.02, [x, y + top + 0.008, zz], { seg: 8 }));
+    caps.push(cyl(0.015, 0.015, 0.022, [x, y + top + 0.01, z], { seg: 8 }));
   }
   return { glass, labels, caps };
 }
 
+/** Mini luminária de mesa toda cromada (cogumelo), acesa por baixo. */
+function MiniLamp() {
+  const { mat } = lib();
+  const geo = useMemo(
+    () => ({
+      chrome: merge([
+        cyl(0.055, 0.06, 0.012, [0, 0.006, 0], { seg: 20 }),
+        cyl(0.007, 0.007, 0.2, [0, 0.11, 0], { seg: 8 }),
+        lathe(
+          [
+            [0.09, 0.2],
+            [0.085, 0.225],
+            [0.06, 0.255],
+            [0.001, 0.27],
+          ],
+          { seg: 24 },
+        ),
+      ]),
+      glow: new THREE.CircleGeometry(0.084, 24).rotateX(HALF_PI).translate(0, 0.2, 0),
+    }),
+    [],
+  );
+  const glow = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a8', 1.8), toneMapped: false }),
+    [],
+  );
+  return (
+    <group name="mini-lamp">
+      <mesh geometry={geo.chrome} material={mat.chrome} />
+      <mesh geometry={geo.glow} material={glow} />
+      <pointLight
+        position={[0, 0.16, 0.05]}
+        color="#ffc98a"
+        intensity={1.6}
+        distance={1.6}
+        decay={1.8}
+      />
+    </group>
+  );
+}
+
+/** Vasinho cromado com uma plantinha. */
+function SmallPlant() {
+  const { mat } = lib();
+  const geo = useMemo(() => {
+    const leaves: THREE.BufferGeometry[] = [];
+    for (let k = 0; k < 7; k++) {
+      const g = new THREE.PlaneGeometry(0.09, 0.16).translate(0, 0.08, 0);
+      g.rotateX(-0.5 - (k % 2) * 0.25);
+      g.rotateY((k / 7) * Math.PI * 2);
+      g.translate(0, 0.1, 0);
+      leaves.push(g);
+    }
+    return {
+      pot: cyl(0.055, 0.045, 0.1, [0, 0.05, 0], { seg: 16 }),
+      leaves: merge(leaves),
+    };
+  }, []);
+  return (
+    <group name="small-plant">
+      <mesh geometry={geo.pot} material={mat.chrome} />
+      <mesh geometry={geo.leaves} material={mat.monstera} />
+    </group>
+  );
+}
+
 /**
  * Cristaleira atrás do balcão, encostada no vidro: armário embaixo,
- * espelho ao fundo, prateleiras de vidro com fita azul e as garrafas.
- * Sobe até o rebaixo do teto, então vira parte da parede.
+ * espelho ao fundo e três prateleiras de vidro cheias de garrafas com
+ * rótulos, mais a mini luminária cromada, a plantinha e um decanter.
  */
 function BackBar() {
   const { mat } = lib();
   const geo = useMemo(() => {
     const w = 2.6;
     const tall = SOFFIT_Y - 0.95;
-    const levels = [
-      { y: 0.99, n: 7 },
-      { y: 1.6, n: 6 },
-      { y: 2.2, n: 6 },
+    const rows = [
+      bottleRow(40, 0.99, 1.45, 11),
+      bottleRow(41, 1.6, w - 0.4, 17),
+      bottleRow(42, 2.2, w - 0.4, 17),
     ];
-    const sets = levels.map((l, i) => bottles(40 + i, l.y, -0.05, w - 0.5, l.n));
     const doors = [-0.95, -0.32, 0.32, 0.95];
+    const mergeOr = (list: THREE.BufferGeometry[]) => (list.length ? merge(list) : null);
     return {
       cabinet: merge([
         box([w, 0.95, 0.5], [0, 0.475, 0]),
@@ -127,12 +214,54 @@ function BackBar() {
       ),
       shelves: merge([1.58, 2.18].map((y) => box([w - 0.28, 0.015, 0.36], [0, y, -0.03]))),
       leds: merge([1.565, 2.165, 2.96].map((y) => box([w - 0.3, 0.01, 0.01], [0, y, 0.14]))),
-      bottles: sets.map((s) => s.glass.map((g) => (g.length ? merge(g) : null))),
-      labels: merge(sets.flatMap((s) => s.labels)),
-      caps: merge(sets.flatMap((s) => s.caps)),
+      glass: [0, 1, 2, 3].map((k) => mergeOr(rows.flatMap((row) => row.glass[k]))),
+      labels: LABELS.map((_, k) => mergeOr(rows.flatMap((row) => row.labels[k]))),
+      caps: merge(rows.flatMap((row) => row.caps)),
+      decanter: lathe(
+        [
+          [0.001, 0],
+          [0.07, 0],
+          [0.075, 0.08],
+          [0.05, 0.16],
+          [0.022, 0.19],
+          [0.022, 0.21],
+        ],
+        { seg: 16 },
+        [0.45, 0.99, 0.05],
+      ),
+      stopper: new THREE.SphereGeometry(0.03, 10, 8).translate(0.45, 1.23, 0.05),
     };
   }, []);
-  const glassMats = [mat.bottleGreen, mat.bottleAmber, mat.bottleClear];
+  const glassMats = useMemo(
+    () => [
+      mat.bottleGreen,
+      mat.bottleAmber,
+      mat.bottleClear,
+      new THREE.MeshStandardMaterial({
+        color: '#3a0d10',
+        roughness: 0.08,
+        transparent: true,
+        opacity: 0.85,
+        envMapIntensity: 1.8,
+      }),
+    ],
+    [mat],
+  );
+  const labelMats = useMemo(
+    () =>
+      LABELS.map(
+        (style) =>
+          new THREE.MeshStandardMaterial({
+            map: tex(
+              makeCanvas(256, 64, (c, w, h) => paintLabel(c, w, h, style)),
+              { clamp: true },
+            ),
+            roughness: 0.6,
+            envMapIntensity: 0.3,
+          }),
+      ),
+    [],
+  );
   return (
     <group name="bar_bottles">
       <mesh geometry={geo.cabinet} material={mat.mahogany} />
@@ -142,15 +271,19 @@ function BackBar() {
       <mesh geometry={geo.mirror} material={mat.mirror} />
       <mesh geometry={geo.shelves} material={mat.clearGlass} renderOrder={5} />
       <mesh geometry={geo.leds} material={mat.neonBlue} />
-      <mesh geometry={geo.labels} material={mat.labelCream} />
       <mesh geometry={geo.caps} material={mat.brass} />
-      {geo.bottles.map((level, i) =>
-        level.map((g, k) =>
-          g ? (
-            <mesh key={`${i}-${k}`} geometry={g} material={glassMats[k]} renderOrder={6} />
-          ) : null,
-        ),
+      {geo.labels.map((g, k) => (g ? <mesh key={k} geometry={g} material={labelMats[k]} /> : null))}
+      {geo.glass.map((g, k) =>
+        g ? <mesh key={k} geometry={g} material={glassMats[k]} renderOrder={6} /> : null,
       )}
+      <mesh geometry={geo.decanter} material={mat.bottleAmber} renderOrder={6} />
+      <mesh geometry={geo.stopper} material={mat.clearGlass} />
+      <group position={[-0.98, 0.99, 0.08]}>
+        <MiniLamp />
+      </group>
+      <group position={[1.0, 0.99, 0.06]}>
+        <SmallPlant />
+      </group>
     </group>
   );
 }
@@ -165,9 +298,18 @@ function Counter() {
   const { mat } = lib();
   const geo = useMemo(() => {
     const path = arcPath();
-    const rail = new THREE.CatmullRomCurve3(
-      arcPath(ARC.r + 0.42, 30).map(([x, z]) => new THREE.Vector3(x, 0.2, z)),
-    );
+    // o apoio de pés acompanha só a frente do balcão, sem passar das pontas
+    const railPts: THREE.Vector3[] = [];
+    for (let k = 0; k <= 30; k++) {
+      const [x, z] = onArc(0.22 + (k / 30) * (Math.PI - 0.44), ARC.r + 0.42);
+      railPts.push(new THREE.Vector3(x, 0.2, z));
+    }
+    const rail = new THREE.CatmullRomCurve3(railPts);
+    // tampas das duas pontas (antes ficavam ocas)
+    const caps = [0, Math.PI].map((a) => {
+      const [x, z] = onArc(a, ARC.r - 0.03);
+      return box([0.72, 1.07, 0.04], [x, 0.535, z], { rot: [0, -a, 0] });
+    });
     const posts = [0.35, 0.8, 1.25, 1.7, 2.15, 2.6].map((a) => {
       const [x, z] = onArc(a, ARC.r + 0.36);
       return cyl(0.01, 0.01, 0.13, [x, 0.2, z], { seg: 6, rot: [0, -a, HALF_PI] });
@@ -220,6 +362,7 @@ function Counter() {
         ]),
       ]),
       rail: merge([new THREE.TubeGeometry(rail, 60, 0.02, 8, false), ...posts]),
+      caps: merge(caps),
     };
   }, []);
   return (
@@ -231,6 +374,7 @@ function Counter() {
       <mesh geometry={geo.back} material={mat.mahoganyDark} />
       <mesh geometry={geo.neon} material={mat.neonBlue} name="neon" />
       <mesh geometry={geo.rail} material={mat.brass} />
+      <mesh geometry={geo.caps} material={mat.mahogany} />
     </group>
   );
 }
@@ -475,7 +619,7 @@ function BarZone() {
       <mesh geometry={geo.edge} material={mat.brass} />
       <mesh geometry={geo.soffit} material={mat.mahoganyDark} />
       <mesh geometry={geo.cove} material={mat.neonBlue} />
-      <mesh geometry={geo.spots} material={mat.amberBulb} />
+      <mesh geometry={geo.spots} material={mat.amberStrip} />
     </>
   );
 }

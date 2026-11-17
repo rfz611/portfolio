@@ -56,7 +56,7 @@ export function SpotMarkers() {
   return (
     <group ref={group} name="spot-markers">
       {SPOTS.map((spot, i) => {
-        if (i === current) return null;
+        if (i === current || !spot.marker) return null;
         const id = `spot-${spot.id}`;
         const on = hovered === id;
         const over = (event: ThreeEvent<PointerEvent>) => {

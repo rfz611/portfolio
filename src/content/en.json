@@ -128,13 +128,22 @@
     "posterTitle": "Rain over the City",
     "posterTagline": "Nobody sleeps in the penthouse"
   },
+  "bar": {
+    "title": "What will it be?",
+    "pouring": "Pouring...",
+    "cheers": "Cheers. Another?",
+    "whisky": "Whisky",
+    "martini": "Martini",
+    "negroni": "Negroni"
+  },
   "spots": {
     "sofa": "Sofa",
     "entrada": "Entrance",
     "escritorio": "Office",
     "bar": "Bar",
     "janela": "Window",
-    "geral": "Overview"
+    "geral": "Overview",
+    "cadeira": "Office chair"
   },
   "nav3d": {
     "prev": "Previous spot",
@@ -155,9 +164,13 @@
     "bar": "bar",
     "perfume": "perfume · coming soon",
     "poster": "favorite films · coming soon",
-    "starry": "The Starry Night · a Van Gogh tribute",
-    "framedRecord": "Raining but It's Ok · the record on the platter",
+    "tiger": "Tiger in a Tropical Storm · a Rousseau tribute",
+    "framedRecord": "Sade · Pearls · platinum record",
     "gloves": "boxing · coming soon",
+    "chair": "sit down",
+    "drawer": "drawer",
+    "papers": "today's papers",
+    "photo": "photo · coming soon",
     "kimono": "jiu-jitsu · coming soon",
     "jacket": "style · coming soon",
     "clock": "local time"

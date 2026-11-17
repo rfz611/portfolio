@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScene } from './store/useScene';
 import { BackButton } from './ui/BackButton';
+import { BarMenu } from './ui/BarMenu';
 import { Controls } from './ui/Controls';
 import { hasWebGL, useEscapeToHome, useHashSync, useVolumeKeys } from './ui/hooks';
 import { HoverLabel } from './ui/HoverLabel';
@@ -55,10 +56,12 @@ export default function App() {
       </main>
       {is3d && (
         <>
+          <div id="cut" className="cut" aria-hidden="true" />
           <Loader />
           <BackButton />
           <HoverLabel />
           {ready && <SpotNav />}
+          {ready && <BarMenu />}
           {ready && HINTS[view] && (
             <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
               {t(HINTS[view])}

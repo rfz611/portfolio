@@ -128,13 +128,22 @@
     "posterTitle": "Chuva sobre a Cidade",
     "posterTagline": "Ninguém dorme na cobertura"
   },
+  "bar": {
+    "title": "O que vai ser?",
+    "pouring": "Servindo...",
+    "cheers": "Saúde. Outro?",
+    "whisky": "Uísque",
+    "martini": "Martini",
+    "negroni": "Negroni"
+  },
   "spots": {
     "sofa": "Sofá",
     "entrada": "Entrada",
     "escritorio": "Escritório",
     "bar": "Bar",
     "janela": "Janela",
-    "geral": "Vista geral"
+    "geral": "Vista geral",
+    "cadeira": "Cadeira do escritório"
   },
   "nav3d": {
     "prev": "Lugar anterior",
@@ -155,9 +164,13 @@
     "bar": "bar",
     "perfume": "perfume · em breve",
     "poster": "filmes favoritos · em breve",
-    "starry": "A Noite Estrelada · homenagem a Van Gogh",
-    "framedRecord": "Raining but It's Ok · o disco do prato",
+    "tiger": "Tigre na tempestade · homenagem a Rousseau",
+    "framedRecord": "Sade · Pearls · disco de platina",
     "gloves": "boxe · em breve",
+    "chair": "sentar",
+    "drawer": "gaveta",
+    "papers": "papéis do dia",
+    "photo": "foto · em breve",
     "kimono": "jiu-jitsu · em breve",
     "jacket": "estilo · em breve",
     "clock": "hora certa"

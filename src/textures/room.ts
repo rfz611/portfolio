@@ -172,7 +172,7 @@ export function paintMagazine(ctx: Ctx, w: number, h: number, o: MagazineOpts) {
   grain(ctx, w, h, { seed: o.issue, fine: 0.04, low: 0.03 });
 }
 
-/** Letreiro de neon com o nome: tubo claro no centro e halo colorido. */
+/** Letreiro com o nome: tubo branco-quente e halo âmbar suave (nada de vermelho). */
 export function paintNeon(ctx: Ctx, w: number, h: number, line1: string, line2: string) {
   ctx.clearRect(0, 0, w, h);
   ctx.textAlign = 'center';
@@ -185,15 +185,15 @@ export function paintNeon(ctx: Ctx, w: number, h: number, line1: string, line2: 
       [22, 0.8],
       [8, 1],
     ]) {
-      ctx.shadowColor = palette.neonRed;
-      ctx.shadowBlur = blur;
-      ctx.strokeStyle = rgba(palette.neonRed, alpha);
+      ctx.shadowColor = palette.amber;
+      ctx.shadowBlur = blur * 0.7;
+      ctx.strokeStyle = rgba(palette.amber, alpha * 0.55);
       ctx.lineWidth = width;
       ctx.strokeText(text, w / 2, y);
     }
     ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#ffd9d2';
-    ctx.lineWidth = width * 0.36;
+    ctx.strokeStyle = '#fff3df';
+    ctx.lineWidth = width * 0.42;
     ctx.strokeText(text, w / 2, y);
   };
   draw(line1, `italic 600 ${h * 0.56}px ${DISPLAY}`, h * 0.4, h * 0.03);

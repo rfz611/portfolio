@@ -5,6 +5,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { ExecutiveChair } from '../objects/Chairs';
 import { Clock } from '../objects/Clock';
 import { Interactive } from '../objects/Interactive';
+import { ChairSeat, Drawer, PhotoFrame, Steam } from '../objects/OfficeProps';
 import { useScene } from '../store/useScene';
 import { paintApple } from '../textures/apple';
 import { makeCanvas, tex } from '../textures/canvas';
@@ -27,6 +28,7 @@ function ExecutiveDesk() {
     const pulls: THREE.BufferGeometry[] = [];
     for (const x of [-0.82, 0.82]) {
       for (const y of [0.16, 0.38, 0.6]) {
+        if (x < 0 && y > 0.5) continue; // essa é a gaveta que abre (OfficeProps)
         drawers.push(box([0.46, 0.19, 0.02], [x, y, -0.475]));
         pulls.push(cyl(0.006, 0.006, 0.12, [x, y, -0.49], { seg: 6, rot: [0, 0, HALF_PI] }));
       }
@@ -225,7 +227,6 @@ function DeskClutter() {
         { seg: 14 },
       ),
       coffee: new THREE.CircleGeometry(0.037, 14).rotateX(-HALF_PI).translate(0, 0.07, 0),
-      frame: box([0.15, 0.2, 0.015], [0, 0.1, 0], { rot: [-0.25, 0, 0] }),
     }),
     [],
   );
@@ -240,16 +241,18 @@ function DeskClutter() {
         <mesh geometry={geo.phoneBody} material={mat.blackPlastic} />
         <mesh geometry={geo.handset} material={mat.blackPlastic} />
       </group>
-      <group position={[-0.32, 0.002, -0.14]} rotation={[0, 0.3, 0]} name="papers">
-        <mesh geometry={geo.folder} material={folder} />
-        <mesh geometry={geo.sheet} material={mat.paperSheet} position={[0.02, 0.014, 0.01]} />
-        <mesh
-          geometry={geo.sheet}
-          material={mat.paperSheet}
-          position={[-0.05, 0.016, 0.06]}
-          rotation={[0, 0.35, 0]}
-        />
-      </group>
+      <Interactive id="papers" label="objects.papers">
+        <group position={[-0.32, 0.002, -0.14]} rotation={[0, 0.3, 0]} name="papers">
+          <mesh geometry={geo.folder} material={folder} />
+          <mesh geometry={geo.sheet} material={mat.paperSheet} position={[0.02, 0.014, 0.01]} />
+          <mesh
+            geometry={geo.sheet}
+            material={mat.paperSheet}
+            position={[-0.05, 0.016, 0.06]}
+            rotation={[0, 0.35, 0]}
+          />
+        </group>
+      </Interactive>
       <group position={[0.48, 0.002, -0.22]} rotation={[0, -0.4, 0]} name="notebook">
         <mesh geometry={geo.notebook} material={mat.leatherBrown} />
         <mesh geometry={geo.pen} material={mat.brass} />
@@ -257,13 +260,11 @@ function DeskClutter() {
       <group position={[0.55, 0.002, 0.16]} name="mug">
         <mesh geometry={geo.mug} material={mat.ceramic} />
         <mesh geometry={geo.coffee} material={coffee} />
+        <Steam />
       </group>
-      <mesh
-        geometry={geo.frame}
-        material={mat.brass}
-        position={[-0.58, 0.002, 0.32]}
-        rotation={[0, Math.PI + 0.25, 0]}
-      />
+      <group position={[-0.5, 0.002, 0.28]} rotation={[0, -0.35, 0]}>
+        <PhotoFrame />
+      </group>
     </group>
   );
 }
@@ -282,9 +283,10 @@ export function DeskArea() {
       <OptionalModel file="desk.glb">
         <ExecutiveDesk />
       </OptionalModel>
-      <group position={[0.72, 0, -0.98]} rotation={[0, -0.5, 0]}>
+      <ChairSeat>
         <ExecutiveChair />
-      </group>
+      </ChairSeat>
+      <Drawer />
       <Interactive id="pc" label="objects.pc" enabled={home} onClick={() => setView('pc')}>
         <OptionalModel file="retro_pc.glb">
           <Laptop />

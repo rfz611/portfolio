@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useScene } from '../store/useScene';
 import { prefersReducedMotion } from '../ui/hooks';
+import { cut } from '../ui/cut';
 import { homeShot, resolveShot } from './shots';
 
 const MAX_PARALLAX = (3 * Math.PI) / 180;
@@ -11,7 +12,8 @@ const UP = new THREE.Vector3(0, 1, 0);
 const PITCH_LIMIT = { min: -0.55, max: 0.45 };
 
 /**
- * Leva a câmera de um plano ao outro com uma curva suave (power3.inOut).
+ * Troca de plano com um corte de cinema: a tela escurece, a câmera muda de
+ * lugar e a imagem reabre com uma aproximação leve.
  * No plano inicial (sentado no sofá) dá para olhar em volta: arrastando
  * com o mouse ou o dedo, ou com as setas ← → ↑ ↓. O mouse parado também
  * mexe a vista de leve (até 3 graus).
@@ -101,15 +103,38 @@ export function CameraRig() {
       look.current.yaw = 0;
       look.current.pitch = 0;
     }
-    const reduced = prefersReducedMotion();
-    const duration = !r.started ? 0 : viewChanged ? (reduced ? 0.25 : pose.duration) : 0.35;
-    r.started = true;
-    const ease = reduced ? 'power1.out' : 'power3.inOut';
     const [px, py, pz] = pose.position;
     const [tx, ty, tz] = pose.target;
-    gsap.to(r.position, { x: px, y: py, z: pz, duration, ease, overwrite: true });
-    gsap.to(r.target, { x: tx, y: ty, z: tz, duration, ease, overwrite: true });
-    gsap.to(r, { fov: pose.fov, duration, ease, overwrite: 'auto' });
+    const place = (push: number) => {
+      // começa um pouco mais longe e se aproxima devagar (push = 0 fica parado)
+      r.position.set(px + (px - tx) * push, py + (py - ty) * push, pz + (pz - tz) * push);
+      r.target.set(tx, ty, tz);
+      r.fov = pose.fov;
+    };
+    if (!r.started || !viewChanged) {
+      // primeira vez ou só mudou o tamanho da tela: vai direto
+      r.started = true;
+      gsap.killTweensOf(r.position);
+      place(0);
+      return;
+    }
+    // troca de plano: corte de cinema (escurece, corta, reabre se aproximando)
+    const reduced = prefersReducedMotion();
+    const timeline = gsap.timeline();
+    timeline
+      .call(() => cut(1, reduced ? 0.12 : 0.22))
+      .to({}, { duration: reduced ? 0.12 : 0.24 })
+      .call(() => {
+        gsap.killTweensOf(r.position);
+        place(reduced ? 0 : 0.08);
+        cut(0, reduced ? 0.2 : 0.5);
+        if (!reduced) {
+          gsap.to(r.position, { x: px, y: py, z: pz, duration: 1.1, ease: 'power2.out' });
+        }
+      });
+    return () => {
+      timeline.kill();
+    };
   }, [view, spot, width, height]);
 
   useFrame((_, delta) => {

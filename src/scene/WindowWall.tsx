@@ -77,7 +77,7 @@ export function WindowWall() {
       <mesh geometry={geo.hangers} material={mat.bronze} />
       <pointLight
         position={[nx, ny - 0.1, nz + 0.7]}
-        color={palette.neonRed}
+        color={palette.amber}
         intensity={2.5}
         distance={4.5}
         decay={1.8}

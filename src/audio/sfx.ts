@@ -97,6 +97,21 @@ function click(): Float32Array {
   return out;
 }
 
+/** Líquido caindo no copo: chiado filtrado que vai ficando mais grave. */
+function pour(): Float32Array {
+  const r = mulberry32(23);
+  const out = new Float32Array(Math.floor(RATE * 1.5));
+  let low = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / out.length;
+    const cut = 0.35 - t * 0.25;
+    low += (r() * 2 - 1 - low) * cut;
+    const env = Math.min(1, t * 12) * Math.min(1, (1 - t) * 6);
+    out[i] = low * 0.5 * env * (0.8 + 0.2 * Math.sin(i * 0.05));
+  }
+  return out;
+}
+
 /** Gelo tilintando no copo: três batidinhas agudas. */
 function ice(): Float32Array {
   const out = new Float32Array(Math.floor(RATE * 0.5));
@@ -119,6 +134,7 @@ export interface Sfx {
   crackle: string;
   click: string;
   ice: string;
+  pour: string;
 }
 
 let cache: Sfx | null = null;
@@ -131,6 +147,7 @@ export function makeSfx(): Sfx | null {
     crackle: toWavUrl(crackle()),
     click: toWavUrl(click()),
     ice: toWavUrl(ice()),
+    pour: toWavUrl(pour()),
   };
   return cache;
 }

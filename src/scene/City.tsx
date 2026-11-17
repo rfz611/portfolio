@@ -50,6 +50,37 @@ function buildCity() {
     }
   }
 
+  // skyline à frente da janela: torres acesas ao norte, a 85–260 m
+  const crowns: THREE.BufferGeometry[] = [];
+  const accents: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 20; i++) {
+    const angle = -Math.PI * (0.12 + (i / 19) * 0.76) + (r() - 0.5) * 0.08;
+    const distance = 85 + r() * 175;
+    const x = CENTER_X + Math.cos(angle) * distance;
+    const z = Math.sin(angle) * distance;
+    const w = 12 + r() * 14;
+    const d = 12 + r() * 14;
+    const top = -30 + Math.pow(r(), 1.3) * 80;
+    const h = top - GROUND_Y;
+    groups[i % 3].push(tint(box([w, h, d], [x, top - h / 2, z], { uv: 7 }), 0.95));
+    // coroa de luz no topo (âmbar ou branca)
+    crowns.push(box([w + 0.6, 1.4, d + 0.6], [x, top - 2.5, z]));
+    if (r() > 0.45) {
+      // recuo com antena e luz piscando
+      groups[(i + 1) % 3].push(tint(box([w * 0.6, 8, d * 0.6], [x, top + 4, z], { uv: 7 }), 0.9));
+      const spire = new THREE.CylinderGeometry(0.25, 0.4, 14, 6);
+      spire.translate(x, top + 15, z);
+      crowns.push(spire);
+      const lamp = new THREE.SphereGeometry(0.9, 6, 4);
+      lamp.translate(x, top + 22.5, z);
+      beacons.push(lamp);
+    }
+    if (r() > 0.7) {
+      // friso de luz azul subindo pela quina
+      accents.push(box([0.5, h * 0.7, 0.5], [x - w / 2, top - h * 0.35, z + d / 2]));
+    }
+  }
+
   const ground = new THREE.PlaneGeometry(1500, 1500, 30, 30);
   ground.rotateX(-Math.PI / 2);
   ground.translate(CENTER_X, GROUND_Y, 0);
@@ -64,7 +95,13 @@ function buildCity() {
   }
   ground.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  return { blocks: groups.map((g) => merge(g)), beacons: merge(beacons), ground };
+  return {
+    blocks: groups.map((g) => merge(g)),
+    beacons: merge(beacons),
+    crowns: merge(crowns),
+    accents: accents.length ? merge(accents) : null,
+    ground,
+  };
 }
 
 /**
@@ -76,6 +113,14 @@ export function City() {
   const geo = useMemo(buildCity, []);
   const beacon = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
   const base = useRef(hdr('#ff2418', 3));
+  const crown = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.25), toneMapped: false }),
+    [],
+  );
+  const accent = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#5f8dff', 1.4), toneMapped: false }),
+    [],
+  );
   const facade = useMemo(
     () => new THREE.MeshBasicMaterial({ map: retile(tex.facade, 3, 10), color: '#4a4a55' }),
     [tex],
@@ -98,6 +143,8 @@ export function City() {
         <mesh key={i} geometry={g} material={blocks[i]} />
       ))}
       <mesh geometry={geo.beacons} material={beacon} />
+      <mesh geometry={geo.crowns} material={crown} />
+      {geo.accents && <mesh geometry={geo.accents} material={accent} />}
       {/* o prédio abaixo da cobertura */}
       <mesh position={[CENTER_X, -33.1, ROOM.z1 + 0.02]} material={facade}>
         <planeGeometry args={[GARAGE.x1 - ROOM.x0 + 0.2, 64]} />
