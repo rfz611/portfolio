@@ -7,10 +7,17 @@ import { CameraRig } from '../camera/CameraRig';
 import { QUALITY } from '../config/quality';
 import { useScene, type Quality } from '../store/useScene';
 import { buildLibrary, isLibraryReady } from '../textures/library';
+import { Bar } from './Bar';
+import { City } from './City';
+import { DeskArea } from './Desk';
 import { Effects } from './Effects';
 import { Lights } from './Lights';
+import { Lounge } from './Lounge';
+import { Plants } from './Plants';
+import { Rain } from './Rain';
 import { RecordCorner } from './RecordCorner';
 import { Room } from './Room';
+import { WindowWall } from './WindowWall';
 
 const ORDER: Quality[] = ['low', 'medium', 'high'];
 
@@ -43,6 +50,13 @@ function World() {
       <Lights />
       <Room />
       <RecordCorner />
+      <Lounge />
+      <DeskArea />
+      <Bar />
+      <Plants />
+      <WindowWall />
+      <City />
+      <Rain />
       <Effects />
       <ReadyProbe />
     </Selection>

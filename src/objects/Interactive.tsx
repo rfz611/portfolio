@@ -12,13 +12,15 @@ interface Props {
   enabled?: boolean;
   onClick?: () => void;
   children: ReactNode;
+  /** Área de clique extra que não entra no contorno (ex.: vidro da janela). */
+  hit?: ReactNode;
 }
 
 /**
  * Regra geral dos objetos: passar o mouse acende (contorno âmbar e rótulo
  * em VT323) e clicar leva a câmera até ele.
  */
-export function Interactive({ id, label, text, enabled = true, onClick, children }: Props) {
+export function Interactive({ id, label, text, enabled = true, onClick, children, hit }: Props) {
   const hovered = useScene((s) => s.hovered?.id === id);
 
   const over = (event: ThreeEvent<PointerEvent>) => {
@@ -34,14 +36,13 @@ export function Interactive({ id, label, text, enabled = true, onClick, children
   };
 
   return (
-    <Select enabled={enabled && hovered}>
-      <group
-        onPointerOver={enabled ? over : undefined}
-        onPointerOut={enabled ? out : undefined}
-        onClick={enabled && onClick ? click : undefined}
-      >
-        {children}
-      </group>
-    </Select>
+    <group
+      onPointerOver={enabled ? over : undefined}
+      onPointerOut={enabled ? out : undefined}
+      onClick={enabled && onClick ? click : undefined}
+    >
+      <Select enabled={enabled && hovered}>{children}</Select>
+      {enabled && hit}
+    </group>
   );
 }

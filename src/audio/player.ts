@@ -26,7 +26,7 @@ interface Deck {
 }
 
 let deck: Deck | null = null;
-let ambience: { rain: Howl; crackle: Howl; click: Howl } | null = null;
+let ambience: { rain: Howl; crackle: Howl; click: Howl; ice: Howl } | null = null;
 let subscribed = false;
 
 const store = () => useScene.getState();
@@ -67,6 +67,7 @@ export function unlockAudio() {
     rain: new Howl({ src: [sfx.rain], format: ['wav'], loop: true, volume: 0 }),
     crackle: new Howl({ src: [sfx.crackle], format: ['wav'], loop: true, volume: 0 }),
     click: new Howl({ src: [sfx.click], format: ['wav'], volume: 0.12 }),
+    ice: new Howl({ src: [sfx.ice], format: ['wav'], volume: 0.1 }),
   };
   ambience.rain.play();
   ambience.rain.fade(0, RAIN_VOLUME, 3000);
@@ -85,6 +86,11 @@ function setCrackle(on: boolean) {
 
 export function playClick() {
   ambience?.click.play();
+}
+
+/** Gelo do copo tilintando baixinho (quando o mouse passa pelo bar). */
+export function playIce() {
+  if (ambience && !ambience.ice.playing()) ambience.ice.play();
 }
 
 function release(target: Deck, fadeMs: number) {

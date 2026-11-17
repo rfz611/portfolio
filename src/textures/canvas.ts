@@ -1,22 +1,13 @@
 import * as THREE from 'three';
+import { mulberry32 } from './random';
+
+export { mulberry32, type Rand } from './random';
 
 /**
  * Ferramentas para pintar texturas em canvas, no espírito do PS2:
  * o detalhe (veio da madeira, costura do couro) é pintado, não modelado.
  */
 export type Ctx = CanvasRenderingContext2D;
-export type Rand = () => number;
-
-/** Gerador de números "aleatórios" que repete sempre a mesma sequência. */
-export function mulberry32(seed: number): Rand {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 export function makeCanvas(
   w: number,

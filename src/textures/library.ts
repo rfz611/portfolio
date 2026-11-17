@@ -13,6 +13,16 @@ import {
   paintVinylSheen,
 } from './props';
 import {
+  paintFacade,
+  paintGroundLights,
+  paintKeyboard,
+  paintMarble,
+  paintMonstera,
+  paintNeon,
+  paintPalmFrond,
+  paintWindows,
+} from './room';
+import {
   paintBlob,
   paintBrushed,
   paintCarpet,
@@ -154,6 +164,42 @@ const painters = {
     ),
   deckFront: () => tex(canvas(512, 128, paintDeckFront), { clamp: true }),
   strobe: () => tex(canvas(64, 16, paintStrobe), { repeat: [14, 1] }),
+  // sala e cidade
+  palmFrond: () => tex(canvas(256, 512, paintPalmFrond), { clamp: true }),
+  monstera: () => tex(canvas(256, 256, paintMonstera), { clamp: true }),
+  marble: () => tex(canvas(512, 512, (c, w, h) => paintMarble(c, w, h, 101))),
+  keyboard: () => tex(canvas(256, 96, paintKeyboard), { clamp: true }),
+  fabricGold: () =>
+    tex(
+      canvas(256, 256, (c, w, h) => paintCarpet(c, w, h, 103, '#8a6420')),
+      { repeat: [3, 3] },
+    ),
+  facade: () => tex(canvas(512, 256, (c, w, h) => paintFacade(c, w, h, 105))),
+  windowsA: () =>
+    tex(
+      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 111, 0.24)),
+      { repeat: [1, 0.5] },
+    ),
+  windowsB: () =>
+    tex(
+      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 113, 0.42)),
+      { repeat: [1, 0.5] },
+    ),
+  windowsC: () =>
+    tex(
+      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 115, 0.1)),
+      { repeat: [1, 0.5] },
+    ),
+  groundLights: () =>
+    tex(
+      canvas(1024, 1024, (c, w, h) => paintGroundLights(c, w, h, 117)),
+      { aniso: 8 },
+    ),
+  neonName: () =>
+    tex(
+      canvas(1024, 384, (c, w, h) => paintNeon(c, w, h, 'Raphael', 'SCHARF PASSOS')),
+      { clamp: true },
+    ),
 } satisfies Record<string, () => THREE.Texture>;
 
 export type TexKey = keyof typeof painters;
@@ -250,6 +296,84 @@ function makeMaterials(t: Textures) {
       color: hdr(palette.amber, 2.3),
       side: THREE.DoubleSide,
       toneMapped: false,
+    }),
+
+    // sala
+    marble: std({ map: t.marble, roughness: 0.14, metalness: 0.2, envMapIntensity: 1.4 }),
+    palm: matte({ map: t.palmFrond, alphaTest: 0.4, side: THREE.DoubleSide }),
+    monstera: matte({ map: t.monstera, alphaTest: 0.4, side: THREE.DoubleSide }),
+    stem: matte({ color: '#274a22' }),
+    soil: matte({ color: '#120c08' }),
+    keyboard: matte({ map: t.keyboard }),
+    beige: std({ color: '#b9b09a', roughness: 0.6, envMapIntensity: 0.3 }),
+    beigeDark: std({ color: '#8f8774', roughness: 0.6, envMapIntensity: 0.3 }),
+    fabricGold: matte({ map: t.fabricGold }),
+    paper: matte({ color: '#d8d0c0' }),
+    bottleGreen: std({
+      color: '#0e3a24',
+      roughness: 0.08,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.82,
+      envMapIntensity: 1.8,
+    }),
+    bottleAmber: std({
+      color: '#6a3208',
+      roughness: 0.08,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.8,
+      envMapIntensity: 1.8,
+    }),
+    bottleClear: std({
+      color: '#a9bfd6',
+      roughness: 0.05,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.42,
+      envMapIntensity: 2,
+    }),
+    clearGlass: std({
+      color: '#cfe0f0',
+      roughness: 0.04,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.28,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      envMapIntensity: 2.2,
+    }),
+    whisky: std({
+      color: '#a85a12',
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0.85,
+      envMapIntensity: 1.2,
+    }),
+    ice: std({
+      color: '#e8f4ff',
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0.55,
+      envMapIntensity: 2,
+    }),
+    olive: matte({ color: '#5a6a1e' }),
+    cigar: matte({ color: '#3a2414' }),
+    labelCream: matte({ color: '#d9cfb8' }),
+    labelBlack: matte({ color: '#0c0c0c' }),
+    facade: matte({ map: t.facade }),
+    cityA: new THREE.MeshBasicMaterial({ map: t.windowsA, vertexColors: true }),
+    cityB: new THREE.MeshBasicMaterial({ map: t.windowsB, vertexColors: true }),
+    cityC: new THREE.MeshBasicMaterial({ map: t.windowsC, vertexColors: true }),
+    cityGround: new THREE.MeshBasicMaterial({ map: t.groundLights, vertexColors: true }),
+    sky: new THREE.MeshBasicMaterial({ map: t.sky, side: THREE.BackSide, depthWrite: false }),
+    neonSign: new THREE.MeshBasicMaterial({
+      map: t.neonName,
+      color: hdr('#ffffff', 2.6),
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+      side: THREE.DoubleSide,
     }),
 
     // fontes de luz: cor acima de 1 para o bloom pegar só nelas

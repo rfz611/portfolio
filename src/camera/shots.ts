@@ -37,7 +37,7 @@ export const SHOTS: Record<ViewId, Shot> = {
     frame: [20.4, 7.6],
     fov: 36,
     duration: 1.6,
-    portrait: { target: [-2.3, 0.3, 0.2], dir: [0.34, 0.66, 1], frame: [7.6, 9.6], fov: 46 },
+    portrait: { target: [-1.4, 0, 0.1], dir: [0.3, 1.45, 0.85], frame: [8.6, 9.6], fov: 46 },
   },
   // Frontal no cantinho, toca-discos no terço superior.
   discos: {

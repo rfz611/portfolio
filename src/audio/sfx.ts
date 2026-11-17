@@ -1,4 +1,4 @@
-import { mulberry32 } from '../textures/canvas';
+import { mulberry32 } from '../textures/random';
 
 /**
  * Sons de ambiente feitos no código (nada é baixado): chuva em loop,
@@ -97,10 +97,28 @@ function click(): Float32Array {
   return out;
 }
 
+/** Gelo tilintando no copo: três batidinhas agudas. */
+function ice(): Float32Array {
+  const out = new Float32Array(Math.floor(RATE * 0.5));
+  const hits: [number, number, number][] = [
+    [0, 2900, 0.5],
+    [0.09, 3700, 0.35],
+    [0.21, 3200, 0.28],
+  ];
+  for (const [at, freq, gain] of hits) {
+    const start = Math.floor(at * RATE);
+    for (let i = 0; start + i < out.length; i++) {
+      out[start + i] += Math.sin((i / RATE) * 6.283 * freq) * Math.exp(-i / 700) * gain;
+    }
+  }
+  return out;
+}
+
 export interface Sfx {
   rain: string;
   crackle: string;
   click: string;
+  ice: string;
 }
 
 let cache: Sfx | null = null;
@@ -108,6 +126,11 @@ let cache: Sfx | null = null;
 export function makeSfx(): Sfx | null {
   if (cache) return cache;
   if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return null;
-  cache = { rain: toWavUrl(rain()), crackle: toWavUrl(crackle()), click: toWavUrl(click()) };
+  cache = {
+    rain: toWavUrl(rain()),
+    crackle: toWavUrl(crackle()),
+    click: toWavUrl(click()),
+    ice: toWavUrl(ice()),
+  };
   return cache;
 }
