@@ -97,6 +97,17 @@ function click(): Float32Array {
   return out;
 }
 
+/** Chiado de TV fora do ar: ruído branco que some rápido. */
+function tvStatic(): Float32Array {
+  const r = mulberry32(31);
+  const out = new Float32Array(Math.floor(RATE * 0.45));
+  for (let i = 0; i < out.length; i++) {
+    const t = i / out.length;
+    out[i] = (r() * 2 - 1) * 0.5 * Math.min(1, (1 - t) * 3);
+  }
+  return out;
+}
+
 /** Líquido caindo no copo: chiado filtrado que vai ficando mais grave. */
 function pour(): Float32Array {
   const r = mulberry32(23);
@@ -135,6 +146,7 @@ export interface Sfx {
   click: string;
   ice: string;
   pour: string;
+  tvStatic: string;
 }
 
 let cache: Sfx | null = null;
@@ -148,6 +160,7 @@ export function makeSfx(): Sfx | null {
     click: toWavUrl(click()),
     ice: toWavUrl(ice()),
     pour: toWavUrl(pour()),
+    tvStatic: toWavUrl(tvStatic()),
   };
   return cache;
 }

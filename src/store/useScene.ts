@@ -68,6 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Canal da TV (índice em content/projects.ts). */
+  tvChannel: number;
+  setTvChannel: (channel: number) => void;
   orderDrink: (kind: 'whisky' | 'martini' | 'negroni') => void;
   setDrinkServed: (served: boolean) => void;
   setDeck: (deck: DeckState, trackId?: string) => void;
@@ -121,6 +124,8 @@ export const useScene = create<SceneState>()(
       requestTrack: (id) => set({ requestedTrackId: id, deck: 'changing' }),
       drink: null,
       drinkServed: false,
+      tvChannel: 0,
+      setTvChannel: (tvChannel) => set({ tvChannel }),
       orderDrink: (kind) =>
         set((s) => ({ drink: { kind, order: (s.drink?.order ?? 0) + 1 }, drinkServed: false })),
       setDrinkServed: (drinkServed) => set({ drinkServed }),

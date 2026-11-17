@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { box, crease, cyl, merge } from '../scene/geo';
 import { lib } from '../textures/library';
+import { useScene } from '../store/useScene';
+import { stepChannel } from '../store/tv';
+import { Interactive } from './Interactive';
 import { TV_SCREEN } from './recordLayout';
+import { TvContent } from './TvContent';
 
 const HALF_PI = Math.PI / 2;
 
@@ -26,6 +30,7 @@ function screenGeometry() {
  */
 export function CrtTv() {
   const { mat } = lib();
+  const on = useScene((s) => s.view === 'tv');
   const geo = useMemo(() => {
     const panelY = (v: number) => 0.275 + 0.47 * (0.5 - v);
     return {
@@ -47,11 +52,12 @@ export function CrtTv() {
           cyl(0.014, 0.014, 0.006, [0.245, panelY(0.19), 0.282], { seg: 12, rot: [HALF_PI, 0, 0] }),
           box([0.004, 0.03, 0.006], [0.245, panelY(0.19) + 0.015, 0.282]),
           cyl(0.013, 0.015, 0.016, [0.245, panelY(0.56), 0.266], { seg: 12, rot: [HALF_PI, 0, 0] }),
-          box([0.036, 0.02, 0.01], [0.223, panelY(0.42), 0.263]),
-          box([0.036, 0.02, 0.01], [0.267, panelY(0.42), 0.263]),
         ]),
       ),
       led: box([0.01, 0.006, 0.004], [-0.3, 0.036, 0.259]),
+      // botões ◀ CH ▶ do painel (trocam o canal quando a câmera está na TV)
+      prev: box([0.036, 0.02, 0.012], [0.223, panelY(0.42), 0.264]),
+      next: box([0.036, 0.02, 0.012], [0.267, panelY(0.42), 0.264]),
     };
   }, []);
 
@@ -60,7 +66,14 @@ export function CrtTv() {
       <mesh geometry={geo.cabinet} material={mat.mahogany} />
       <mesh geometry={geo.plastic} material={mat.blackPlastic} />
       <mesh geometry={geo.brass} material={mat.brass} name="buttons" />
-      <mesh geometry={geo.led} material={mat.ledRed} />
+      <mesh geometry={geo.led} material={on ? mat.ledRed : mat.amberDim} />
+      <Interactive id="tv-prev" label="projects.prev" enabled={on} onClick={() => stepChannel(-1)}>
+        <mesh geometry={geo.prev} material={mat.brass} />
+      </Interactive>
+      <Interactive id="tv-next" label="projects.next" enabled={on} onClick={() => stepChannel(1)}>
+        <mesh geometry={geo.next} material={mat.brass} />
+      </Interactive>
+      <TvContent />
       <mesh position={[0.245, 0.275, 0.2585]} material={mat.tvPanel}>
         <planeGeometry args={[0.15, 0.47]} />
       </mesh>

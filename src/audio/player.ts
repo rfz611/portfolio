@@ -26,7 +26,14 @@ interface Deck {
 }
 
 let deck: Deck | null = null;
-let ambience: { rain: Howl; crackle: Howl; click: Howl; ice: Howl; pour: Howl } | null = null;
+let ambience: {
+  rain: Howl;
+  crackle: Howl;
+  click: Howl;
+  ice: Howl;
+  pour: Howl;
+  tvStatic: Howl;
+} | null = null;
 let subscribed = false;
 
 const store = () => useScene.getState();
@@ -69,6 +76,7 @@ export function unlockAudio() {
     click: new Howl({ src: [sfx.click], format: ['wav'], volume: 0.12 }),
     ice: new Howl({ src: [sfx.ice], format: ['wav'], volume: 0.1 }),
     pour: new Howl({ src: [sfx.pour], format: ['wav'], volume: 0.08 }),
+    tvStatic: new Howl({ src: [sfx.tvStatic], format: ['wav'], volume: 0.05 }),
   };
   ambience.rain.play();
   ambience.rain.fade(0, RAIN_VOLUME, 3000);
@@ -92,6 +100,11 @@ export function playClick() {
 /** Gelo do copo tilintando baixinho (quando o mouse passa pelo bar). */
 export function playIce() {
   if (ambience && !ambience.ice.playing()) ambience.ice.play();
+}
+
+/** Chiado curto da TV (ao ligar e ao trocar de canal). */
+export function playStatic() {
+  ambience?.tvStatic.play();
 }
 
 /** Som do drink sendo servido. */

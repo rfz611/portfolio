@@ -51,6 +51,10 @@
     "tech": "Tech",
     "link": "View repository",
     "linkSoon": "Demo repository coming soon",
+    "prev": "previous channel",
+    "next": "next channel",
+    "noImage": "screenshot coming soon",
+    "hint": "◀ CH ▶ to change channels",
     "unicar": {
       "name": "UniCar",
       "description": "Carpooling app for university students in Curitiba. API with JWT login and college e-mail verification, real-time driver location and chat, routes and pricing with Google Maps, and integration tests."

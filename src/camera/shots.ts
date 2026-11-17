@@ -111,7 +111,7 @@ export const SHOTS: Record<ViewId, Shot> = {
     dir: [1, 0.02, 0],
     frame: [0.8, 0.47],
     fov: 34,
-    portrait: { frame: [0.62, 0.9] },
+    portrait: { frame: [0.5, 0.82] },
   },
   // Frontal, tela do notebook ocupando a tela inteira.
   pc: {

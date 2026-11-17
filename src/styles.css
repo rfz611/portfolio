@@ -408,6 +408,204 @@ main:focus {
   opacity: 1;
 }
 
+/* ---------- tela da TV de tubo (projetos) ---------- */
+
+.tv {
+  position: relative;
+  width: 470px;
+  height: 355px;
+  overflow: hidden;
+  border-radius: 26px / 20px;
+  background: radial-gradient(ellipse at 50% 45%, #10161a, #040606 75%);
+  color: #e4efe2;
+  font-family: var(--font-crt);
+  text-shadow: 0 0 6px rgba(160, 255, 200, 0.35);
+  user-select: none;
+}
+
+.tv__content {
+  position: absolute;
+  inset: 0;
+  padding: 18px 26px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.tv.is-booting .tv__content {
+  opacity: 0;
+}
+
+.tv__osd {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: #7dff8a;
+  text-shadow: 0 0 8px rgba(125, 255, 138, 0.6);
+}
+
+.tv__osd span {
+  color: rgba(228, 239, 226, 0.55);
+  font-size: 16px;
+}
+
+.tv__body {
+  display: grid;
+  grid-template-columns: 188px 1fr;
+  gap: 14px;
+}
+
+.tv__shot {
+  margin: 0;
+  height: 118px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(228, 239, 226, 0.25);
+  background: repeating-linear-gradient(45deg, #0d1312 0 6px, #111a18 6px 12px);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: rgba(228, 239, 226, 0.6);
+  text-align: center;
+}
+
+.tv__shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8) contrast(1.05);
+}
+
+.tv__head h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-crt);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  color: #fff6dc;
+}
+
+.tv__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tv__tags li {
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 179, 92, 0.6);
+  color: var(--amber);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.tv__desc {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.15;
+  color: #e4efe2;
+}
+
+.tv__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
+}
+
+.tv__foot a {
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 179, 92, 0.5);
+  pointer-events: auto;
+}
+
+.tv__soon {
+  color: rgba(228, 239, 226, 0.6);
+  font-size: 15px;
+}
+
+.tv__ch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7dff8a;
+}
+
+.tv__ch button {
+  border: 1px solid rgba(125, 255, 138, 0.5);
+  background: none;
+  color: #7dff8a;
+  font: 16px/1 var(--font-crt);
+  padding: 2px 7px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* chiado, linha de ligar e o vidro (scanlines + reflexo + borda escura) */
+.tv__static {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tv__static.is-on {
+  opacity: 0.85;
+}
+
+.tv__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: #f4fff2;
+  box-shadow: 0 0 18px 4px rgba(220, 255, 230, 0.7);
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tv.is-booting .tv__line {
+  animation: tv-on 0.6s ease-out forwards;
+}
+
+@keyframes tv-on {
+  0% {
+    transform: scaleX(0) scaleY(1);
+    opacity: 1;
+  }
+  45% {
+    transform: scaleX(1) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1) scaleY(180);
+    opacity: 0;
+  }
+}
+
+.tv__glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 30% 18%, rgba(255, 255, 255, 0.09), transparent 40%),
+    radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.75) 100%);
+}
+
 /* ---------- página de texto ---------- */
 
 .text-page {
@@ -576,8 +774,8 @@ main:focus {
   }
 
   .back {
-    left: 12px;
-    bottom: 12px;
+    left: 8px;
+    bottom: 52px;
     transform: none;
   }
 

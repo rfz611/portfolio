@@ -51,6 +51,10 @@
     "tech": "Tecnologias",
     "link": "Ver repositório",
     "linkSoon": "Repositório de demonstração em breve",
+    "prev": "canal anterior",
+    "next": "próximo canal",
+    "noImage": "print em breve",
+    "hint": "◀ CH ▶ para trocar de canal",
     "unicar": {
       "name": "UniCar",
       "description": "Aplicativo de caronas para universitários de Curitiba. API com login JWT e confirmação pelo e-mail da faculdade, posição do motorista e chat em tempo real, rotas e preço com Google Maps, testes de integração."
