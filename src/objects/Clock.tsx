@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { cyl, merge } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
-import { paintDoily, paintOvalClockDial } from '../textures/clock';
+import { paintOvalClockDial } from '../textures/clock';
 import { Interactive } from './Interactive';
 
 /** Medidas do relógio (m): oval de 0,20 × 0,11, com 0,05 de fundo. */
@@ -69,7 +69,6 @@ export function Clock() {
         cyl(0.005, 0.005, 0.008, [-W * 0.18, H / 2 + 0.008, -0.005], { seg: 10 }),
         cyl(0.005, 0.005, 0.008, [W * 0.18, H / 2 + 0.008, -0.005], { seg: 10 }),
       ]),
-      doily: new THREE.PlaneGeometry(0.3, 0.3).rotateX(-Math.PI / 2).translate(0, 0.001, 0),
     };
   }, []);
 
@@ -114,12 +113,6 @@ export function Clock() {
         envMapIntensity: 2,
         depthWrite: false,
       }),
-      doily: new THREE.MeshStandardMaterial({
-        map: tex(makeCanvas(256, 256, paintDoily), { clamp: true }),
-        transparent: true,
-        alphaTest: 0.4,
-        roughness: 0.9,
-      }),
     }),
     [dial],
   );
@@ -127,8 +120,6 @@ export function Clock() {
   return (
     <Interactive id="clock" label="objects.clock">
       <group name="clock" rotation={[0, -0.12, 0]}>
-        {/* toalhinha de renda branca embaixo, como na foto */}
-        <mesh geometry={geo.doily} material={mats.doily} scale={[1, 1, 0.7]} />
         <group position={[0, LIFT + H / 2, 0]}>
           <mesh geometry={geo.shell} material={mats.brass} />
           <mesh geometry={geo.back} material={mats.brass} />

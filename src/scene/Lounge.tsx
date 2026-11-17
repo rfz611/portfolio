@@ -324,8 +324,8 @@ function TableClutter() {
         <RedAshtray />
       </group>
       <group
-        position={[0.13, 0.001, -0.29]}
-        rotation={[0, 0.3, 0]}
+        position={[-0.44, 0.027, 0.16]}
+        rotation={[-Math.PI / 2, 0, 0.35]}
         scale={1.5}
         name="perfume-table"
       >

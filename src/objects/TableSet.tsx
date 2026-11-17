@@ -341,14 +341,15 @@ export function JewelryTray() {
     <group name="jewelry-tray">
       <mesh geometry={geo.base} material={mats.mirror} />
       <mesh geometry={geo.rim} material={mats.mirror} />
-      <group position={[-0.105, 0, -0.005]} rotation={[0, 0.32, 0]}>
+      {/* carteira reta, inteira dentro do prato */}
+      <group position={[-0.088, 0, 0.0]} rotation={[0, 0.04, 0]}>
         <mesh geometry={geo.card} material={mats.card} />
         <mesh geometry={geo.wallet} material={mats.leather} />
       </group>
-      <group position={[0.05, 0.004, 0.032]} rotation={[0, HALF_PI + 0.12, 0]}>
+      <group position={[0.065, 0.004, 0.032]} rotation={[0, HALF_PI + 0.12, 0]}>
         <SteelWatch />
       </group>
-      <group position={[0.055, 0.004, -0.05]} rotation={[0, HALF_PI - 0.14, 0]}>
+      <group position={[0.07, 0.004, -0.05]} rotation={[0, HALF_PI - 0.14, 0]}>
         <GoldWatch />
       </group>
       <mesh geometry={geo.chain} material={mat.brass} />
@@ -393,14 +394,14 @@ export function MushroomLamp() {
         roughness: 0.22,
         envMapIntensity: 1.2,
       }),
-      under: new THREE.MeshBasicMaterial({ color: hdr('#ffa060', 0.7), toneMapped: false }),
+      under: new THREE.MeshBasicMaterial({ color: hdr('#ffa060', 0.5), toneMapped: false }),
     }),
     [],
   );
   const on = useScene((s) => s.tableLamp);
   useEffect(() => {
     mats.shade.emissiveIntensity = on ? 0.42 : 0;
-    mats.under.color.copy(on ? hdr('#ffa060', 0.7) : new THREE.Color('#3a2a22'));
+    mats.under.color.copy(on ? hdr('#ffa060', 0.5) : new THREE.Color('#3a2a22'));
   }, [on, mats]);
   return (
     <Interactive

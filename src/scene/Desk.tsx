@@ -214,7 +214,7 @@ function BankerLamp() {
     return m;
   }, [mat]);
   const bulb = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.6), toneMapped: false }),
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.25), toneMapped: false }),
     [],
   );
   return (
@@ -225,10 +225,66 @@ function BankerLamp() {
       <pointLight
         position={[0, 0.24, 0.08]}
         color="#ffcf8f"
-        intensity={2.2}
+        intensity={1.5}
         distance={2.4}
         decay={1.6}
       />
+    </group>
+  );
+}
+
+/**
+ * Abajur de chão de latão com cúpula de tecido creme, no tapete atrás da
+ * cadeira (lado direito de quem olha o escritório): luz quente e baixa que
+ * ilumina o lado da mesa que ficava apagado para quem senta.
+ */
+function FloorLamp() {
+  const { mat } = lib();
+  const geo = useMemo(
+    () => ({
+      base: crease(
+        lathe(
+          [
+            [0.001, 0],
+            [0.16, 0],
+            [0.15, 0.025],
+            [0.05, 0.045],
+            [0.018, 0.06],
+          ],
+          { seg: 28 },
+        ),
+        35,
+      ),
+      pole: cyl(0.012, 0.012, 1.42, [0, 0.76, 0], { seg: 10 }),
+      knob: cyl(0.02, 0.02, 0.04, [0, 0.95, 0], { seg: 12 }),
+      shade: cyl(0.17, 0.22, 0.28, [0, 1.42, 0], { seg: 32, open: true }),
+      bulb: new THREE.SphereGeometry(0.04, 12, 8).translate(0, 1.38, 0),
+    }),
+    [],
+  );
+  const shade = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#e9d8b4',
+        emissive: '#ffb45c',
+        emissiveIntensity: 0.55,
+        roughness: 0.9,
+        side: THREE.DoubleSide,
+      }),
+    [],
+  );
+  const bulb = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.2), toneMapped: false }),
+    [],
+  );
+  return (
+    <group name="floor-lamp">
+      <mesh geometry={geo.base} material={mat.brass} />
+      <mesh geometry={geo.pole} material={mat.brass} />
+      <mesh geometry={geo.knob} material={mat.brass} />
+      <mesh geometry={geo.shade} material={shade} />
+      <mesh geometry={geo.bulb} material={bulb} />
+      <pointLight position={[0, 1.3, 0]} color="#ffc27a" intensity={7} distance={4.2} decay={1.8} />
     </group>
   );
 }
@@ -331,6 +387,9 @@ export function DeskArea() {
         <BankerLamp />
       </group>
       <DeskClutter />
+      <group position={[1.08, 0, -1.08]}>
+        <FloorLamp />
+      </group>
       {/* relógio digital ao lado do notebook, com os números virados para a sala */}
       <group position={[0.5, TOP, 0.3]} rotation={[0, -0.25, 0]}>
         <Clock />

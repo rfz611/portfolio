@@ -133,10 +133,12 @@ function SideTable({ position }: { position: V3 }) {
   );
 }
 
-/** Filmes favoritos do Raphael (arquivos em public/textures/films). O 3º ainda vem. */
+/** Filmes favoritos do Raphael (arquivos em public/textures/films). */
 const FILMS: { title: string; file: string }[] = [
   { title: 'Magnolia', file: '/textures/films/magnolia.png' },
   { title: 'Donnie Darko', file: '/textures/films/donnie-darko.png' },
+  // aparece sozinho quando o arquivo existir (o Raphael coloca a imagem)
+  { title: 'Arrival', file: '/textures/films/arrival.png' },
 ];
 
 /** Pôster do filme no quadro; enquanto a imagem não carrega (ou não existe), fica o "em breve". */
