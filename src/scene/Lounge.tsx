@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
-import { ClubChair } from '../objects/Chairs';
-import { ArmchairKimono, LooseGloves } from '../objects/PersonalItems';
+import { FoldedGi, LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
+import { LooseGloves } from '../objects/PersonalItems';
 import { Magazines } from '../objects/Magazines';
 import { JewelryTray, MushroomLamp, RedAshtray } from '../objects/TableSet';
 import { makeCanvas, tex } from '../textures/canvas';
@@ -315,60 +315,64 @@ function TableClutter() {
 }
 
 /**
- * Luminária de chão de arco cromada, atrás do canto do sofá (longe do
- * bar e da passagem): a haste faz a curva por cima do encosto e a cúpula
- * acesa ilumina a sala de um jeito suave, sem holofote na mesa.
+ * Luminária de chão de arco cromada: base de mármore, haste que sobe e se
+ * curva, e a cúpula acesa no fim. Agora fica no canto da poltrona, com a
+ * cúpula por cima de quem senta: uma luz de leitura, só naquele canto.
  */
-function ArcLamp() {
+function ArcLamp({
+  base,
+  aim,
+  height,
+}: {
+  base: [number, number];
+  aim: [number, number];
+  height: number;
+}) {
   const { mat } = lib();
-  const [bx, , bz] = SPOT.arcLamp;
-  // a haste se curva por cima do canto do sofá, para dentro da sala
-  const aimX = 2.25;
-  const aimZ = 1.85;
-  const yaw = Math.atan2(aimX - bx, aimZ - bz);
-  const reach = 1.95;
+  const [bx, bz] = base;
+  const yaw = Math.atan2(aim[0] - bx, aim[1] - bz);
+  const reach = Math.hypot(aim[0] - bx, aim[1] - bz);
   const geo = useMemo(() => {
     const curve = new THREE.CubicBezierCurve3(
       new THREE.Vector3(0, 0.1, 0),
-      new THREE.Vector3(0, 2.1, 0),
-      new THREE.Vector3(0, 2.45, reach * 0.75),
-      new THREE.Vector3(0, 2.05, reach),
+      new THREE.Vector3(0, height + 0.1, 0),
+      new THREE.Vector3(0, height + 0.42, reach * 0.7),
+      new THREE.Vector3(0, height, reach),
     );
     return {
-      base: box([0.32, 0.16, 0.32], [0, 0.08, 0]),
-      stem: new THREE.TubeGeometry(curve, 40, 0.012, 8, false),
-      dome: new THREE.SphereGeometry(0.2, 20, 10, 0, Math.PI * 2, 0, HALF_PI).translate(
+      base: box([0.3, 0.12, 0.3], [0, 0.06, 0]),
+      stem: new THREE.TubeGeometry(curve, 40, 0.011, 8, false),
+      dome: new THREE.SphereGeometry(0.17, 20, 10, 0, Math.PI * 2, 0, HALF_PI).translate(
         0,
-        -0.06,
+        -0.05,
         0,
       ),
       cap: cyl(0.02, 0.02, 0.06, [0, 0, 0], { seg: 8 }),
-      bulb: new THREE.CircleGeometry(0.15, 16).rotateX(HALF_PI).translate(0, -0.055, 0),
+      bulb: new THREE.CircleGeometry(0.13, 16).rotateX(HALF_PI).translate(0, -0.045, 0),
     };
-  }, []);
+  }, [height, reach]);
   const glow = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: hdr(palette.amber, 1.6), toneMapped: false }),
+    () => new THREE.MeshBasicMaterial({ color: hdr(palette.amber, 1.2), toneMapped: false }),
     [],
   );
   return (
     <group position={[bx, 0, bz]} rotation={[0, yaw, 0]} name="arc-lamp">
       <mesh geometry={geo.base} material={mat.marble} />
       <mesh geometry={geo.stem} material={mat.chrome} />
-      <group position={[0, 2.05, reach]}>
+      <group position={[0, height, reach]}>
         <mesh geometry={geo.dome} material={mat.chrome} />
         <mesh geometry={geo.cap} material={mat.chrome} />
         <mesh geometry={geo.bulb} material={glow} />
-        <sprite position={[0, -0.12, 0]} scale={[0.5, 0.5, 1]} material={mat.spriteAmber} />
         <pointLight
-          position={[0, -0.25, 0]}
+          position={[0, -0.22, 0]}
           color="#ffc58a"
-          intensity={34}
-          distance={9}
-          decay={1.6}
+          intensity={9}
+          distance={4}
+          decay={1.8}
         />
       </group>
       <mesh position={[0, 0.004, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
-        <planeGeometry args={[0.7, 0.7]} />
+        <planeGeometry args={[0.6, 0.6]} />
       </mesh>
     </group>
   );
@@ -408,18 +412,26 @@ export function Lounge() {
           <planeGeometry args={[1.9, 1.3]} />
         </mesh>
       </group>
-      <group position={[ax, ay, az]} rotation={[0, armYaw, 0]}>
+      {/* canto de leitura: poltrona lounge virada para o rebaixo, o banquinho com
+          o kimono dobrado, a mesinha de canto e a luminária de arco por cima */}
+      <group position={[ax, ay, az]} rotation={[0, armYaw, 0]} name="reading-corner">
         <OptionalModel file="armchair.glb">
-          <ClubChair />
+          <LoungeChair />
         </OptionalModel>
-        <group>
-          <ArmchairKimono />
+        <group position={[0, 0, 0.88]} rotation={[0, Math.PI, 0]}>
+          <Ottoman />
         </group>
-        <mesh position={[0, 0.005, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
-          <planeGeometry args={[1.5, 1.5]} />
+        <group position={[0.02, 0.43, 0.86]} rotation={[-0.05, 0.25, 0]}>
+          <FoldedGi />
+        </group>
+        <group position={[-0.66, 0, 0.12]}>
+          <TrayTable />
+        </group>
+        <ArcLamp base={[0.12, -0.78]} aim={[0.02, 0.22]} height={1.72} />
+        <mesh position={[0, 0.005, 0.3]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
+          <planeGeometry args={[1.8, 2.0]} />
         </mesh>
       </group>
-      <ArcLamp />
     </group>
   );
 }
