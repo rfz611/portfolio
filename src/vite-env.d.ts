@@ -17,4 +17,5 @@ interface Window {
   /** Marcadores usados pelo script de prints (scripts/screenshot.mjs). */
   __ready?: boolean;
   __fps?: number;
+  __scene?: typeof import('./store/useScene').useScene;
 }

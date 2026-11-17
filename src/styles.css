@@ -623,7 +623,19 @@ main:focus {
 
   .track {
     left: 12px;
-    bottom: 76px;
+    bottom: 70px;
+    gap: 8px 12px;
+    padding: 9px 10px;
+    grid-template-columns: 48px 1fr;
+  }
+
+  .track__cover {
+    width: 48px;
+    height: 48px;
+  }
+
+  .track__note {
+    display: none;
   }
 
   .hint {

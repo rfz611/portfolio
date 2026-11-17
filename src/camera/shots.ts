@@ -41,15 +41,15 @@ export const SHOTS: Record<ViewId, Shot> = {
   },
   // Frontal no cantinho, toca-discos no terço superior.
   discos: {
-    target: [shelfX + 0.25, 0.74, shelfZ],
-    dir: [1, 0.05, 0],
-    frame: [2.75, 1.72],
+    target: [shelfX + 0.25, 0.72, shelfZ],
+    dir: [1, 0.46, 0],
+    frame: [2.75, 1.8],
     fov: 40,
-    portrait: { target: [shelfX + 0.25, 0.62, shelfZ], frame: [1.72, 2.3], fov: 48 },
+    portrait: { target: [shelfX + 0.25, 0.55, shelfZ], frame: [1.72, 2.5], fov: 48 },
   },
   // Frontal, tela ocupando cerca de 60% da largura.
   tv: {
-    target: [tvX + 0.27, 0.745, tvZ - 0.085],
+    target: [tvX + 0.27, 0.735, tvZ + 0.18],
     dir: [1, 0.02, 0],
     frame: [0.8, 0.47],
     fov: 34,

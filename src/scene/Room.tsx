@@ -127,7 +127,7 @@ export function Room() {
     const wallMat = (repeat: number) =>
       new THREE.MeshStandardMaterial({
         map: retile(tex.wall, repeat, 1),
-        roughness: 0.4,
+        roughness: 0.58,
         envMapIntensity: 0.55,
       });
     const garageMat = (repeat: number) =>

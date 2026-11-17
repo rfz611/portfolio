@@ -2,6 +2,17 @@ import * as THREE from 'three';
 import { palette } from '../config/palette';
 import { makeCanvas, tex } from './canvas';
 import {
+  paintDeckFront,
+  paintKraft,
+  paintScreenOff,
+  paintShade,
+  paintSpines,
+  paintStrobe,
+  paintTvPanel,
+  paintVinyl,
+  paintVinylSheen,
+} from './props';
+import {
   paintBlob,
   paintBrushed,
   paintCarpet,
@@ -23,125 +34,133 @@ import {
  * Tudo é pintado em canvas na hora de abrir o site (nada é baixado), um
  * passo por vez, e é esse progresso que a tela de carregamento mostra.
  */
+const canvas = makeCanvas;
+
 const painters = {
-  // UV em metros: repeat = 1 / (metros por repetição)
+  // superfícies: UV em metros, repeat = 1 / (metros por repetição)
   carpet: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) => paintCarpet(c, w, h, 11)),
+      canvas(512, 512, (c, w, h) => paintCarpet(c, w, h, 11)),
       { repeat: [0.5, 0.5] },
     ),
   wall: () =>
     tex(
-      makeCanvas(512, 1024, (c, w, h) => paintWallPanel(c, w, h, 21)),
+      canvas(512, 1024, (c, w, h) => paintWallPanel(c, w, h, 21)),
       { aniso: 8 },
     ),
   ceiling: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) => paintCeiling(c, w, h, 31)),
+      canvas(512, 512, (c, w, h) => paintCeiling(c, w, h, 31)),
       { repeat: [0.5, 0.5] },
     ),
   wood: () =>
     tex(
-      makeCanvas(1024, 512, (c, w, h) => paintWood(c, w, h, { base: palette.mahogany, seed: 41 })),
-      {
-        repeat: [0.5, 1],
-        aniso: 8,
-      },
+      canvas(1024, 512, (c, w, h) => paintWood(c, w, h, { base: palette.mahogany, seed: 41 })),
+      { repeat: [0.5, 1], aniso: 8 },
     ),
   woodDark: () =>
-    tex(
-      makeCanvas(512, 512, (c, w, h) => paintWood(c, w, h, { base: '#2a0e08', seed: 43 })),
-      {
-        repeat: [1, 1],
-      },
-    ),
+    tex(canvas(512, 512, (c, w, h) => paintWood(c, w, h, { base: '#2a0e08', seed: 43 }))),
   woodLight: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
+      canvas(512, 512, (c, w, h) =>
         paintWood(c, w, h, { base: '#6b3418', seed: 47, contrast: 0.8 }),
       ),
-      {
-        repeat: [1, 1],
-      },
     ),
   leatherWine: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
-        paintLeather(c, w, h, { base: palette.leatherWine, seed: 51 }),
-      ),
-      {
-        repeat: [1.6, 1.6],
-      },
+      canvas(512, 512, (c, w, h) => paintLeather(c, w, h, { base: palette.leatherWine, seed: 51 })),
+      { repeat: [1.6, 1.6] },
     ),
   leatherWineTuft: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
+      canvas(512, 512, (c, w, h) =>
         paintLeather(c, w, h, { base: palette.leatherWine, seed: 53, tufted: [3, 2] }),
       ),
     ),
   leatherWineSeat: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
+      canvas(512, 512, (c, w, h) =>
         paintLeather(c, w, h, { base: palette.leatherWine, seed: 55, seams: true }),
       ),
     ),
   leatherBrown: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
+      canvas(512, 512, (c, w, h) =>
         paintLeather(c, w, h, { base: palette.leatherBrown, seed: 57 }),
       ),
-      {
-        repeat: [1.6, 1.6],
-      },
+      { repeat: [1.6, 1.6] },
     ),
   leatherBrownTuft: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) =>
+      canvas(512, 512, (c, w, h) =>
         paintLeather(c, w, h, { base: '#4a2718', seed: 59, tufted: [3, 2] }),
       ),
     ),
-  curtain: () =>
-    tex(makeCanvas(512, 512, (c, w, h) => paintFolds(c, w, h, palette.curtain, 7, 61))),
+  curtain: () => tex(canvas(512, 512, (c, w, h) => paintFolds(c, w, h, palette.curtain, 7, 61))),
   brass: () =>
     tex(
-      makeCanvas(256, 256, (c, w, h) => paintBrushed(c, w, h, palette.brass, 71)),
+      canvas(256, 256, (c, w, h) => paintBrushed(c, w, h, palette.brass, 71)),
       { repeat: [2, 2] },
     ),
   steel: () =>
     tex(
-      makeCanvas(256, 256, (c, w, h) => paintBrushed(c, w, h, '#8d9095', 73)),
+      canvas(256, 256, (c, w, h) => paintBrushed(c, w, h, '#8d9095', 73)),
       { repeat: [2, 2] },
     ),
-  grille: () => tex(makeCanvas(256, 512, paintGrille), { clamp: true }),
+  grille: () => tex(canvas(256, 512, paintGrille), { clamp: true }),
   concrete: () =>
     tex(
-      makeCanvas(512, 512, (c, w, h) => paintConcrete(c, w, h, 81)),
+      canvas(512, 512, (c, w, h) => paintConcrete(c, w, h, 81)),
       { repeat: [0.4, 0.4] },
     ),
-  garageWall: () => tex(makeCanvas(512, 512, (c, w, h) => paintGarageWall(c, w, h, 83))),
+  garageWall: () => tex(canvas(512, 512, (c, w, h) => paintGarageWall(c, w, h, 83))),
   glow: () =>
     tex(
-      makeCanvas(128, 128, (c, w, h) => paintGlow(c, w, h, 2.2)),
+      canvas(128, 128, (c, w, h) => paintGlow(c, w, h, 2.2)),
       { clamp: true },
     ),
   glowSoft: () =>
     tex(
-      makeCanvas(128, 128, (c, w, h) => paintGlow(c, w, h, 1.3)),
+      canvas(128, 128, (c, w, h) => paintGlow(c, w, h, 1.3)),
       { clamp: true },
     ),
-  blob: () => tex(makeCanvas(128, 128, paintBlob), { clamp: true }),
-  sky: () => tex(makeCanvas(8, 512, paintSky), { clamp: true }),
+  blob: () => tex(canvas(128, 128, paintBlob), { clamp: true }),
+  sky: () => tex(canvas(8, 512, paintSky), { clamp: true }),
   env: () => {
-    const t = tex(makeCanvas(1024, 512, paintEnv), { clamp: true });
+    const t = tex(canvas(1024, 512, paintEnv), { clamp: true });
     t.mapping = THREE.EquirectangularReflectionMapping;
     return t;
   },
+  // objetos
+  vinylBlack: () =>
+    tex(
+      canvas(512, 512, (c, w, h) => paintVinyl(c, w, h, '#0c0c0e')),
+      { clamp: true },
+    ),
+  vinylRed: () =>
+    tex(
+      canvas(512, 512, (c, w, h) => paintVinyl(c, w, h, '#b0101f')),
+      { clamp: true },
+    ),
+  vinylSheen: () => tex(canvas(256, 256, paintVinylSheen), { clamp: true }),
+  kraft: () => tex(canvas(128, 128, paintKraft)),
+  shade: () => tex(canvas(256, 128, paintShade)),
+  screenOff: () => tex(canvas(256, 192, paintScreenOff), { clamp: true }),
+  tvPanel: () => tex(canvas(128, 512, paintTvPanel), { clamp: true }),
+  spines: () =>
+    tex(
+      canvas(256, 256, (c, w, h) => paintSpines(c, w, h, 91)),
+      { clamp: true },
+    ),
+  deckFront: () => tex(canvas(512, 128, paintDeckFront), { clamp: true }),
+  strobe: () => tex(canvas(64, 16, paintStrobe), { repeat: [14, 1] }),
 } satisfies Record<string, () => THREE.Texture>;
 
 export type TexKey = keyof typeof painters;
 export type Textures = Record<TexKey, THREE.CanvasTexture>;
 
-const hdr = (hex: string, gain: number) => new THREE.Color(hex).multiplyScalar(gain);
+/** Cor acima de 1: só essas superfícies passam do limite do bloom. */
+export const hdr = (hex: string, gain: number) => new THREE.Color(hex).multiplyScalar(gain);
 
 function makeMaterials(t: Textures) {
   const std = (p: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(p);
@@ -158,6 +177,16 @@ function makeMaterials(t: Textures) {
       depthWrite: false,
       toneMapped: false,
       side: THREE.DoubleSide,
+    });
+  const sprite = (hex: string, opacity: number) =>
+    new THREE.SpriteMaterial({
+      map: t.glow,
+      color: hex,
+      transparent: true,
+      opacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
     });
 
   return {
@@ -176,6 +205,7 @@ function makeMaterials(t: Textures) {
     curtain: matte({ map: t.curtain, side: THREE.DoubleSide }),
     brass: std({ map: t.brass, roughness: 0.28, metalness: 1, envMapIntensity: 1.6 }),
     steel: std({ map: t.steel, roughness: 0.3, metalness: 1, envMapIntensity: 1.3 }),
+    darkMetal: std({ color: '#17181c', roughness: 0.38, metalness: 0.7, envMapIntensity: 1 }),
     bronze: std({ color: '#191310', roughness: 0.45, metalness: 0.8, envMapIntensity: 0.8 }),
     blackPlastic: std({ color: '#0d0d0f', roughness: 0.42, envMapIntensity: 0.6 }),
     rubber: std({ color: '#0a0a0b', roughness: 0.9, envMapIntensity: 0.2 }),
@@ -191,10 +221,10 @@ function makeMaterials(t: Textures) {
     }),
     smokedGlass: std({
       color: '#2a1c14',
-      roughness: 0.05,
+      roughness: 0.08,
       metalness: 0.4,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.22,
       side: THREE.DoubleSide,
       depthWrite: false,
       envMapIntensity: 1.5,
@@ -202,17 +232,41 @@ function makeMaterials(t: Textures) {
     concrete: std({ map: t.concrete, roughness: 0.22, metalness: 0.3, envMapIntensity: 1.1 }),
     garageWall: matte({ map: t.garageWall }),
     fascia: std({ color: '#0c0b10', roughness: 0.7, metalness: 0.2 }),
+
+    // objetos
+    vinylBlack: std({ map: t.vinylBlack, roughness: 0.36, metalness: 0, envMapIntensity: 0.45 }),
+    vinylRed: std({ map: t.vinylRed, roughness: 0.36, metalness: 0, envMapIntensity: 0.35 }),
+    vinylEdge: std({ color: '#0a0a0c', roughness: 0.4 }),
+    vinylSheen: additive(t.vinylSheen, '#ffe6c8', 0.3),
+    kraft: matte({ map: t.kraft }),
+    grille: matte({ map: t.grille }),
+    spines: matte({ map: t.spines }),
+    deckFront: std({ map: t.deckFront, roughness: 0.45, envMapIntensity: 0.5 }),
+    tvPanel: std({ map: t.tvPanel, roughness: 0.5, envMapIntensity: 0.4 }),
+    tvScreen: std({ map: t.screenOff, roughness: 0.12, metalness: 0.2, envMapIntensity: 1.6 }),
+    platter: std({ map: t.strobe, roughness: 0.3, metalness: 1, envMapIntensity: 1.3 }),
+    lampShade: new THREE.MeshBasicMaterial({
+      map: t.shade,
+      color: hdr(palette.amber, 2.3),
+      side: THREE.DoubleSide,
+      toneMapped: false,
+    }),
+
     // fontes de luz: cor acima de 1 para o bloom pegar só nelas
     amberStrip: light(hdr(palette.amber, 1.5)),
     amberBulb: light(hdr(palette.amber, 3)),
+    amberDim: light(hdr(palette.amber, 0.25)),
     neonRed: light(hdr(palette.neonRed, 4)),
     neonBlue: light(hdr(palette.neonBlue, 4.5)),
+    ledRed: light(hdr('#ff2a1a', 3)),
     white: light(hdr('#cfe0ff', 1.6)),
+
     // brilhos e sombras "assados"
     glowAmber: additive(t.glow, palette.amber, 0.55),
     glowAmberSoft: additive(t.glowSoft, palette.amber, 0.3),
     glowBlue: additive(t.glow, palette.neonBlue, 0.6),
     glowRed: additive(t.glow, palette.neonRed, 0.6),
+    spriteAmber: sprite(palette.amber, 0.5),
     shadow: new THREE.MeshBasicMaterial({
       map: t.blob,
       transparent: true,
@@ -247,16 +301,9 @@ async function waitFonts() {
   if (!document.fonts) return;
   const fonts = ['italic 600 48px "Bodoni Moda"', '600 24px "Manrope Variable"', '32px "VT323"'];
   const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2500));
-  await Promise.race([
-    Promise.allSettled(fonts.map((f) => document.fonts.load(f))).then(() => undefined),
-    timeout,
-  ]);
+  const loaded = Promise.allSettled(fonts.map((f) => document.fonts.load(f))).then(() => undefined);
+  await Promise.race([loaded, timeout]);
 }
-
-/** Outras partes do site (capas, letreiros) entram na fila de carregamento por aqui. */
-export type ExtraStep = (library: Library) => void;
-const extraSteps: ExtraStep[] = [];
-export const addLibraryStep = (step: ExtraStep) => extraSteps.push(step);
 
 export function buildLibrary(onProgress: (progress: number) => void): Promise<Library> {
   if (library) return Promise.resolve(library);
@@ -264,7 +311,7 @@ export function buildLibrary(onProgress: (progress: number) => void): Promise<Li
   building = (async () => {
     await waitFonts();
     const keys = Object.keys(painters) as TexKey[];
-    const total = keys.length + 1 + extraSteps.length;
+    const total = keys.length + 1;
     let done = 0;
     const tick = async () => {
       done += 1;
@@ -278,10 +325,6 @@ export function buildLibrary(onProgress: (progress: number) => void): Promise<Li
     }
     const built: Library = { tex: textures, mat: makeMaterials(textures) };
     await tick();
-    for (const step of extraSteps) {
-      step(built);
-      await tick();
-    }
     library = built;
     return built;
   })();

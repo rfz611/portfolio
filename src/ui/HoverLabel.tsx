@@ -11,15 +11,23 @@ export function HoverLabel() {
   useEffect(() => {
     const onMove = (event: PointerEvent) => {
       if (!ref.current) return;
-      ref.current.style.transform = `translate(${event.clientX + 16}px, ${event.clientY + 18}px)`;
+      const x = Math.min(event.clientX + 16, window.innerWidth - ref.current.offsetWidth - 8);
+      ref.current.style.transform = `translate(${x}px, ${event.clientY + 18}px)`;
     };
     window.addEventListener('pointermove', onMove);
     return () => window.removeEventListener('pointermove', onMove);
   }, []);
 
+  useEffect(() => {
+    document.body.style.cursor = hovered ? 'pointer' : '';
+    return () => {
+      document.body.style.cursor = '';
+    };
+  }, [hovered]);
+
   return (
     <div ref={ref} className={`hover-label${hovered ? ' is-on' : ''}`} aria-hidden="true">
-      {hovered ? `> ${t(hovered.label)}` : ''}
+      {hovered ? `> ${hovered.text ?? t(hovered.label)}` : ''}
     </div>
   );
 }

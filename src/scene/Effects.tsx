@@ -67,7 +67,7 @@ export function Effects() {
         radius={0.72}
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.22} />
+      <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.09} />
       <Vignette offset={0.28} darkness={0.7} />
     </EffectComposer>
   );

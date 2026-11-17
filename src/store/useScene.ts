@@ -30,6 +30,8 @@ export interface Hover {
   id: string;
   /** Chave de tradução do rótulo (objects.*). */
   label: string;
+  /** Texto pronto, quando o rótulo não vem das traduções (nome de faixa). */
+  text?: string;
 }
 
 export interface SceneState {

@@ -2,12 +2,14 @@ import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Selection } from '@react-three/postprocessing';
 import { useEffect, useRef, useState } from 'react';
+import { probeAvailability, unlockAudio } from '../audio/player';
 import { CameraRig } from '../camera/CameraRig';
 import { QUALITY } from '../config/quality';
 import { useScene, type Quality } from '../store/useScene';
 import { buildLibrary, isLibraryReady } from '../textures/library';
 import { Effects } from './Effects';
 import { Lights } from './Lights';
+import { RecordCorner } from './RecordCorner';
 import { Room } from './Room';
 
 const ORDER: Quality[] = ['low', 'medium', 'high'];
@@ -22,6 +24,7 @@ function ReadyProbe() {
       useScene.getState().setLoadProgress(1);
       useScene.getState().setReady(true);
       window.__ready = true;
+      void probeAvailability();
     }
     acc.current.time += delta;
     acc.current.count += 1;
@@ -39,6 +42,7 @@ function World() {
       <CameraRig />
       <Lights />
       <Room />
+      <RecordCorner />
       <Effects />
       <ReadyProbe />
     </Selection>
@@ -49,6 +53,13 @@ export default function Experience() {
   const quality = useScene((s) => s.quality);
   const autoQuality = useScene((s) => s.autoQuality);
   const [ready, setReady] = useState(isLibraryReady);
+
+  // o som só é liberado no primeiro clique ou toque do visitante
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener('pointerdown', unlock, { once: true });
+    return () => window.removeEventListener('pointerdown', unlock);
+  }, []);
 
   useEffect(() => {
     let alive = true;

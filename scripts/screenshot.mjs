@@ -4,7 +4,10 @@
  *   ex.: node scripts/screenshot.mjs docs/prints/fase-1 home discos
  * Precisa do servidor de desenvolvimento rodando (npm run dev).
  * Variáveis: SHOT_URL (padrão http://localhost:5173), SHOT_ONLY=desktop|mobile,
- *            SHOT_QUALITY=high|medium|low, SHOT_WAIT (ms depois da transição).
+ *            SHOT_QUALITY=high|medium|low, SHOT_WAIT (ms depois da transição),
+ *            SHOT_CLICK="x,y;x,y" (cliques antes do print), SHOT_AFTER (ms depois
+ *            dos cliques), SHOT_CLIP="x,y,l,a" (recorte), SHOT_SUFFIX (nome),
+ *            SHOT_EVAL (expressão JS para imprimir), SHOT_HOVER="x,y".
  */
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -35,7 +38,13 @@ const url = process.env.SHOT_URL ?? 'http://localhost:5173';
 const quality = process.env.SHOT_QUALITY;
 const wait = Number(process.env.SHOT_WAIT ?? 2600);
 const devices = [
-  { name: 'desktop', width: 1440, height: 810, deviceScaleFactor: 1, isMobile: false },
+  {
+    name: 'desktop',
+    width: 1440,
+    height: 810,
+    deviceScaleFactor: Number(process.env.SHOT_DPR ?? 1),
+    isMobile: false,
+  },
   { name: 'mobile', width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 ].filter((d) => !process.env.SHOT_ONLY || d.name === process.env.SHOT_ONLY);
 
@@ -67,8 +76,31 @@ for (const device of devices) {
       await page.waitForFunction(() => window.__ready === true, { timeout: 60000 });
     }
     await new Promise((resolve) => setTimeout(resolve, wait));
-    const file = join(outDir, `${view}-${device.name}.png`);
-    await page.screenshot({ path: file });
+    for (const point of (process.env.SHOT_CLICK ?? '').split(';').filter(Boolean)) {
+      const [x, y] = point.split(',').map(Number);
+      await page.mouse.move(x, y);
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await page.mouse.click(x, y);
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    }
+    if (process.env.SHOT_HOVER) {
+      const [x, y] = process.env.SHOT_HOVER.split(',').map(Number);
+      await page.mouse.move(x - 4, y - 4);
+      await page.mouse.move(x, y, { steps: 4 });
+    }
+    if (process.env.SHOT_CLICK || process.env.SHOT_HOVER) {
+      await new Promise((resolve) => setTimeout(resolve, Number(process.env.SHOT_AFTER ?? 3500)));
+    }
+    const suffix = process.env.SHOT_SUFFIX ? `-${process.env.SHOT_SUFFIX}` : '';
+    const file = join(outDir, `${view}-${device.name}${suffix}.png`);
+    const clip = process.env.SHOT_CLIP?.split(',').map(Number);
+    await page.screenshot({
+      path: file,
+      ...(clip ? { clip: { x: clip[0], y: clip[1], width: clip[2], height: clip[3] } } : {}),
+    });
+    if (process.env.SHOT_EVAL) {
+      console.log('eval:', await page.evaluate(process.env.SHOT_EVAL));
+    }
     const info = await page.evaluate(() => {
       const canvas = document.querySelector('canvas');
       const gl = canvas?.getContext('webgl2');
