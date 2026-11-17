@@ -108,6 +108,30 @@ function tvStatic(): Float32Array {
   return out;
 }
 
+/** Som de ligar o computador: quatro notas suaves subindo, com um eco curto. */
+function boot(): Float32Array {
+  const out = new Float32Array(Math.floor(RATE * 2));
+  const notes: [number, number][] = [
+    [0, 523.25],
+    [0.13, 659.25],
+    [0.26, 783.99],
+    [0.39, 1046.5],
+  ];
+  for (const [at, freq] of notes) {
+    const start = Math.floor(at * RATE);
+    for (let i = 0; start + i < out.length; i++) {
+      const t = i / RATE;
+      const env = Math.min(1, t * 60) * Math.exp(-t * 2.4);
+      const tone = Math.sin(t * 6.283 * freq) + 0.3 * Math.sin(t * 6.283 * freq * 2);
+      out[start + i] += tone * env * 0.18;
+    }
+  }
+  // eco
+  const delay = Math.floor(RATE * 0.18);
+  for (let i = out.length - 1; i >= delay; i--) out[i] += out[i - delay] * 0.3;
+  return out;
+}
+
 /** Líquido caindo no copo: chiado filtrado que vai ficando mais grave. */
 function pour(): Float32Array {
   const r = mulberry32(23);
@@ -147,6 +171,7 @@ export interface Sfx {
   ice: string;
   pour: string;
   tvStatic: string;
+  boot: string;
 }
 
 let cache: Sfx | null = null;
@@ -161,6 +186,7 @@ export function makeSfx(): Sfx | null {
     ice: toWavUrl(ice()),
     pour: toWavUrl(pour()),
     tvStatic: toWavUrl(tvStatic()),
+    boot: toWavUrl(boot()),
   };
   return cache;
 }

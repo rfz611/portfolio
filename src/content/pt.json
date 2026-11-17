@@ -77,7 +77,9 @@
     "langPt": "Português nativo",
     "langEn": "Inglês básico, estudando para Cambridge",
     "langEs": "Espanhol básico",
-    "langIt": "Italiano iniciante"
+    "langIt": "Italiano iniciante",
+    "tip": "clique duas vezes para abrir",
+    "tipTouch": "toque para abrir"
   },
   "certificates": {
     "title": "Certificados",

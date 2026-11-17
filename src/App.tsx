@@ -17,6 +17,7 @@ const Experience = lazy(() => import('./scene/Experience'));
 const HINTS: Partial<Record<string, string>> = {
   home: 'ui.hint',
   discos: 'records.hint',
+  tv: 'projects.hint',
 };
 
 export default function App() {

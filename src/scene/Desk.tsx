@@ -7,6 +7,7 @@ import { Clock } from '../objects/Clock';
 import { Interactive } from '../objects/Interactive';
 import { DeskPhone, Mug, Notebook } from '../objects/DeskItems';
 import { paintLaptopKeys, paintLaptopScreen } from '../textures/laptop';
+import { LaptopContent } from '../objects/LaptopContent';
 import { ChairSeat, Drawer, PhotoFrame, Steam } from '../objects/OfficeProps';
 import { useSeated } from '../objects/seat';
 import { useScene } from '../store/useScene';
@@ -110,6 +111,10 @@ function Laptop() {
       }),
     [],
   );
+  const bezel = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#0b0b0d', roughness: 0.18, metalness: 0.2 }),
+    [],
+  );
   const silver = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -144,14 +149,19 @@ function Laptop() {
         <mesh position={[0, lid / 2 + 0.006, 0.0024]} material={apple}>
           <planeGeometry args={[0.042, 0.05]} />
         </mesh>
+        {/* moldura preta de vidro em volta da tela, como no MacBook */}
+        <mesh position={[0, lid / 2, -0.0023]} rotation={[0, Math.PI, 0]} material={bezel}>
+          <planeGeometry args={[w - 0.006, lid - 0.006]} />
+        </mesh>
         <mesh
           name="screen"
-          position={[0, lid / 2 + 0.004, -0.0024]}
+          position={[0, lid / 2 + 0.004, -0.0028]}
           rotation={[0, Math.PI, 0]}
           material={seated ? screenOn : mat.tvScreen}
         >
           <planeGeometry args={[w * 0.92, lid * 0.88]} />
         </mesh>
+        <LaptopContent w={w * 0.92} h={lid * 0.88} y={lid / 2 + 0.004} z={-0.0032} />
       </group>
     </group>
   );

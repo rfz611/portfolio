@@ -33,6 +33,7 @@ let ambience: {
   ice: Howl;
   pour: Howl;
   tvStatic: Howl;
+  boot: Howl;
 } | null = null;
 let subscribed = false;
 
@@ -77,6 +78,7 @@ export function unlockAudio() {
     ice: new Howl({ src: [sfx.ice], format: ['wav'], volume: 0.1 }),
     pour: new Howl({ src: [sfx.pour], format: ['wav'], volume: 0.08 }),
     tvStatic: new Howl({ src: [sfx.tvStatic], format: ['wav'], volume: 0.05 }),
+    boot: new Howl({ src: [sfx.boot], format: ['wav'], volume: 0.09 }),
   };
   ambience.rain.play();
   ambience.rain.fade(0, RAIN_VOLUME, 3000);
@@ -105,6 +107,11 @@ export function playIce() {
 /** Chiado curto da TV (ao ligar e ao trocar de canal). */
 export function playStatic() {
   ambience?.tvStatic.play();
+}
+
+/** Som de inicialização do notebook. */
+export function playBoot() {
+  ambience?.boot.play();
 }
 
 /** Som do drink sendo servido. */
