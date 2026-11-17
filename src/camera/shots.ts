@@ -127,16 +127,16 @@ export const SHOTS: Record<ViewId, Shot> = {
     dir: [-0.08, 1, 0.42],
     frame: [1.3, 0.95],
     fov: 40,
-    portrait: { frame: [1.15, 1.5] },
+    portrait: { target: [tableX - 0.17, tableY + 0.44, tableZ + 0.1], frame: [0.78, 1.05] },
   },
   // Olhando a cidade e o neon com o nome.
   janela: {
-    // encostado no vidro, olhando a cidade lá embaixo: parque, avenidas e o outdoor
-    target: [SPOT.neon[0] + 0.6, 0.55, -4.6],
-    dir: [-0.1, 0.42, 1],
-    frame: [3.9, 2.5],
-    fov: 52,
-    portrait: { frame: [2.4, 3.6] },
+    // encostado no vidro: o outdoor com o nome no alto à direita, o parque e as
+    // avenidas lá embaixo, e espaço à esquerda para o cartão do Início
+    position: [0.75, 1.55, -3.9],
+    target: [4.17, -1.92, -23.3],
+    hfov: 70,
+    portrait: { target: [6.79, -2.2, -22.5], hfov: 62 },
   },
   // No balcão do bar, olhando o copo sendo servido e a cristaleira atrás.
   bar: {

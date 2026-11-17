@@ -43,7 +43,8 @@
     "phrase": "I build back-ends in C# and Python, and I like turning manual work into systems.",
     "status": "Looking for an IT internship: afternoons, on-site or hybrid in Curitiba, or remote.",
     "downloadCv": "Download résumé",
-    "seeProjects": "See projects"
+    "seeProjects": "See projects",
+    "cvSoon": "Résumé coming soon"
   },
   "projects": {
     "title": "Projects",
@@ -87,7 +88,12 @@
     "python": "Advanced Python",
     "c": "C Language",
     "office": "Advanced Office Suite",
-    "salesforce": "Salesforce"
+    "salesforce": "Salesforce",
+    "hint": "Hover the edge of a magazine · click to open",
+    "hintTouch": "Tap a magazine to open it",
+    "prev": "previous magazine",
+    "next": "next magazine",
+    "close": "Close"
   },
   "skills": {
     "title": "Skills",

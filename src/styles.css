@@ -1150,3 +1150,187 @@ main:focus {
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 3px);
   pointer-events: none;
 }
+
+/* ---------- revista aberta: legenda e setas ---------- */
+
+.magazine-caption {
+  position: fixed;
+  left: 50%;
+  bottom: 50px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 16px);
+  transform: translateX(-50%);
+}
+
+.magazine-caption p {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 6px;
+  font-family: var(--font-crt);
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.95);
+}
+
+.magazine-caption strong {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--amber);
+  letter-spacing: 0.04em;
+}
+
+.magazine-caption span {
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+/* ---------- Início: cartão na janela ---------- */
+
+.home-card {
+  position: fixed;
+  z-index: 30;
+  left: max(24px, 6vw);
+  top: 50%;
+  width: min(460px, 42vw);
+  padding: 22px 24px 18px;
+  border: 1px solid rgba(184, 137, 58, 0.7);
+  outline: 1px solid rgba(184, 137, 58, 0.25);
+  outline-offset: 4px;
+  background: linear-gradient(180deg, rgba(10, 8, 12, 0.86), rgba(20, 10, 10, 0.8));
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(calc(-50% + 12px));
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+  pointer-events: none;
+}
+
+.home-card.is-on {
+  opacity: 1;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.home-card__place {
+  margin: 0 0 6px;
+  font: 1.1rem/1 var(--font-crt);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.home-card h2 {
+  margin: 0;
+  font: italic 600 2.3rem/1.02 var(--font-display);
+  color: #fff3dc;
+}
+
+.home-card__role {
+  margin: 6px 0 14px;
+  font: 1.25rem/1 var(--font-crt);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.home-card__phrase {
+  margin: 0 0 12px;
+  font: italic 400 1.15rem/1.35 var(--font-display);
+  color: var(--text);
+}
+
+.home-card__status {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  font: 1.1rem/1.15 var(--font-crt);
+  color: var(--muted);
+}
+
+.home-card__status i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  background: #5fd38a;
+  box-shadow: 0 0 8px #5fd38a;
+  animation: hint 2.4s ease-in-out infinite;
+}
+
+.home-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-left: -9px;
+}
+
+.home-card__actions a.ctl {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--amber);
+}
+
+.home-card__actions .is-disabled {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .home-card {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: 96px;
+    width: auto;
+    padding: 16px 16px 12px;
+    transform: translateY(12px);
+  }
+
+  .home-card.is-on {
+    transform: none;
+  }
+
+  .home-card h2 {
+    font-size: 1.85rem;
+  }
+
+  .home-card__phrase {
+    font-size: 1.05rem;
+  }
+
+  .magazine-caption {
+    bottom: 96px;
+  }
+}
+
+.magazine-caption .ctl {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .magazine-caption {
+    gap: 0;
+  }
+
+  .magazine-caption p {
+    min-width: 0;
+    margin: 0 2px;
+  }
+
+  .magazine-caption strong {
+    font-size: 1.25rem;
+  }
+
+  .magazine-caption span {
+    font-size: 1rem;
+  }
+}

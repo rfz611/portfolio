@@ -43,7 +43,8 @@
     "phrase": "Construo back-ends em C# e Python e gosto de transformar trabalho manual em sistema.",
     "status": "Procurando estágio em TI, à tarde, presencial ou híbrido em Curitiba, ou remoto.",
     "downloadCv": "Baixar currículo",
-    "seeProjects": "Ver projetos"
+    "seeProjects": "Ver projetos",
+    "cvSoon": "Currículo em breve"
   },
   "projects": {
     "title": "Projetos",
@@ -87,7 +88,12 @@
     "python": "Python Avançado",
     "c": "Linguagem C",
     "office": "Pacote Office Avançado",
-    "salesforce": "Salesforce"
+    "salesforce": "Salesforce",
+    "hint": "Passe o mouse na beirada das revistas · clique para abrir",
+    "hintTouch": "Toque numa revista para abrir",
+    "prev": "revista anterior",
+    "next": "próxima revista",
+    "close": "Fechar"
   },
   "skills": {
     "title": "Skills",

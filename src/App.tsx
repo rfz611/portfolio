@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useScene } from './store/useScene';
 import { BackButton } from './ui/BackButton';
 import { BarMenu } from './ui/BarMenu';
+import { HomeCard } from './ui/HomeCard';
+import { MagazineCaption } from './ui/MagazineCaption';
 import { Controls } from './ui/Controls';
 import { hasWebGL, useEscapeToHome, useHashSync, useVolumeKeys } from './ui/hooks';
 import { HoverLabel } from './ui/HoverLabel';
@@ -18,13 +20,20 @@ const HINTS: Partial<Record<string, string>> = {
   home: 'ui.hint',
   discos: 'records.hint',
   tv: 'projects.hint',
+  mesa: 'certificates.hint',
 };
 
 export default function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const touch = useMemo(
+    () =>
+      typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches === true,
+    [],
+  );
   const mode = useScene((s) => s.mode);
   const view = useScene((s) => s.view);
   const ready = useScene((s) => s.ready);
+  const magazineOpen = useScene((s) => s.magazine !== null);
   const webgl = useMemo(hasWebGL, []);
   const is3d = mode === '3d' && webgl;
 
@@ -63,9 +72,11 @@ export default function App() {
           <HoverLabel />
           {ready && <SpotNav />}
           {ready && <BarMenu />}
-          {ready && HINTS[view] && (
+          {ready && <MagazineCaption />}
+          {ready && <HomeCard />}
+          {ready && HINTS[view] && !magazineOpen && (
             <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
-              {t(HINTS[view])}
+              {t(touch && i18n.exists(`${HINTS[view]}Touch`) ? `${HINTS[view]}Touch` : HINTS[view])}
             </p>
           )}
         </>

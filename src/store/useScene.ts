@@ -68,6 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Revista aberta na frente da câmera (índice em content/certificates.ts). */
+  magazine: number | null;
+  setMagazine: (magazine: number | null) => void;
   /** Canal da TV (índice em content/projects.ts). */
   tvChannel: number;
   setTvChannel: (channel: number) => void;
@@ -111,7 +114,7 @@ export const useScene = create<SceneState>()(
       loadProgress: 0,
       ready: false,
 
-      setView: (view) => set({ view, hovered: null }),
+      setView: (view) => set({ view, hovered: null, magazine: null }),
       setSpot: (spot) => set({ spot, view: 'home', hovered: null }),
       setMode: (mode) => set({ mode }),
       setHovered: (hovered) => set({ hovered }),
@@ -125,6 +128,8 @@ export const useScene = create<SceneState>()(
       drink: null,
       drinkServed: false,
       tvChannel: 0,
+      magazine: null,
+      setMagazine: (magazine) => set({ magazine }),
       setTvChannel: (tvChannel) => set({ tvChannel }),
       orderDrink: (kind) =>
         set((s) => ({ drink: { kind, order: (s.drink?.order ?? 0) + 1 }, drinkServed: false })),

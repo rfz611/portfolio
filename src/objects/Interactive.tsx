@@ -16,6 +16,11 @@ interface Props {
   hit?: ReactNode;
 }
 
+/** O evento veio do próprio canvas 3D (e não de uma tela HTML por cima dele)? */
+function fromCanvas(event: ThreeEvent<PointerEvent | MouseEvent>) {
+  return (event.nativeEvent.target as Element | null)?.tagName === 'CANVAS';
+}
+
 /**
  * Regra geral dos objetos: passar o mouse acende (contorno âmbar e rótulo
  * em VT323) e clicar leva a câmera até ele.
@@ -25,6 +30,7 @@ export function Interactive({ id, label, text, enabled = true, onClick, children
 
   const over = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
+    if (!fromCanvas(event)) return;
     useScene.getState().setHovered({ id, label, text });
   };
   const out = () => {
@@ -32,7 +38,7 @@ export function Interactive({ id, label, text, enabled = true, onClick, children
   };
   const click = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
-    if (event.delta > 6) return; // foi um arrasto para olhar em volta
+    if (event.delta > 6 || !fromCanvas(event)) return; // arrasto, ou clique numa tela HTML
     onClick?.();
   };
 

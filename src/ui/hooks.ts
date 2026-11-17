@@ -31,7 +31,10 @@ export function useHashSync() {
 export function useEscapeToHome() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') useScene.getState().setView('home');
+      if (event.key !== 'Escape') return;
+      const s = useScene.getState();
+      if (s.magazine !== null) s.setMagazine(null);
+      else s.setView('home');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
