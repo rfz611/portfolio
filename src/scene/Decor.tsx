@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { PIT, ROOM } from '../config/layout';
@@ -133,6 +133,50 @@ function SideTable({ position }: { position: V3 }) {
   );
 }
 
+/** Filmes favoritos do Raphael (arquivos em public/textures/films). O 3º ainda vem. */
+const FILMS: { title: string; file: string }[] = [
+  { title: 'Magnolia', file: '/textures/films/magnolia.png' },
+  { title: 'Donnie Darko', file: '/textures/films/donnie-darko.png' },
+];
+
+/** Pôster do filme no quadro; enquanto a imagem não carrega (ou não existe), fica o "em breve". */
+function useFilmPoster(index: number, fallback: THREE.Texture) {
+  const [map, setMap] = useState<THREE.Texture>(fallback);
+  const film = FILMS[index];
+  useEffect(() => {
+    setMap(fallback);
+    if (!film) return;
+    let alive = true;
+    new THREE.TextureLoader().load(film.file, (texture) => {
+      if (!alive) return;
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 4;
+      setMap(texture);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [film, fallback]);
+  return { map, title: film?.title };
+}
+
+function FilmPoster({
+  index,
+  fallback,
+  position,
+}: {
+  index: number;
+  fallback: THREE.Texture;
+  position: V3;
+}) {
+  const { map, title } = useFilmPoster(index, fallback);
+  return (
+    <Interactive id={`poster-${index}`} label="objects.poster" text={title}>
+      <Painting map={map} size={[0.6, 0.88]} position={position} rotationY={Math.PI} />
+    </Interactive>
+  );
+}
+
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const { t } = useTranslation();
@@ -155,14 +199,7 @@ export function Decor() {
       {/* parede do fundo (sul), de frente para quem senta à escrivaninha:
           três quadros de filmes favoritos entre as arandelas e a paisagem à direita */}
       {slots.map((map, i) => (
-        <Interactive key={i} id={`poster-${i}`} label="objects.poster">
-          <Painting
-            map={map}
-            size={[0.6, 0.88]}
-            position={[-1.98 + i * 0.78, 1.78, south]}
-            rotationY={Math.PI}
-          />
-        </Interactive>
+        <FilmPoster key={i} index={i} fallback={map} position={[-1.98 + i * 0.78, 1.78, south]} />
       ))}
       <Sconce position={[-2.55, 1.85, south]} rotationY={Math.PI} />
       <Sconce position={[0.15, 1.85, south]} rotationY={Math.PI} />

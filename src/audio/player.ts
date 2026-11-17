@@ -10,14 +10,14 @@ import { makeSfx } from './sfx';
  * - nada toca sozinho: o som só começa depois de um clique do visitante;
  * - a faixa entra com fade de 0 até o volume em 2 s;
  * - o volume nunca passa de 60%;
- * - chuva em loop a 4% e chiado de vinil a 5% enquanto um disco toca.
+ * - chuva em loop a 2% (o Raphael pediu mais baixo que os 4% da especificação) e chiado de vinil a 5% enquanto um disco toca.
  *
  * A cena 3D cuida da coreografia (disco voando, agulha descendo) e avisa
  * aqui quando a agulha encosta no disco (needleDown).
  */
 export const FADE_IN_MS = 2000;
 export const FADE_OUT_MS = 700;
-export const RAIN_VOLUME = 0.04;
+export const RAIN_VOLUME = 0.02;
 export const CRACKLE_VOLUME = 0.05;
 
 interface Deck {

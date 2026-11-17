@@ -17,3 +17,6 @@ Thumbs.db
 
 # prints de rascunho
 docs/prints/tmp
+
+# currículo: fora do Git até o Raphael decidir (pode ter dados pessoais)
+public/cv

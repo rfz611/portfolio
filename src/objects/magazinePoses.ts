@@ -10,10 +10,10 @@ const UP = new THREE.Vector3(0, 1, 0);
 
 /** Posição (x, z) e giro de cada revista na pilha: índice 0 é a de cima. */
 const LOOSE: [number, number, number][] = [
-  [-0.03, 0.03, 0.12],
-  [0.02, 0.12, 1.32],
-  [-0.08, -0.02, -0.62],
-  [0.05, 0.04, 0.45],
+  [0, 0.01, 0.1],
+  [0.12, 0.07, -0.22],
+  [-0.11, -0.05, 0.42],
+  [0.07, -0.11, -0.62],
 ];
 
 const yaw = (angle: number) => new THREE.Quaternion().setFromAxisAngle(UP, angle);
