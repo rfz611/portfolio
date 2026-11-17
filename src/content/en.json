@@ -24,7 +24,7 @@
     "lang": "Switch language to Portuguese",
     "textVersion": "Text",
     "view3d": "3D",
-    "hint": "Click the objects to explore",
+    "hint": "Drag to look around · click the objects to explore",
     "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
     "room": "Room",
     "soundOn": "Sound",
@@ -32,7 +32,9 @@
   },
   "loader": {
     "title": "Going up to the penthouse",
-    "ready": "Ready"
+    "ready": "Ready",
+    "chapter": "Chapter I",
+    "loading": "Loading"
   },
   "home": {
     "name": "Raphael Scharf Passos",
@@ -119,7 +121,12 @@
     "next": "Next record",
     "volume": "Volume",
     "pick": "Pick a record",
-    "note": "Music only starts when you click a record."
+    "note": "Music only starts when you click a record.",
+    "hint": "Click a cover to play · turn the brass knob for volume · click the platter to pause"
+  },
+  "decor": {
+    "posterTitle": "Rain over the City",
+    "posterTagline": "Nobody sleeps in the penthouse"
   },
   "objects": {
     "records": "records",
@@ -132,6 +139,7 @@
     "car": "garage",
     "window": "home",
     "bar": "bar",
+    "perfume": "perfume · coming soon",
     "clock": "local time"
   }
 }

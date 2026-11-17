@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
+import { ClubChair } from '../objects/Chairs';
 import { Magazines } from '../objects/Magazines';
 import { makeCanvas, tex } from '../textures/canvas';
 import { hdr, lib } from '../textures/library';
@@ -11,7 +12,6 @@ import { box, crease, cyl, lathe, merge } from './geo';
 import { OptionalModel } from './OptionalModel';
 import { arcPoints, sweep } from './sweep';
 
-const deg = (d: number) => (d * Math.PI) / 180;
 const HALF_PI = Math.PI / 2;
 
 /** Mesmo material, mas visível dos dois lados (peças feitas por revolução ou varredura). */
@@ -167,84 +167,79 @@ function PitSteps() {
   );
 }
 
-/** Poltrona chesterfield de couro marrom (fica fora do rebaixo, perto da TV). */
-function Armchair() {
-  const { mat } = lib();
-  const plain = useTwoSided(mat.leatherBrown);
-  const tufted = useTwoSided(mat.leatherBrownTuft);
-  const geo = useMemo(() => {
-    const a = { start: deg(55), length: deg(250), seg: 22 };
-    const ends = [a.start, a.start + a.length];
-    return {
-      outer: lathe(
-        [
-          [0.43, 0.04],
-          [0.45, 0.5],
-          [0.44, 0.78],
-          [0.4, 0.86],
-        ],
-        { ...a, uRepeat: 3, vRepeat: 1.3 },
-      ),
-      inner: lathe(
-        [
-          [0.4, 0.86],
-          [0.33, 0.86],
-          [0.29, 0.79],
-          [0.3, 0.42],
-        ],
-        { ...a, uRepeat: 5, vRepeat: 1.2 },
-      ),
-      solid: merge([
-        cyl(0.42, 0.44, 0.25, [0, 0.125, 0], { seg: 22 }),
-        cyl(0.37, 0.38, 0.17, [0, 0.335, 0], { seg: 22 }),
-        ...ends.map((phi) =>
-          cyl(0.078, 0.078, 0.84, [Math.sin(phi) * 0.37, 0.44, Math.cos(phi) * 0.37], {
-            seg: 12,
-          }),
-        ),
-      ]),
-      feet: merge(
-        [45, 135, 225, 315].map((d) =>
-          cyl(0.03, 0.02, 0.04, [Math.sin(deg(d)) * 0.36, 0.02, Math.cos(deg(d)) * 0.36], {
-            seg: 8,
-          }),
-        ),
-      ),
-    };
-  }, []);
-  return (
-    <group name="armchair">
-      <mesh geometry={geo.outer} material={plain} />
-      <mesh geometry={geo.inner} material={tufted} />
-      <mesh geometry={geo.solid} material={mat.leatherBrown} />
-      <mesh geometry={geo.feet} material={mat.brass} />
-    </group>
+const TOP = 0.42;
+
+/** Contorno orgânico da mesa (como as mesas de vidro dos anos 80), em metros. */
+const TABLE_OUTLINE: [number, number][] = [
+  [-0.74, 0.04],
+  [-0.62, 0.34],
+  [-0.24, 0.43],
+  [0.12, 0.3],
+  [0.48, 0.41],
+  [0.76, 0.16],
+  [0.71, -0.24],
+  [0.32, -0.42],
+  [-0.22, -0.4],
+  [-0.62, -0.3],
+];
+
+function tableShape(scale: number) {
+  const curve = new THREE.CatmullRomCurve3(
+    TABLE_OUTLINE.map(([x, z]) => new THREE.Vector3(x * scale, -z * scale, 0)),
+    true,
+    'centripetal',
   );
+  return new THREE.Shape(curve.getPoints(72).map((p) => new THREE.Vector2(p.x, p.y)));
 }
 
-/** Mesa redonda de mogno envernizado (1,10 m de diâmetro × 0,42 m). */
+/** Peça extrudada deitada no chão, de y0 até y0 + altura. */
+function slab(scale: number, y0: number, height: number) {
+  const g = new THREE.ExtrudeGeometry(tableShape(scale), {
+    depth: height,
+    bevelEnabled: false,
+    curveSegments: 4,
+  });
+  g.rotateX(-HALF_PI);
+  g.translate(0, y0, 0);
+  return g;
+}
+
+/**
+ * Mesa de centro de formato orgânico (cerca de 1,50 × 0,85 m): tampo de
+ * vidro fumê com borda de latão sobre uma base esculpida de mogno.
+ */
 function CoffeeTable() {
   const { mat } = lib();
   const geo = useMemo(
     () => ({
-      top: cyl(0.55, 0.55, 0.05, [0, 0.395, 0], { seg: 32, uv: 1 }),
-      rim: cyl(0.556, 0.556, 0.024, [0, 0.395, 0], { seg: 32, open: true }),
-      base: cyl(0.36, 0.4, 0.34, [0, 0.2, 0], { seg: 24, swap: true }),
-      ring: cyl(0.425, 0.425, 0.03, [0, 0.015, 0], { seg: 24 }),
+      rim: slab(1.0, TOP - 0.03, 0.012),
+      glass: slab(0.985, TOP - 0.018, 0.018),
+      base: slab(0.55, 0.03, TOP - 0.06),
+      plinth: slab(0.6, 0, 0.03),
     }),
+    [],
+  );
+  const glass = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#4a3426',
+        roughness: 0.05,
+        metalness: 0.2,
+        transparent: true,
+        opacity: 0.45,
+        envMapIntensity: 1.4,
+      }),
     [],
   );
   return (
     <group name="coffee_table">
-      <mesh geometry={geo.top} material={mat.varnish} name="top" />
       <mesh geometry={geo.rim} material={mat.brass} />
+      <mesh geometry={geo.glass} material={glass} name="top" renderOrder={4} />
       <mesh geometry={geo.base} material={mat.mahogany} />
-      <mesh geometry={geo.ring} material={mat.brass} />
+      <mesh geometry={geo.plinth} material={mat.brass} />
     </group>
   );
 }
-
-const TOP = 0.42;
 
 /**
  * O que ficou largado na mesa: copo de uísque pela metade com marca de
@@ -330,7 +325,7 @@ function TableClutter() {
         <mesh geometry={geo.ashtray} material={mat.marble} />
         <mesh geometry={geo.ash} material={mat.ash} />
         <mesh geometry={geo.cigar} material={mat.cigar} />
-        <mesh geometry={geo.ember} material={mat.ledRed} />
+        <mesh geometry={geo.ember} material={mat.cigarEmber} />
       </group>
       <mesh
         geometry={geo.lighter}
@@ -352,16 +347,18 @@ function TableClutter() {
 }
 
 /**
- * Luminária de chão de arco cromada: base de mármore, haste que sobe e
- * faz uma curva por cima do sofá, com a cúpula em domo acesa.
+ * Luminária de chão de arco cromada, atrás do canto do sofá (longe do
+ * bar e da passagem): a haste faz a curva por cima do encosto e a cúpula
+ * acesa ilumina a sala de um jeito suave, sem holofote na mesa.
  */
 function ArcLamp() {
   const { mat } = lib();
   const [bx, , bz] = SPOT.arcLamp;
-  const [tx, , tz] = SPOT.table;
-  // direção da base até a mesa e alcance do arco
-  const yaw = Math.atan2(tx - bx, tz - bz);
-  const reach = 2.0;
+  // a haste se curva por cima do canto do sofá, para dentro da sala
+  const aimX = 2.25;
+  const aimZ = 1.85;
+  const yaw = Math.atan2(aimX - bx, aimZ - bz);
+  const reach = 1.95;
   const geo = useMemo(() => {
     const curve = new THREE.CubicBezierCurve3(
       new THREE.Vector3(0, 0.1, 0),
@@ -394,14 +391,12 @@ function ArcLamp() {
         <mesh geometry={geo.cap} material={mat.chrome} />
         <mesh geometry={geo.bulb} material={glow} />
         <sprite position={[0, -0.12, 0]} scale={[1.1, 1.1, 1]} material={mat.spriteAmber} />
-        <spotLight
-          position={[0, -0.05, 0]}
+        <pointLight
+          position={[0, -0.25, 0]}
           color="#ffc58a"
-          intensity={60}
-          angle={0.85}
-          penumbra={0.8}
-          distance={6}
-          decay={1.5}
+          intensity={16}
+          distance={8}
+          decay={1.6}
         />
       </group>
       <mesh position={[0, 0.004, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
@@ -438,12 +433,12 @@ export function Lounge() {
         <CarKeys />
         <TableClutter />
         <mesh position={[0, 0.006, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
-          <planeGeometry args={[1.6, 1.6]} />
+          <planeGeometry args={[1.9, 1.3]} />
         </mesh>
       </group>
       <group position={[ax, ay, az]} rotation={[0, armYaw, 0]}>
         <OptionalModel file="armchair.glb">
-          <Armchair />
+          <ClubChair />
         </OptionalModel>
         <mesh position={[0, 0.005, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
           <planeGeometry args={[1.5, 1.5]} />

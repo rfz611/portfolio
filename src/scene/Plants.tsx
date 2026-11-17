@@ -82,20 +82,35 @@ function Plant({ kind }: { kind: 'palm' | 'monstera' }) {
   );
 }
 
-/** Palmeira perto da passagem e costela-de-adão no canto do vidro. */
+type Spot = { kind: 'palm' | 'monstera'; at: [number, number, number]; scale: number; yaw: number };
+
+/**
+ * Plantas espalhadas como nas fotos de referência: palmeiras em vasos de
+ * latão nos cantos da janela, ao lado do bar e no fundo da sala, e
+ * costelas-de-adão perto do rebaixo e do escritório.
+ */
+const PLANTS: Spot[] = [
+  { kind: 'palm', at: [SPOT.palm[0], 0, SPOT.palm[2]], scale: 1.15, yaw: 0 },
+  { kind: 'monstera', at: [SPOT.monstera[0], 0, SPOT.monstera[2]], scale: 1.1, yaw: 0.6 },
+  { kind: 'palm', at: [-5.45, 0, -4.05], scale: 1.25, yaw: 1.2 },
+  { kind: 'palm', at: [0.85, 0, -4.05], scale: 1.05, yaw: 2.1 },
+  { kind: 'palm', at: [5.55, 0, -4.1], scale: 1.0, yaw: 0.4 },
+  { kind: 'palm', at: [-5.45, 0, 4.05], scale: 1.1, yaw: 2.8 },
+  { kind: 'monstera', at: [-2.15, 0, -2.25], scale: 0.85, yaw: 1.7 },
+  { kind: 'monstera', at: [1.35, 0, 4.1], scale: 0.9, yaw: 3.6 },
+  { kind: 'palm', at: [4.15, 0, 4.1], scale: 0.85, yaw: 5.1 },
+];
+
 export function Plants() {
   return (
     <>
-      <group position={SPOT.palm}>
-        <OptionalModel file="palm.glb">
-          <Plant kind="palm" />
-        </OptionalModel>
-      </group>
-      <group position={SPOT.monstera}>
-        <OptionalModel file="monstera.glb">
-          <Plant kind="monstera" />
-        </OptionalModel>
-      </group>
+      {PLANTS.map((p, i) => (
+        <group key={i} position={p.at} rotation={[0, p.yaw, 0]} scale={p.scale}>
+          <OptionalModel file={p.kind === 'palm' ? 'palm.glb' : 'monstera.glb'}>
+            <Plant kind={p.kind} />
+          </OptionalModel>
+        </group>
+      ))}
     </>
   );
 }

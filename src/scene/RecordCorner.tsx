@@ -1,24 +1,20 @@
 import { ROOM } from '../config/layout';
-import { Clock } from '../objects/Clock';
 import { CrtTv } from '../objects/CrtTv';
 import { Interactive } from '../objects/Interactive';
 import { Lamp } from '../objects/Lamp';
-import { LAMP_A, LAMP_B, RACK_POS, SHELF_POS, TURNTABLE_POS } from '../objects/recordLayout';
+import { MediaWall } from '../objects/MediaWall';
+import { LAMP_A, LAMP_B, TURNTABLE_POS, TV_POS } from '../objects/recordLayout';
 import { Records } from '../objects/Records';
-import { RecordShelf } from '../objects/RecordShelf';
 import { Turntable } from '../objects/Turntable';
-import { TvRack } from '../objects/TvRack';
 import { useScene } from '../store/useScene';
-import { lib } from '../textures/library';
 import { OptionalModel } from './OptionalModel';
 
 /**
- * Cantinho dos discos, encostado na parede esquerda e de frente para o
- * sofá: estante com as capas, toca-discos, caixas de som, TV de tubo no
- * rack, relógio e dois abajures.
+ * Cantinho dos discos na parede esquerda, de frente para o sofá: aparador
+ * de mogno com a TV, o toca-discos e as caixas de som; as capas expostas
+ * em duas prateleiras de galeria; um abajur em cada ponta.
  */
 export function RecordCorner() {
-  const { mat } = lib();
   const home = useScene((s) => s.view === 'home');
   const setView = useScene((s) => s.setView);
 
@@ -30,11 +26,9 @@ export function RecordCorner() {
         enabled={home}
         onClick={() => setView('discos')}
       >
-        <group position={SHELF_POS}>
-          <OptionalModel file="record_shelf.glb">
-            <RecordShelf />
-          </OptionalModel>
-        </group>
+        <OptionalModel file="record_shelf.glb">
+          <MediaWall />
+        </OptionalModel>
         <group position={TURNTABLE_POS}>
           <Turntable />
         </group>
@@ -42,28 +36,15 @@ export function RecordCorner() {
       </Interactive>
 
       <Interactive id="tv" label="objects.tv" enabled={home} onClick={() => setView('tv')}>
-        <group position={RACK_POS}>
-          <OptionalModel file="tv_rack.glb">
-            <TvRack />
-          </OptionalModel>
-          <group position={[-0.095, 0.45, 0]}>
+        <group position={TV_POS}>
+          <OptionalModel file="crt_tv.glb">
             <CrtTv />
-          </group>
+          </OptionalModel>
         </group>
       </Interactive>
-      <group position={[RACK_POS[0] + 0.35, 0.45, RACK_POS[2] + 0.12]}>
-        <Clock />
-      </group>
 
       <Lamp position={LAMP_A} />
       <Lamp position={LAMP_B} />
-
-      {/* luz "assada" na parede atrás de cada abajur */}
-      {[LAMP_A, LAMP_B].map((lamp) => (
-        <mesh key={lamp[0]} position={[lamp[0], 1.22, 0.012]} material={mat.glowAmberSoft}>
-          <planeGeometry args={[3.2, 2.9]} />
-        </mesh>
-      ))}
     </group>
   );
 }

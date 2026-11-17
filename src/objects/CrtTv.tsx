@@ -20,7 +20,7 @@ function screenGeometry() {
 }
 
 /**
- * TV de tubo (0,70 × 0,55 × 0,50 m) com gabinete de madeira.
+ * TV de tubo (0,70 × 0,55 × 0,50 m) com gabinete de mogno, igual ao aparador.
  * A tela é uma peça separada chamada "screen": na Fase 3 o conteúdo dos
  * projetos entra nela pelo código, sem mexer no modelo.
  */
@@ -51,20 +51,15 @@ export function CrtTv() {
           box([0.036, 0.02, 0.01], [0.267, panelY(0.42), 0.263]),
         ]),
       ),
-      antenna: merge([
-        cyl(0.003, 0.003, 0.52, [-0.0, 0.79, -0.05], { seg: 6, rot: [0, 0, 0.46] }),
-        cyl(0.003, 0.003, 0.52, [0.24, 0.79, -0.05], { seg: 6, rot: [0, 0, -0.46] }),
-      ]),
       led: box([0.01, 0.006, 0.004], [-0.3, 0.036, 0.259]),
     };
   }, []);
 
   return (
     <group name="crt_tv">
-      <mesh geometry={geo.cabinet} material={mat.walnut} />
+      <mesh geometry={geo.cabinet} material={mat.mahogany} />
       <mesh geometry={geo.plastic} material={mat.blackPlastic} />
       <mesh geometry={geo.brass} material={mat.brass} name="buttons" />
-      <mesh geometry={geo.antenna} material={mat.steel} />
       <mesh geometry={geo.led} material={mat.ledRed} />
       <mesh position={[0.245, 0.275, 0.2585]} material={mat.tvPanel}>
         <planeGeometry args={[0.15, 0.47]} />

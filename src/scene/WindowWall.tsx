@@ -78,7 +78,7 @@ export function WindowWall() {
       <pointLight
         position={[nx, ny - 0.1, nz + 0.7]}
         color={palette.neonRed}
-        intensity={7}
+        intensity={2.5}
         distance={4.5}
         decay={1.8}
       />

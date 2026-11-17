@@ -57,7 +57,7 @@ export function Lamp({ position }: { position: readonly [number, number, number]
         <mesh geometry={geo.base} material={mat.brass} />
         <mesh geometry={geo.shade} material={mat.lampShade} />
         <mesh geometry={geo.bulb} material={mat.amberBulb} />
-        <sprite position={[0, 0.56, 0]} scale={[1.25, 1.25, 1]} material={mat.spriteAmber} />
+        <sprite position={[0, 0.56, 0]} scale={[0.7, 0.7, 1]} material={mat.spriteAmber} />
       </group>
       {/* poça de luz sobre o tampo e sombra de contato no carpete */}
       <mesh position={[0, 0.517, 0]} rotation={[-Math.PI / 2, 0, 0]} material={mat.glowAmber}>

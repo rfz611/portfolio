@@ -13,6 +13,7 @@ export const VIEWS = [
   'motor',
   'interior',
   'janela',
+  'bar',
 ] as const;
 export type ViewId = (typeof VIEWS)[number];
 

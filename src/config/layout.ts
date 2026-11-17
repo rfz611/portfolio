@@ -29,21 +29,30 @@ type P3 = readonly [number, number, number];
 
 /** Onde cada móvel fica (centro, no chão). */
 export const SPOT = {
-  shelf: [-5.775, 0, -0.45],
-  tvRack: [-5.775, 0, 0.93],
-  lampA: [-5.68, 0, -1.62],
-  lampB: [-5.68, 0, 1.74],
+  /** Centro do aparador de mogno (cantinho dos discos). */
+  shelf: [-5.75, 0, 0.4],
+  /** TV em cima do aparador. */
+  tvRack: [-5.76, 0.62, 1.25],
+  lampA: [-5.68, 0, -1.48],
+  lampB: [-5.68, 0, 2.28],
   desk: [-3.35, 0, -3.05],
   bar: [3.3, 0, -2.75],
   backBar: [3.3, 0, -4.22],
   table: [0.45, -PIT.depth, 0.6],
   armchair: [-3.05, 0, 3.25],
-  arcLamp: [2.15, 0, -2.3],
+  arcLamp: [3.75, 0, 3.45],
   palm: [5.2, 0, 3.8],
   monstera: [5.3, 0, -1.55],
   neon: [-0.35, 2.45, -4.42],
   car: [9.3, 0, 0.5],
 } as const satisfies Record<string, P3>;
+
+/** Centro da tela da TV no mundo (usado pelo plano de câmera "tv"). */
+export const TV_SCREEN_WORLD = [
+  SPOT.tvRack[0] + 0.262,
+  SPOT.tvRack[1] + 0.285,
+  SPOT.tvRack[2] + 0.085,
+] as const;
 
 /**
  * Notebook na escrivaninha: a tela fica virada para o lado da janela (onde

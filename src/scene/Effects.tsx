@@ -71,8 +71,8 @@ export function Effects() {
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       {/* cor de Max Payne 2: menos saturada, puxada para o sépia, com contraste */}
-      <HueSaturation saturation={-0.16} />
-      <Sepia intensity={0.22} />
+      <HueSaturation saturation={-0.04} />
+      <Sepia intensity={0.13} />
       <BrightnessContrast brightness={0.01} contrast={0.12} />
       <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.14} />
       <Vignette offset={0.25} darkness={0.78} />

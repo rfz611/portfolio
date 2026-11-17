@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { LAPTOP, SPOT } from '../config/layout';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { ExecutiveChair } from '../objects/Chairs';
+import { Clock } from '../objects/Clock';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
+import { paintApple } from '../textures/apple';
+import { makeCanvas, tex } from '../textures/canvas';
 import { hdr, lib } from '../textures/library';
 import { box, crease, cyl, lathe, merge } from './geo';
 import { OptionalModel } from './OptionalModel';
@@ -61,87 +66,69 @@ function ExecutiveDesk() {
   );
 }
 
-/** Cadeira de diretor em couro marrom com capitonê, sobre rodinhas. */
-function ExecutiveChair() {
-  const { mat } = lib();
-  const geo = useMemo(() => {
-    const legs: THREE.BufferGeometry[] = [];
-    const wheels: THREE.BufferGeometry[] = [];
-    for (let k = 0; k < 5; k++) {
-      const a = (k / 5) * Math.PI * 2;
-      legs.push(
-        box([0.05, 0.035, 0.32], [Math.sin(a) * 0.16, 0.075, Math.cos(a) * 0.16], {
-          rot: [0, a, 0],
-        }),
-      );
-      wheels.push(
-        cyl(0.028, 0.028, 0.03, [Math.sin(a) * 0.3, 0.028, Math.cos(a) * 0.3], {
-          seg: 8,
-          rot: [0, a, HALF_PI],
-        }),
-      );
-    }
-    return {
-      metal: merge([...legs, cyl(0.03, 0.03, 0.32, [0, 0.25, 0], { seg: 10 })]),
-      wheels: merge(wheels),
-      seat: crease(box([0.58, 0.14, 0.54], [0, 0.48, 0.02]), 40),
-      back: crease(box([0.58, 0.78, 0.13], [0, 0.98, -0.25], { rot: [-0.14, 0, 0] }), 40),
-      arms: merge([
-        box([0.09, 0.08, 0.5], [-0.33, 0.67, 0.0]),
-        box([0.09, 0.08, 0.5], [0.33, 0.67, 0.0]),
-        box([0.05, 0.16, 0.05], [-0.33, 0.57, 0.12]),
-        box([0.05, 0.16, 0.05], [0.33, 0.57, 0.12]),
-      ]),
-    };
-  }, []);
-  return (
-    <group name="chair">
-      <mesh geometry={geo.metal} material={mat.chrome} />
-      <mesh geometry={geo.wheels} material={mat.rubber} />
-      <mesh geometry={geo.seat} material={mat.leatherBrown} />
-      <mesh geometry={geo.back} material={mat.leatherBrownTuft} />
-      <mesh geometry={geo.arms} material={mat.leatherBrown} />
-    </group>
-  );
-}
-
 /**
- * Notebook de alumínio, sem logo. A tela é uma peça separada ("screen"):
- * a área de trabalho entra nela pelo código na Fase 3.
+ * MacBook de alumínio: base fina e tampa fina de cantos arredondados,
+ * teclado preto e a maçã acesa na tampa (visível de quem está na sala).
+ * A tela é uma peça separada ("screen"): a área de trabalho entra nela
+ * pelo código na Fase 3.
  */
 function Laptop() {
   const { mat } = lib();
   const { w, d, lid, tilt } = LAPTOP;
   const geo = useMemo(
     () => ({
-      base: crease(box([w, 0.012, d], [0, 0, 0]), 30),
+      base: new RoundedBoxGeometry(w, 0.009, d, 2, 0.004),
       keys: new THREE.PlaneGeometry(w * 0.86, d * 0.42)
         .rotateX(-HALF_PI)
-        .translate(0, 0.0062, -d * 0.12),
-      pad: new THREE.PlaneGeometry(w * 0.36, d * 0.3)
+        .translate(0, 0.0046, -d * 0.12),
+      pad: new THREE.PlaneGeometry(w * 0.4, d * 0.3)
         .rotateX(-HALF_PI)
-        .translate(0, 0.0062, -d * 0.39),
-      lid: crease(box([w, lid, 0.005], [0, lid / 2, 0]), 30),
+        .translate(0, 0.0046, -d * 0.37),
+      lid: new RoundedBoxGeometry(w, lid, 0.0045, 2, 0.002).translate(0, lid / 2, 0),
     }),
     [w, d, lid],
+  );
+  const silver = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#c9cdd3',
+        roughness: 0.3,
+        metalness: 0.85,
+        envMapIntensity: 1.1,
+      }),
+    [],
+  );
+  const apple = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        map: tex(makeCanvas(128, 150, paintApple), { clamp: true }),
+        color: hdr('#ffffff', 1.3),
+        transparent: true,
+        toneMapped: false,
+        depthWrite: false,
+      }),
+    [],
   );
   return (
     <group
       name="laptop"
       position={[LAPTOP.base[0] - SPOT.desk[0], LAPTOP.base[1], LAPTOP.base[2] - SPOT.desk[2]]}
     >
-      <mesh geometry={geo.base} material={mat.aluminum} />
+      <mesh geometry={geo.base} material={silver} />
       <mesh geometry={geo.keys} material={mat.blackPlastic} />
       <mesh geometry={geo.pad} material={mat.darkMetal} />
-      <group position={[0, 0.006, d / 2]} rotation={[tilt, 0, 0]}>
-        <mesh geometry={geo.lid} material={mat.aluminum} />
+      <group position={[0, 0.0045, d / 2]} rotation={[tilt, 0, 0]}>
+        <mesh geometry={geo.lid} material={silver} />
+        <mesh position={[0, lid / 2 + 0.006, 0.0024]} material={apple}>
+          <planeGeometry args={[0.042, 0.05]} />
+        </mesh>
         <mesh
           name="screen"
-          position={[0, lid / 2 + 0.004, -0.0032]}
+          position={[0, lid / 2 + 0.004, -0.0024]}
           rotation={[0, Math.PI, 0]}
           material={mat.tvScreen}
         >
-          <planeGeometry args={[w * 0.9, lid * 0.86]} />
+          <planeGeometry args={[w * 0.92, lid * 0.88]} />
         </mesh>
       </group>
     </group>
@@ -307,6 +294,10 @@ export function DeskArea() {
         <BankerLamp />
       </group>
       <DeskClutter />
+      {/* relógio digital ao lado do notebook, com os números virados para a sala */}
+      <group position={[0.5, TOP, 0.3]} rotation={[0, -0.25, 0]}>
+        <Clock />
+      </group>
       <mesh position={[0, 0.005, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
         <planeGeometry args={[2.8, 1.5]} />
       </mesh>

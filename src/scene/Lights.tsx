@@ -56,31 +56,30 @@ export function Lights() {
   const [ax, , az] = SPOT.lampA;
   const [bx, , bz] = SPOT.lampB;
   const [carX, , carZ] = SPOT.car;
-  const [tx, , tz] = SPOT.table;
   const [sx, , sz] = SPOT.shelf;
   const top = ROOM.h - 0.05;
 
   return (
     <>
-      <hemisphereLight args={['#5a64a8', '#2a1814', 1.7]} />
+      <hemisphereLight args={['#5a64a8', '#2a1814', 2.1]} />
       {/* cidade e céu entrando pelo vidro */}
       <directionalLight position={[3, 5, -12]} intensity={1.1} color="#6c84ff" />
       {/* abajures do cantinho dos discos */}
       <pointLight
-        position={[ax + 0.62, 1.12, az]}
+        position={[ax + 0.95, 1.2, az]}
         color={palette.amber}
-        intensity={34}
+        intensity={13}
         distance={9}
         decay={1.8}
       />
       <pointLight
-        position={[bx + 0.62, 1.12, bz]}
+        position={[bx + 0.95, 1.2, bz]}
         color={palette.amber}
-        intensity={34}
+        intensity={13}
         distance={9}
         decay={1.8}
       />
-      {/* luminárias embutidas: toca-discos e, fraquinha, a mesa redonda */}
+      {/* luminária embutida sobre o toca-discos */}
       <Spot
         from={[sx + 0.9, top, sz]}
         to={[sx + 0.1, 1, sz]}
@@ -89,28 +88,20 @@ export function Lights() {
         angle={0.5}
         distance={5}
       />
-      <Spot
-        from={[tx, top, tz]}
-        to={[tx, -0.4, tz]}
-        color="#ffc98a"
-        intensity={45}
-        angle={0.5}
-        distance={6}
-      />
       {/* vermelho da garagem */}
       <pointLight
         position={[carX, 0.22, carZ]}
         color={palette.neonRed}
-        intensity={70}
-        distance={10}
-        decay={1.7}
+        intensity={16}
+        distance={7}
+        decay={2}
       />
       <pointLight
         position={[11.8, 2.6, -1]}
         color={palette.neonRed}
-        intensity={45}
-        distance={10}
-        decay={1.8}
+        intensity={10}
+        distance={7}
+        decay={2}
       />
     </>
   );

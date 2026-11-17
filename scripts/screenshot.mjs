@@ -30,6 +30,7 @@ const HASH = {
   discos: '#discos',
   interior: '#contato',
   carro: '#garagem',
+  bar: '#bar',
   texto: '',
 };
 

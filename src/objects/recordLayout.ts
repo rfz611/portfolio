@@ -10,18 +10,32 @@ import { tracks } from '../content/tracks';
  */
 type V3 = [number, number, number];
 
-export const SHELF = { w: 1.5, h: 1.0, d: 0.45 } as const;
+/** Aparador baixo de mogno ao longo da parede. */
+export const CREDENZA = { w: 3.0, h: 0.62, d: 0.5 } as const;
 
 /** Converte um ponto do mundo para o espaço local do cantinho. */
 export const toCorner = (world: readonly number[]): V3 => [-world[2], world[1], world[0] - ROOM.x0];
 
-export const SHELF_POS: V3 = [-SPOT.shelf[2], 0, SHELF.d / 2 + 0.005];
-export const RACK_POS: V3 = [-SPOT.tvRack[2], 0, 0.235];
+export const CREDENZA_POS: V3 = toCorner(SPOT.shelf);
+export const TV_POS: V3 = toCorner(SPOT.tvRack);
 export const LAMP_A: V3 = [-SPOT.lampA[2], 0, 0.32];
 export const LAMP_B: V3 = [-SPOT.lampB[2], 0, 0.32];
+/** Caixas de som em cima do aparador (x ao longo da parede). */
+export const SPEAKERS_X = [CREDENZA_POS[0] - 0.24, CREDENZA_POS[0] + 1.17] as const;
 
-/** Toca-discos em cima da estante. */
-export const TURNTABLE_POS: V3 = [SHELF_POS[0] - 0.06, SHELF.h, SHELF_POS[2] + 0.02];
+/**
+ * Prateleiras finas na parede, como numa galeria: Clássicos em cima e
+ * Rap embaixo, com as capas encostadas na parede.
+ */
+export const LEDGES = {
+  x0: CREDENZA_POS[0] - 0.1,
+  x1: CREDENZA_POS[0] + 1.48,
+  classics: 1.78,
+  rap: 1.33,
+} as const;
+
+/** Toca-discos em cima do aparador. */
+export const TURNTABLE_POS: V3 = [CREDENZA_POS[0] + 0.52, CREDENZA.h, 0.27];
 /** Centro do prato em relação ao toca-discos, e altura em que o vinil pousa. */
 export const PLATTER: V3 = [-0.055, 0.108, 0.005];
 export const PLATTER_POS: V3 = [
@@ -39,38 +53,52 @@ export interface Pose {
 }
 
 const pose = (x: number, y: number, z: number, rx: number, ry = 0, rz = 0): Pose => ({
-  position: new THREE.Vector3(SHELF_POS[0] + x, y, SHELF_POS[2] + z),
+  position: new THREE.Vector3(x, y, z),
   quaternion: new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)),
   scale: 1,
 });
 
 /**
- * Onde cada capa mora na estante: Clássicos na prateleira de cima, Rap na
- * de baixo (com três discos mais ao fundo) e o disco do prato em pé, ao
- * lado do toca-discos.
+ * Onde cada capa mora: encostada na parede sobre a prateleira (Clássicos
+ * em cima, Rap embaixo) e o disco do prato em pé, atrás do toca-discos.
  */
 export function shelfPoses(): Record<string, Pose> {
   const out: Record<string, Pose> = {};
-  const classics = tracks.filter((t) => t.side === 'classics');
-  classics.forEach((t, i) => {
-    out[t.id] = pose(-0.55 + i * 0.22, 0.715, 0.03 + i * 0.008, -0.17);
-  });
-  const rap = tracks.filter((t) => t.side === 'rap');
-  rap.forEach((t, i) => {
-    out[t.id] =
-      i === 0
-        ? pose(-0.53, 0.282, 0.07, -0.17)
-        : pose(-0.4 + i * 0.25, 0.282, -0.05 + i * 0.008, -0.2);
-  });
+  const half = SLEEVE_SIZE / 2;
+  const lean = -0.09;
+  const place = (ids: string[], y: number) => {
+    const span = LEDGES.x1 - LEDGES.x0 - SLEEVE_SIZE - 0.04;
+    ids.forEach((id, i) => {
+      const t = ids.length > 1 ? i / (ids.length - 1) : 0.5;
+      const x = LEDGES.x0 + 0.02 + half + t * span;
+      out[id] = pose(x, y + half + 0.012, 0.035 + i * 0.006, lean, 0, (i % 2 ? 1 : -1) * 0.012);
+    });
+  };
+  place(
+    tracks.filter((t) => t.side === 'classics').map((t) => t.id),
+    LEDGES.classics,
+  );
+  place(
+    tracks.filter((t) => t.side === 'rap').map((t) => t.id),
+    LEDGES.rap,
+  );
   const platter = tracks.find((t) => t.side === 'platter');
-  if (platter) out[platter.id] = pose(0.37, SHELF.h + 0.162, -0.13, -0.24, 0, 0.03);
+  if (platter) {
+    out[platter.id] = pose(
+      TURNTABLE_POS[0] + 0.36,
+      CREDENZA.h + half + 0.004,
+      0.05,
+      -0.14,
+      0,
+      0.02,
+    );
+  }
   return out;
 }
 
 /**
- * Leque: as capas saem da estante e se abrem na frente da câmera do
- * plano "discos", na parte de baixo da tela (o toca-discos fica no terço
- * de cima). O número de fileiras se adapta à tela em pé.
+ * Leque: as capas saem das prateleiras e se abrem na frente da câmera do
+ * plano "discos", na parte de cima da tela (o toca-discos fica embaixo). O número de fileiras se adapta à tela em pé.
  */
 export function fanPoses(aspect: number): Record<string, Pose> {
   const shot = resolveShot('discos', aspect);
@@ -100,7 +128,9 @@ export function fanPoses(aspect: number): Record<string, Pose> {
     (viewW * 0.9) / (1 + (perRow - 1) * overlap),
     (viewH * (wide ? 0.5 : 0.4)) / (rows * 1.06),
   );
-  const blockCenter = -viewH * (wide ? 0.15 : 0.06);
+  // as capas se abrem na parte de cima (as prateleiras ficam vazias) e o
+  // toca-discos continua visível embaixo
+  const blockCenter = viewH * (wide ? 0.12 : 0.1);
 
   const out: Record<string, Pose> = {};
   order.forEach((track, index) => {

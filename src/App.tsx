@@ -11,6 +11,12 @@ import { TextPage } from './ui/TextPage';
 // A cena 3D é carregada à parte: os controles e o menu aparecem antes dela.
 const Experience = lazy(() => import('./scene/Experience'));
 
+/** Dica curta em VT323 de como mexer em cada plano. */
+const HINTS: Partial<Record<string, string>> = {
+  home: 'ui.hint',
+  discos: 'records.hint',
+};
+
 export default function App() {
   const { t } = useTranslation();
   const mode = useScene((s) => s.mode);
@@ -51,7 +57,9 @@ export default function App() {
           <Loader />
           <BackButton />
           <HoverLabel />
-          {ready && view === 'home' && <p className="hint">{t('ui.hint')}</p>}
+          {ready && HINTS[view] && (
+            <p className={`hint${view === 'home' ? '' : ' hint--top'}`}>{t(HINTS[view])}</p>
+          )}
         </>
       )}
       <Controls webgl={webgl} />

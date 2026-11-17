@@ -32,6 +32,7 @@ export function Interactive({ id, label, text, enabled = true, onClick, children
   };
   const click = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
+    if (event.delta > 6) return; // foi um arrasto para olhar em volta
     onClick?.();
   };
 

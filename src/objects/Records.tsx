@@ -137,6 +137,7 @@ function Sleeve({ track, index, home, fan, open, soon }: SleeveProps) {
   };
   const click = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
+    if (event.delta > 6) return;
     chooseTrack(track.id);
   };
 

@@ -10,6 +10,7 @@ export const HASH_TO_VIEW: Record<string, ViewId> = {
   discos: 'discos',
   contato: 'interior',
   garagem: 'carro',
+  bar: 'bar',
 };
 
 const VIEW_TO_HASH = Object.fromEntries(

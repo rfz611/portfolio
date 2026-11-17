@@ -203,7 +203,7 @@ const painters = {
     ),
   rugPit: () =>
     tex(
-      canvas(512, 512, (c, w, h) =>
+      canvas(1024, 768, (c, w, h) =>
         paintRug(c, w, h, 121, {
           field: '#6e1414',
           border: '#1b2340',
@@ -215,7 +215,7 @@ const painters = {
     ),
   rugDesk: () =>
     tex(
-      canvas(512, 512, (c, w, h) =>
+      canvas(1024, 768, (c, w, h) =>
         paintRug(c, w, h, 127, {
           field: '#1d2a4a',
           border: '#6a1a12',
@@ -285,9 +285,24 @@ function makeMaterials(t: Textures) {
     mahoganyDark: std({ map: t.woodDark, roughness: 0.5, envMapIntensity: 0.5 }),
     walnut: std({ map: t.woodLight, roughness: 0.42, envMapIntensity: 0.6 }),
     varnish: std({ map: t.wood, roughness: 0.24, envMapIntensity: 1.1 }),
-    leatherWine: std({ map: t.leatherWine, roughness: 0.48, envMapIntensity: 0.7 }),
-    leatherWineTuft: std({ map: t.leatherWineTuft, roughness: 0.44, envMapIntensity: 0.7 }),
-    leatherWineSeat: std({ map: t.leatherWineSeat, roughness: 0.5, envMapIntensity: 0.6 }),
+    leatherWine: std({
+      map: t.leatherWine,
+      color: '#ffa0a8',
+      roughness: 0.48,
+      envMapIntensity: 0.7,
+    }),
+    leatherWineTuft: std({
+      map: t.leatherWineTuft,
+      color: '#ffa0a8',
+      roughness: 0.44,
+      envMapIntensity: 0.7,
+    }),
+    leatherWineSeat: std({
+      map: t.leatherWineSeat,
+      color: '#ffa0a8',
+      roughness: 0.5,
+      envMapIntensity: 0.6,
+    }),
     leatherBrown: std({ map: t.leatherBrown, roughness: 0.5, envMapIntensity: 0.6 }),
     leatherBrownTuft: std({ map: t.leatherBrownTuft, roughness: 0.46, envMapIntensity: 0.7 }),
     curtain: matte({ map: t.curtain, side: THREE.DoubleSide }),
@@ -335,7 +350,7 @@ function makeMaterials(t: Textures) {
     platter: std({ map: t.strobe, roughness: 0.3, metalness: 1, envMapIntensity: 1.3 }),
     lampShade: new THREE.MeshBasicMaterial({
       map: t.shade,
-      color: hdr(palette.amber, 2.3),
+      color: hdr(palette.amber, 1.35),
       side: THREE.DoubleSide,
       toneMapped: false,
     }),
@@ -436,6 +451,7 @@ function makeMaterials(t: Textures) {
     chrome: std({ color: '#d7dbe2', roughness: 0.12, metalness: 1, envMapIntensity: 1.6 }),
     ceramic: std({ color: '#e8e2d6', roughness: 0.35, envMapIntensity: 0.6 }),
     ash: matte({ color: '#5a5650' }),
+    cigarEmber: matte({ color: '#6b2a10' }),
     stain: new THREE.MeshBasicMaterial({
       color: '#000000',
       transparent: true,

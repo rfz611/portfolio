@@ -9,6 +9,7 @@ import { useScene, type Quality } from '../store/useScene';
 import { buildLibrary, isLibraryReady } from '../textures/library';
 import { Bar } from './Bar';
 import { City } from './City';
+import { Decor } from './Decor';
 import { DeskArea } from './Desk';
 import { Effects } from './Effects';
 import { Lights } from './Lights';
@@ -54,6 +55,7 @@ function World() {
       <DeskArea />
       <Bar />
       <Plants />
+      <Decor />
       <WindowWall />
       <City />
       <Rain />

@@ -1,4 +1,4 @@
-import { LAPTOP, SPOT } from '../config/layout';
+import { LAPTOP, SPOT, TV_SCREEN_WORLD } from '../config/layout';
 import type { ViewId } from '../store/useScene';
 
 type V3 = [number, number, number];
@@ -26,7 +26,6 @@ export interface Shot {
 }
 
 const [shelfX, , shelfZ] = SPOT.shelf;
-const [tvX, , tvZ] = SPOT.tvRack;
 const [tableX, tableY, tableZ] = SPOT.table;
 const [carX, , carZ] = SPOT.car;
 const [lx, ly, lz] = LAPTOP.base;
@@ -46,6 +45,8 @@ const screenNormal: V3 = [0, Math.sin(LAPTOP.tilt), -Math.cos(LAPTOP.tilt)];
  * 2. Sofá: de trás do rebaixo, de frente para a janela e o neon.
  * 3. Garagem: do lado da passagem, olhando o cantinho e o escritório.
  * 4. Maquete: a cobertura em corte, vista de fora (a versão anterior).
+ * 5. Sofá: sentado no sofá embutido, olhando a TV (padrão). Arrastando,
+ *    dá para olhar em volta: bar, janela, escritório e garagem.
  */
 export const HOME_OPTIONS: Shot[] = [
   {
@@ -73,28 +74,34 @@ export const HOME_OPTIONS: Shot[] = [
     fov: 36,
     portrait: { target: [-1.4, 0, 0.1], dir: [0.3, 1.45, 0.85], frame: [8.6, 9.6], fov: 46 },
   },
+  {
+    position: [2.5, 0.82, 0.62],
+    target: [-5.6, 0.82, 0.85],
+    hfov: 80,
+    portrait: { position: [2.55, 0.95, 0.62], target: [-5.6, 0.05, 0.85], hfov: 66 },
+  },
 ];
 
 function homeOption(): number {
-  if (typeof window === 'undefined') return 2;
+  if (typeof window === 'undefined') return 4;
   const n = Number(new URLSearchParams(window.location.search).get('camera'));
-  // sem escolha no endereço, fica a opção 3 (cantinho, escritório e neon)
-  return Number.isInteger(n) && n >= 1 && n <= HOME_OPTIONS.length ? n - 1 : 2;
+  // sem escolha no endereço, fica a opção 5 (sentado no sofá)
+  return Number.isInteger(n) && n >= 1 && n <= HOME_OPTIONS.length ? n - 1 : 4;
 }
 
 export const SHOTS: Record<ViewId, Shot> = {
   home: { ...HOME_OPTIONS[homeOption()], duration: 1.6 },
   // Frontal no cantinho, toca-discos no terço superior.
   discos: {
-    target: [shelfX + 0.25, 0.72, shelfZ],
-    dir: [1, 0.46, 0],
-    frame: [2.75, 1.8],
+    target: [shelfX + 0.3, 1.2, shelfZ - 0.25],
+    dir: [1, 0.12, 0],
+    frame: [2.6, 2.05],
     fov: 40,
-    portrait: { target: [shelfX + 0.25, 0.55, shelfZ], frame: [1.72, 2.5], fov: 48 },
+    portrait: { target: [shelfX + 0.3, 1.0, shelfZ - 0.3], frame: [1.75, 2.6], fov: 48 },
   },
   // Frontal, tela ocupando cerca de 60% da largura.
   tv: {
-    target: [tvX + 0.27, 0.735, tvZ + 0.18],
+    target: [TV_SCREEN_WORLD[0], TV_SCREEN_WORLD[1], TV_SCREEN_WORLD[2]],
     dir: [1, 0.02, 0],
     frame: [0.8, 0.47],
     fov: 34,
@@ -123,6 +130,14 @@ export const SHOTS: Record<ViewId, Shot> = {
     frame: [5.4, 2.9],
     fov: 44,
     portrait: { frame: [2.6, 3.6], target: [SPOT.neon[0], 1.9, -4.5] },
+  },
+  // No balcão do bar, olhando o copo sendo servido e a cristaleira atrás.
+  bar: {
+    target: [SPOT.bar[0] + 0.1, 1.2, SPOT.bar[2] - 0.15],
+    dir: [0.12, 0.42, 1],
+    frame: [1.7, 1.0],
+    fov: 40,
+    portrait: { frame: [1.1, 1.6] },
   },
   // Diagonal frontal, capô em destaque.
   carro: {

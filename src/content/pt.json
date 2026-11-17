@@ -24,7 +24,7 @@
     "lang": "Mudar idioma para inglês",
     "textVersion": "Texto",
     "view3d": "3D",
-    "hint": "Clique nos objetos para explorar",
+    "hint": "Arraste para olhar em volta · clique nos objetos para explorar",
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
     "room": "Sala",
     "soundOn": "Som",
@@ -32,7 +32,9 @@
   },
   "loader": {
     "title": "Subindo para a cobertura",
-    "ready": "Pronto"
+    "ready": "Pronto",
+    "chapter": "Capítulo I",
+    "loading": "Carregando"
   },
   "home": {
     "name": "Raphael Scharf Passos",
@@ -119,7 +121,12 @@
     "next": "Próximo disco",
     "volume": "Volume",
     "pick": "Escolha um disco",
-    "note": "A música só começa quando você clica num disco."
+    "note": "A música só começa quando você clica num disco.",
+    "hint": "Clique numa capa para tocar · gire o botão de latão para o volume · clique no prato para pausar"
+  },
+  "decor": {
+    "posterTitle": "Chuva sobre a Cidade",
+    "posterTagline": "Ninguém dorme na cobertura"
   },
   "objects": {
     "records": "discos",
@@ -132,6 +139,7 @@
     "car": "garagem",
     "window": "início",
     "bar": "bar",
+    "perfume": "perfume · em breve",
     "clock": "hora certa"
   }
 }
