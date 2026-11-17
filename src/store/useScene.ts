@@ -68,6 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Luminária-cogumelo da mesa de centro acesa? */
+  tableLamp: boolean;
+  toggleTableLamp: () => void;
   /** Revista aberta na frente da câmera (índice em content/certificates.ts). */
   magazine: number | null;
   setMagazine: (magazine: number | null) => void;
@@ -129,6 +132,8 @@ export const useScene = create<SceneState>()(
       drinkServed: false,
       tvChannel: 0,
       magazine: null,
+      tableLamp: true,
+      toggleTableLamp: () => set((s) => ({ tableLamp: !s.tableLamp })),
       setMagazine: (magazine) => set({ magazine }),
       setTvChannel: (tvChannel) => set({ tvChannel }),
       orderDrink: (kind) =>

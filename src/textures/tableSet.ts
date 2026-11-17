@@ -231,49 +231,70 @@ export function paintCroco(ctx: Ctx, w: number, h: number) {
 }
 
 /**
- * Cinzeiro de cerâmica vermelha visto de cima (projeção plana): vermelho
- * brilhante com a faixa branca em "telhado" na metade de baixo e um filete
- * vermelho acompanhando a borda branca. Sem nome de marca.
+ * Cinzeiro de cerâmica vermelha visto de cima (projeção plana), como o da
+ * foto que o Raphael mandou: vermelho brilhante, a faixa branca em
+ * "telhado" com Marlboro em preto e a etiqueta FILTER CIGARETTES em cima.
+ * (Marca colocada a pedido dele.)
  */
 export function paintRedAshtray(ctx: Ctx, w: number, h: number) {
   ctx.fillStyle = '#b3141f';
   ctx.fillRect(0, 0, w, h);
-  const glaze = ctx.createRadialGradient(w * 0.4, h * 0.35, 0, w / 2, h / 2, w * 0.6);
-  glaze.addColorStop(0, 'rgba(255,120,110,0.35)');
+  const glaze = ctx.createRadialGradient(w * 0.4, h * 0.32, 0, w / 2, h / 2, w * 0.62);
+  glaze.addColorStop(0, 'rgba(255,130,120,0.35)');
   glaze.addColorStop(1, 'rgba(60,0,5,0.25)');
   ctx.fillStyle = glaze;
   ctx.fillRect(0, 0, w, h);
-  // telhado branco
-  ctx.fillStyle = '#f2ece2';
+  // telhado branco: pico no meio, descendo para os lados
+  const peak = h * 0.47;
+  const side = h * 0.66;
+  ctx.fillStyle = '#f4efe6';
   ctx.beginPath();
-  ctx.moveTo(-10, h * 0.62);
-  ctx.lineTo(w * 0.5, h * 0.4);
-  ctx.lineTo(w + 10, h * 0.62);
+  ctx.moveTo(-10, side);
+  ctx.lineTo(w * 0.5, peak);
+  ctx.lineTo(w + 10, side);
   ctx.lineTo(w + 10, h + 10);
   ctx.lineTo(-10, h + 10);
   ctx.closePath();
   ctx.fill();
-  // filete vermelho acompanhando o telhado
+  // filete vermelho fino logo abaixo da borda do telhado
   ctx.strokeStyle = '#b3141f';
-  ctx.lineWidth = w * 0.018;
-  ctx.beginPath();
-  ctx.moveTo(-10, h * 0.66);
-  ctx.lineTo(w * 0.5, h * 0.44);
-  ctx.lineTo(w + 10, h * 0.66);
-  ctx.stroke();
-  // faixa vermelha fina perto da borda de baixo
   ctx.lineWidth = w * 0.012;
   ctx.beginPath();
-  ctx.moveTo(0, h * 0.86);
-  ctx.lineTo(w, h * 0.86);
+  ctx.moveTo(-10, side + h * 0.035);
+  ctx.lineTo(w * 0.5, peak + h * 0.035);
+  ctx.lineTo(w + 10, side + h * 0.035);
   ctx.stroke();
-  // um pouco de cinza no fundo
-  ctx.fillStyle = 'rgba(90,85,80,0.45)';
-  for (let i = 0; i < 40; i++) {
+  // faixa vermelha perto da borda de baixo
+  ctx.lineWidth = w * 0.014;
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.875);
+  ctx.lineTo(w, h * 0.875);
+  ctx.stroke();
+  // nome em preto, serifado e pesado
+  ctx.fillStyle = '#141414';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `700 ${w * 0.13}px "Bodoni Moda", Georgia, serif`;
+  ctx.fillText('Marlboro', w * 0.5, h * 0.71);
+  // etiqueta branca oval com FILTER CIGARETTES em vermelho
+  ctx.save();
+  ctx.translate(w * 0.5, h * 0.34);
+  ctx.rotate(-0.04);
+  ctx.fillStyle = '#f4efe6';
+  ctx.beginPath();
+  ctx.roundRect(-w * 0.2, -h * 0.032, w * 0.4, h * 0.064, h * 0.032);
+  ctx.fill();
+  ctx.fillStyle = '#b3141f';
+  ctx.font = `700 ${w * 0.034}px "Manrope Variable", sans-serif`;
+  ctx.fillText('FILTER CIGARETTES', 0, h * 0.002);
+  ctx.restore();
+  // um pouco de cinza no fundo, perto do centro
+  ctx.fillStyle = 'rgba(90,85,80,0.4)';
+  for (let i = 0; i < 30; i++) {
     const a = i * 2.4;
-    const r = (i % 7) * w * 0.012;
+    const r = (i % 6) * w * 0.01;
     ctx.beginPath();
-    ctx.arc(w * 0.47 + Math.cos(a) * r, h * 0.47 + Math.sin(a) * r, w * 0.012, 0, Math.PI * 2);
+    ctx.arc(w * 0.44 + Math.cos(a) * r, h * 0.54 + Math.sin(a) * r, w * 0.01, 0, Math.PI * 2);
     ctx.fill();
   }
 }

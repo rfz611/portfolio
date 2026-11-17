@@ -34,7 +34,7 @@ export function Effects() {
     // sem pós-processamento, o próprio renderizador faz o tone mapping
     if (!tier.post) {
       gl.toneMapping = THREE.ACESFilmicToneMapping;
-      gl.toneMappingExposure = 1.05;
+      gl.toneMappingExposure = 0.88;
     }
   }, [gl, tier.post]);
 
@@ -64,16 +64,17 @@ export function Effects() {
       />
       <Bloom
         mipmapBlur
-        luminanceThreshold={1.35}
+        luminanceThreshold={1.55}
         luminanceSmoothing={0.2}
-        intensity={0.45}
+        intensity={0.3}
         radius={0.72}
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       {/* cor de Max Payne 2: menos saturada, puxada para o sépia, com contraste */}
       <HueSaturation saturation={-0.04} />
       <Sepia intensity={0.13} />
-      <BrightnessContrast brightness={0.01} contrast={0.12} />
+      {/* exposição mais baixa: o Raphael achou a sala clara demais e estourando */}
+      <BrightnessContrast brightness={-0.06} contrast={0.14} />
       <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.14} />
       <Vignette offset={0.25} darkness={0.78} />
     </EffectComposer>

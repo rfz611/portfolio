@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { cyl, merge } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
-import { paintOvalClockDial } from '../textures/clock';
+import { paintDoily, paintOvalClockDial } from '../textures/clock';
 import { Interactive } from './Interactive';
 
 /** Medidas do relógio (m): oval de 0,20 × 0,11, com 0,05 de fundo. */
@@ -11,8 +11,6 @@ const W = 0.2;
 const H = 0.11;
 const D = 0.045;
 const LIFT = 0.016; // altura dos pezinhos
-/** Centro do mostrador de ponteiros, em relação ao centro da frente. */
-const DIAL_X = -W / 2 + W * 0.36;
 
 /** Contorno de "pílula" (retângulo com as pontas redondas). */
 function stadium(w: number, h: number) {
@@ -26,11 +24,6 @@ function stadium(w: number, h: number) {
   return s;
 }
 
-/** Ponteiro: barrinha com a base no eixo, apontando para cima. */
-function hand(length: number, width: number, tail = 0.006) {
-  return new THREE.BoxGeometry(width, length + tail, 0.0012).translate(0, (length - tail) / 2, 0);
-}
-
 /**
  * Despertador oval de metal dourado (como os de mesa dos anos 70/80):
  * mostrador vermelho com números brancos e ponteiros que marcam a hora
@@ -38,7 +31,6 @@ function hand(length: number, width: number, tail = 0.006) {
  * rendado branco em volta e arabescos dourados. Pezinhos e botões dourados.
  */
 export function Clock() {
-  const day = new Date().getDate();
   const geo = useMemo(() => {
     // aro dourado: o contorno com o miolo vazado, para o mostrador ficar afundado
     const ring = stadium(W, H);
@@ -77,30 +69,41 @@ export function Clock() {
         cyl(0.005, 0.005, 0.008, [-W * 0.18, H / 2 + 0.008, -0.005], { seg: 10 }),
         cyl(0.005, 0.005, 0.008, [W * 0.18, H / 2 + 0.008, -0.005], { seg: 10 }),
       ]),
-      hour: hand(0.024, 0.0035),
-      minute: hand(0.034, 0.0026),
-      second: hand(0.037, 0.0009, 0.01),
-      pin: cyl(0.0028, 0.0028, 0.003, [0, 0, 0], { seg: 12, rot: [Math.PI / 2, 0, 0] }),
+      doily: new THREE.PlaneGeometry(0.3, 0.3).rotateX(-Math.PI / 2).translate(0, 0.001, 0),
     };
   }, []);
+
+  // mostrador desenhado de novo a cada minuto (hora e data reais de quem visita)
+  const dial = useMemo(() => {
+    const canvas = makeCanvas(512, 256, (c, w, h) => paintOvalClockDial(c, w, h, new Date()));
+    return { canvas, texture: tex(canvas, { clamp: true }) };
+  }, []);
+  const minute = useRef(-1);
+  useFrame(() => {
+    const now = new Date();
+    if (now.getMinutes() === minute.current) return;
+    minute.current = now.getMinutes();
+    const ctx = dial.canvas.getContext('2d');
+    if (!ctx) return;
+    paintOvalClockDial(ctx, dial.canvas.width, dial.canvas.height, now);
+    dial.texture.needsUpdate = true;
+  });
 
   const mats = useMemo(
     () => ({
       brass: new THREE.MeshStandardMaterial({
-        color: '#e2bf72',
-        metalness: 1,
-        roughness: 0.2,
-        envMapIntensity: 1.9,
+        color: '#f0cf82',
+        metalness: 0.75,
+        roughness: 0.28,
+        envMapIntensity: 2.2,
       }),
       dial: new THREE.MeshStandardMaterial({
-        map: tex(
-          makeCanvas(512, 256, (c, w, h) => paintOvalClockDial(c, w, h, day)),
-          { clamp: true },
-        ),
+        map: dial.texture,
         roughness: 0.4,
         envMapIntensity: 0.6,
         emissive: '#ffffff',
-        emissiveIntensity: 0.02,
+        emissiveMap: dial.texture,
+        emissiveIntensity: 0.12,
       }),
       glass: new THREE.MeshStandardMaterial({
         color: '#ffffff',
@@ -111,46 +114,27 @@ export function Clock() {
         envMapIntensity: 2,
         depthWrite: false,
       }),
-      hand: new THREE.MeshStandardMaterial({ color: '#f4f1ea', metalness: 0.5, roughness: 0.3 }),
-      second: new THREE.MeshStandardMaterial({ color: '#d8c38a', metalness: 0.8, roughness: 0.3 }),
+      doily: new THREE.MeshStandardMaterial({
+        map: tex(makeCanvas(256, 256, paintDoily), { clamp: true }),
+        transparent: true,
+        alphaTest: 0.4,
+        roughness: 0.9,
+      }),
     }),
-    [day],
+    [dial],
   );
 
-  const hourHand = useRef<THREE.Mesh>(null);
-  const minuteHand = useRef<THREE.Mesh>(null);
-  const secondHand = useRef<THREE.Mesh>(null);
-  useFrame(() => {
-    const now = new Date();
-    const s = now.getSeconds() + now.getMilliseconds() / 1000;
-    const m = now.getMinutes() + s / 60;
-    const h = (now.getHours() % 12) + m / 60;
-    if (hourHand.current) hourHand.current.rotation.z = -(h / 12) * Math.PI * 2;
-    if (minuteHand.current) minuteHand.current.rotation.z = -(m / 60) * Math.PI * 2;
-    if (secondHand.current) secondHand.current.rotation.z = -(Math.floor(s) / 60) * Math.PI * 2;
-  });
-
-  const front = D / 2 - 0.006;
   return (
     <Interactive id="clock" label="objects.clock">
       <group name="clock" rotation={[0, -0.12, 0]}>
+        {/* toalhinha de renda branca embaixo, como na foto */}
+        <mesh geometry={geo.doily} material={mats.doily} scale={[1, 1, 0.7]} />
         <group position={[0, LIFT + H / 2, 0]}>
           <mesh geometry={geo.shell} material={mats.brass} />
           <mesh geometry={geo.back} material={mats.brass} />
           <mesh geometry={geo.face} material={mats.dial} />
           <mesh geometry={geo.feet} material={mats.brass} />
           <mesh geometry={geo.knobs} material={mats.brass} />
-          <group position={[DIAL_X, 0, front]}>
-            <mesh ref={hourHand} geometry={geo.hour} material={mats.hand} />
-            <mesh ref={minuteHand} geometry={geo.minute} material={mats.hand} position-z={0.0013} />
-            <mesh
-              ref={secondHand}
-              geometry={geo.second}
-              material={mats.second}
-              position-z={0.0026}
-            />
-            <mesh geometry={geo.pin} material={mats.brass} position-z={0.0028} />
-          </group>
           <mesh geometry={geo.glass} material={mats.glass} renderOrder={3} />
         </group>
       </group>

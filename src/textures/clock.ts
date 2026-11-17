@@ -1,110 +1,222 @@
 /**
- * Mostrador do despertador oval: vermelho, com o relógio de ponteiros à
- * esquerda e a janela da data de virar à direita, cercada por um rendado
- * branco (como um bordado) e arabescos dourados.
+ * Mostrador do despertador oval (como o da foto do Pinterest): fundo
+ * vermelho, a hora em cartões brancos de virar à esquerda e, à direita, a
+ * data num aro dourado cercado por um arabesco rendado branco e dourado.
  */
-export function paintOvalClockDial(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  day: number,
-) {
-  const g = ctx.createRadialGradient(w * 0.36, h * 0.45, 0, w * 0.45, h * 0.5, w * 0.6);
-  g.addColorStop(0, '#d0222c');
-  g.addColorStop(0.6, '#a5121c');
-  g.addColorStop(1, '#5e070d');
+
+type Ctx = CanvasRenderingContext2D;
+
+/** Cartão branco de virar com dois números e a linha do meio. */
+function flipCard(ctx: Ctx, x: number, y: number, w: number, h: number, text: string) {
+  ctx.fillStyle = 'rgba(40,0,4,0.55)';
+  ctx.fillRect(x + 3, y + 4, w, h);
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(0.49, '#ece8e0');
+  g.addColorStop(0.51, '#d8d3ca');
+  g.addColorStop(1, '#f4f1ea');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 5);
+  ctx.fill();
+  ctx.fillStyle = '#141414';
+  ctx.font = `bold ${h * 0.82}px "Manrope Variable", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x + w / 2, y + h / 2 + h * 0.04);
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(x, y + h / 2 - 1, w, 2);
+  // pinos laterais do cartão
+  ctx.fillStyle = '#b08a3a';
+  ctx.fillRect(x - 4, y + h / 2 - 4, 4, 8);
+  ctx.fillRect(x + w, y + h / 2 - 4, 4, 8);
+}
+
+/** Folhinha do arabesco: gota com contorno dourado. */
+function leaf(ctx: Ctx, x: number, y: number, angle: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(size * 0.6, -size * 0.5, size, 0);
+  ctx.quadraticCurveTo(size * 0.6, size * 0.5, 0, 0);
+  ctx.fillStyle = '#f6efdf';
+  ctx.fill();
+  ctx.strokeStyle = '#c9a050';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Arabesco rendado em volta da data: volutas e folhas, simétrico em cima e embaixo. */
+function filigree(ctx: Ctx, cx: number, cy: number, r: number, h: number) {
+  ctx.lineCap = 'round';
+  for (const sy of [-1, 1]) {
+    for (const sx of [-1, 1]) {
+      // voluta grande saindo do aro para cima/baixo e para os lados
+      for (let k = 0; k < 3; k++) {
+        const a0 = sy * (0.55 + k * 0.42) * (sx > 0 ? 1 : -1) + (sx > 0 ? 0 : Math.PI);
+        const x0 = cx + Math.cos(a0) * r;
+        const y0 = cy + Math.sin(a0) * r;
+        const x1 = cx + Math.cos(a0) * (r + h * 0.16);
+        const y1 = cy + Math.sin(a0) * (r + h * 0.16);
+        ctx.strokeStyle = '#f6efdf';
+        ctx.lineWidth = 3.4;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.quadraticCurveTo(x1 + sx * h * 0.05, y0, x1, y1);
+        ctx.stroke();
+        // espiral na ponta
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(x1 + sx * h * 0.025, y1, h * 0.028, 0, Math.PI * 1.6);
+        ctx.stroke();
+        leaf(ctx, (x0 + x1) / 2, (y0 + y1) / 2, a0 + sy * 0.9, h * 0.07);
+        leaf(ctx, (x0 + x1) / 2, (y0 + y1) / 2, a0 - sy * 0.9 + Math.PI, h * 0.055);
+      }
+    }
+  }
+  // ramo vertical em cima e embaixo do aro (como na foto)
+  for (const sy of [-1, 1]) {
+    ctx.strokeStyle = '#f6efdf';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + sy * r);
+    ctx.bezierCurveTo(
+      cx - h * 0.06,
+      cy + sy * (r + h * 0.06),
+      cx + h * 0.08,
+      cy + sy * (r + h * 0.1),
+      cx,
+      cy + sy * (r + h * 0.16),
+    );
+    ctx.stroke();
+    for (let k = 0; k < 4; k++) {
+      leaf(
+        ctx,
+        cx,
+        cy + sy * (r + h * 0.03 + k * h * 0.035),
+        (k % 2 ? 0.4 : Math.PI - 0.4) * sy,
+        h * 0.05,
+      );
+    }
+  }
+  // pontinhos de renda em volta do aro
+  ctx.fillStyle = '#f6efdf';
+  for (let k = 0; k < 28; k++) {
+    const a = (k / 28) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * (r + 7), cy + Math.sin(a) * (r + 7), 2.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+export function paintOvalClockDial(ctx: Ctx, w: number, h: number, now: Date) {
+  const g = ctx.createRadialGradient(w * 0.36, h * 0.42, 0, w * 0.45, h * 0.5, w * 0.62);
+  g.addColorStop(0, '#d8262f');
+  g.addColorStop(0.6, '#a8131d');
+  g.addColorStop(1, '#5a060c');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
 
-  // relógio de ponteiros (centro em 36% da largura)
-  const cx = w * 0.36;
-  const cy = h * 0.5;
-  const r = h * 0.4;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (let k = 0; k < 60; k++) {
-    const a = (k / 60) * Math.PI * 2;
-    const long = k % 5 === 0;
-    ctx.strokeStyle = long ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)';
-    ctx.lineWidth = long ? 2.5 : 1.2;
+  // hora em cartões de virar: HH : MM
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const ch = h * 0.5;
+  const cw = w * 0.2;
+  const top = (h - ch) / 2;
+  flipCard(ctx, w * 0.07, top, cw, ch, hours);
+  flipCard(ctx, w * 0.33, top, cw, ch, minutes);
+  ctx.fillStyle = '#f6efdf';
+  for (const dy of [-0.09, 0.09]) {
     ctx.beginPath();
-    ctx.moveTo(cx + Math.sin(a) * r, cy - Math.cos(a) * r);
-    ctx.lineTo(cx + Math.sin(a) * (r - (long ? 9 : 5)), cy - Math.cos(a) * (r - (long ? 9 : 5)));
-    ctx.stroke();
+    ctx.arc(w * 0.3, h * (0.5 + dy), h * 0.025, 0, Math.PI * 2);
+    ctx.fill();
   }
-  ctx.font = `bold ${h * 0.13}px "Manrope Variable", sans-serif`;
-  for (let n = 1; n <= 12; n++) {
-    const a = (n / 12) * Math.PI * 2;
-    const x = cx + Math.sin(a) * r * 0.76;
-    const y = cy - Math.cos(a) * r * 0.76;
-    ctx.fillStyle = 'rgba(60,0,5,0.6)';
-    ctx.fillText(String(n), x + 1.5, y + 1.5);
-    ctx.fillStyle = '#fbf6ee';
-    ctx.fillText(String(n), x, y);
-  }
+  // filete dourado em volta do mostrador
+  ctx.strokeStyle = 'rgba(232,196,110,0.7)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(6, 6, w - 12, h - 12);
 
-  // arabescos dourados em volta da data
-  const dx = w * 0.76;
+  // data: aro dourado, cartões brancos e o arabesco rendado em volta
+  const dx = w * 0.78;
   const dy = h * 0.5;
-  ctx.strokeStyle = 'rgba(232,196,110,0.85)';
-  ctx.lineWidth = 2;
-  for (let k = 0; k < 10; k++) {
-    const a = (k / 10) * Math.PI * 2;
-    const x = dx + Math.cos(a) * h * 0.36;
-    const y = dy + Math.sin(a) * h * 0.36;
-    ctx.beginPath();
-    ctx.arc(x, y, h * 0.05, a, a + 3.6);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(
-      dx + Math.cos(a + 0.3) * h * 0.46,
-      dy + Math.sin(a + 0.3) * h * 0.46,
-      dx + Math.cos(a + 0.5) * h * 0.4,
-      dy + Math.sin(a + 0.5) * h * 0.4,
-    );
-    ctx.stroke();
-  }
-
-  // rendado branco: anel de recortes com furinhos, como um bordado
-  const lace = h * 0.29;
-  ctx.fillStyle = '#f7f3ea';
+  const r = h * 0.25;
+  filigree(ctx, dx, dy, r, h);
+  const ring = ctx.createLinearGradient(dx - r, dy - r, dx + r, dy + r);
+  ring.addColorStop(0, '#f3d991');
+  ring.addColorStop(0.5, '#b88a34');
+  ring.addColorStop(1, '#f0d48a');
+  ctx.fillStyle = ring;
   ctx.beginPath();
-  const bumps = 22;
-  for (let k = 0; k <= bumps * 4; k++) {
-    const a = (k / (bumps * 4)) * Math.PI * 2;
-    const rr = lace + Math.abs(Math.sin((a * bumps) / 2)) * h * 0.035;
-    const x = dx + Math.cos(a) * rr;
-    const y = dy + Math.sin(a) * rr;
+  ctx.arc(dx, dy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#1a1412';
+  ctx.beginPath();
+  ctx.arc(dx, dy, r * 0.84, 0, Math.PI * 2);
+  ctx.fill();
+  flipCard(
+    ctx,
+    dx - r * 0.62,
+    dy - r * 0.55,
+    r * 1.24,
+    r * 1.1,
+    String(now.getDate()).padStart(2, '0'),
+  );
+}
+
+/** Toalhinha de renda branca redonda (fundo transparente, furinhos vazados). */
+export function paintDoily(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2;
+  const cy = h / 2;
+  const R = w * 0.48;
+  // borda de recortes
+  ctx.fillStyle = 'rgba(246,242,234,0.96)';
+  ctx.beginPath();
+  const bumps = 36;
+  for (let k = 0; k <= bumps * 6; k++) {
+    const a = (k / (bumps * 6)) * Math.PI * 2;
+    const rr = R * (0.94 + 0.06 * Math.abs(Math.sin((a * bumps) / 2)));
+    const x = cx + Math.cos(a) * rr;
+    const y = cy + Math.sin(a) * rr;
     if (k === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = '#a5121c';
-  for (let k = 0; k < bumps; k++) {
-    const a = ((k + 0.5) / bumps) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.arc(dx + Math.cos(a) * lace * 0.9, dy + Math.sin(a) * lace * 0.9, 2.2, 0, Math.PI * 2);
-    ctx.fill();
+  // furinhos em anéis
+  ctx.globalCompositeOperation = 'destination-out';
+  for (const [ring, count, size] of [
+    [0.86, 48, 0.018],
+    [0.74, 40, 0.024],
+    [0.6, 32, 0.02],
+    [0.46, 24, 0.022],
+    [0.3, 16, 0.02],
+  ] as const) {
+    for (let k = 0; k < count; k++) {
+      const a = (k / count) * Math.PI * 2 + ring;
+      ctx.beginPath();
+      ctx.ellipse(
+        cx + Math.cos(a) * R * ring,
+        cy + Math.sin(a) * R * ring,
+        R * size * 1.6,
+        R * size,
+        a,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+    }
   }
-  // moldura dourada da janela
-  ctx.fillStyle = '#c99a3e';
-  ctx.beginPath();
-  ctx.arc(dx, dy, lace * 0.78, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#1a1412';
-  ctx.beginPath();
-  ctx.arc(dx, dy, lace * 0.7, 0, Math.PI * 2);
-  ctx.fill();
-  // cartões da data de virar
-  const cw = lace * 1.0;
-  const ch = lace * 0.95;
-  ctx.fillStyle = '#f4f1ea';
-  ctx.fillRect(dx - cw / 2, dy - ch / 2, cw, ch);
-  ctx.fillStyle = '#151515';
-  ctx.font = `bold ${ch * 0.82}px "Manrope Variable", sans-serif`;
-  ctx.fillText(String(day).padStart(2, '0'), dx, dy + ch * 0.04);
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.fillRect(dx - cw / 2, dy - 1, cw, 2);
+  ctx.globalCompositeOperation = 'source-over';
+  // fios do bordado
+  ctx.strokeStyle = 'rgba(200,190,170,0.6)';
+  ctx.lineWidth = 1;
+  for (const ring of [0.8, 0.67, 0.53, 0.38]) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * ring, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 }

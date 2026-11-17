@@ -1,4 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { playClick } from '../audio/player';
+import { useScene } from '../store/useScene';
+import { Interactive } from './Interactive';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { box, crease, cyl, lathe, merge } from '../scene/geo';
@@ -129,6 +132,33 @@ export function GoldWatch() {
       alongPath(strap(sign, length), 10, (p, yaw) => [
         box([0.017, 0.003, length / 9 + 0.0012], [p.x, 0.0018, p.z], { rot: [0, yaw, 0] }),
       ]);
+    // ponta que se curva e deita por cima da pulseira de aço (sobe um pouco no fim)
+    const overlap = (() => {
+      const curve = new THREE.CatmullRomCurve3(
+        [
+          [0, 0.0018, half],
+          [-0.006, 0.0022, half + 0.022],
+          [-0.03, 0.0045, half + 0.04],
+          [-0.062, 0.0082, half + 0.05],
+          [-0.088, 0.0086, half + 0.052],
+        ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+      );
+      const parts: THREE.BufferGeometry[] = [];
+      const n = 12;
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        const p = curve.getPointAt(t);
+        const tan = curve.getTangentAt(t);
+        const yaw = Math.atan2(tan.x, tan.z);
+        const pitch = -Math.asin(tan.y);
+        parts.push(
+          box([0.017, 0.003, curve.getLength() / (n - 1) + 0.0012], [p.x, p.y, p.z], {
+            rot: [pitch, yaw, 0],
+          }),
+        );
+      }
+      return merge(parts);
+    })();
     const lugs: THREE.BufferGeometry[] = [];
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
@@ -140,8 +170,8 @@ export function GoldWatch() {
       lugs: crease(merge(lugs), 30),
       dial: new THREE.PlaneGeometry(0.022, 0.031).rotateX(-HALF_PI).translate(0, 0.0112, 0),
       crown: cyl(0.0022, 0.0022, 0.004, [0.016, 0.006, 0], { seg: 10, rot: [0, 0, HALF_PI] }),
-      strap: merge([piece(1, 0.065), piece(-1, 0.075)]),
-      buckle: box([0.019, 0.003, 0.004], [0.002, 0.0035, 0.021 + 0.066]),
+      strap: merge([overlap, piece(-1, 0.075)]),
+      buckle: box([0.019, 0.003, 0.004], [-0.002, 0.0035, -(0.021 + 0.074)]),
     };
   }, []);
   const mats = useMemo(() => {
@@ -186,18 +216,20 @@ export function GoldWatch() {
 export function RedAshtray() {
   const { mat } = lib();
   const geo = useMemo(() => {
-    const R = 0.078;
+    const R = 0.082;
     const g = crease(
       lathe(
         [
-          [0.001, 0.012],
-          [0.05, 0.012],
-          [0.062, 0.026],
-          [0.068, 0.032],
-          [0.074, 0.031],
-          [0.077, 0.022],
-          [0.073, 0.004],
-          [0.066, 0],
+          [0.001, 0.01],
+          [0.048, 0.01],
+          [0.058, 0.02],
+          [0.064, 0.03],
+          [0.069, 0.036],
+          [0.076, 0.037],
+          [0.081, 0.032],
+          [0.082, 0.022],
+          [0.078, 0.006],
+          [0.07, 0],
           [0.001, 0],
         ],
         { seg: 36 },
@@ -365,19 +397,34 @@ export function MushroomLamp() {
     }),
     [],
   );
+  const on = useScene((s) => s.tableLamp);
+  useEffect(() => {
+    mats.shade.emissiveIntensity = on ? 0.42 : 0;
+    mats.under.color.copy(on ? hdr('#ffa060', 0.7) : new THREE.Color('#3a2a22'));
+  }, [on, mats]);
   return (
-    <group name="mushroom-lamp">
-      <mesh geometry={geo.base} material={mat.chrome} />
-      <mesh geometry={geo.stem} material={mat.chrome} />
-      <mesh geometry={geo.shade} material={mats.shade} />
-      <mesh geometry={geo.under} material={mats.under} />
-      <pointLight
-        position={[0, 0.13, 0]}
-        color="#ff9a5c"
-        intensity={1.15}
-        distance={1.4}
-        decay={2}
-      />
-    </group>
+    <Interactive
+      id="table-lamp"
+      label={on ? 'objects.lampOff' : 'objects.lampOn'}
+      onClick={() => {
+        playClick();
+        useScene.getState().toggleTableLamp();
+      }}
+    >
+      <group name="mushroom-lamp">
+        <mesh geometry={geo.base} material={mat.chrome} />
+        <mesh geometry={geo.stem} material={mat.chrome} />
+        <mesh geometry={geo.shade} material={mats.shade} />
+        <mesh geometry={geo.under} material={mats.under} />
+        {/* a luz fica sempre na cena (só a força muda), para não recompilar os materiais */}
+        <pointLight
+          position={[0, 0.13, 0]}
+          color="#ff9a5c"
+          intensity={on ? 1.15 : 0}
+          distance={1.4}
+          decay={2}
+        />
+      </group>
+    </Interactive>
   );
 }

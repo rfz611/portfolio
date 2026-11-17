@@ -7,8 +7,6 @@ import { useScene } from '../store/useScene';
 import { makeCanvas, tex } from '../textures/canvas';
 import { LABELS, paintLabel } from '../textures/labels';
 import { lib } from '../textures/library';
-import { GhostPerfume } from './GhostPerfume';
-import { Interactive } from './Interactive';
 
 const HALF_PI = Math.PI / 2;
 /** Tampo do balcão (em relação ao grupo do bar) e onde o copo fica. */
@@ -333,11 +331,6 @@ export function BarService() {
           ))}
         </group>
       </group>
-      <Interactive id="perfume" label="objects.perfume" enabled={atBar}>
-        <group position={[0.95, TOP, 0.05]} rotation={[0, -0.4, 0]}>
-          <GhostPerfume />
-        </group>
-      </Interactive>
     </>
   );
 }

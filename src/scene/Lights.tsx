@@ -61,7 +61,7 @@ export function Lights() {
 
   return (
     <>
-      <hemisphereLight args={['#5a64a8', '#2a1814', 2.1]} />
+      <hemisphereLight args={['#5a64a8', '#2a1814', 1.75]} />
       {/* cidade e céu entrando pelo vidro */}
       <directionalLight position={[3, 5, -12]} intensity={1.1} color="#6c84ff" />
       {/* abajures do cantinho dos discos */}
@@ -86,6 +86,16 @@ export function Lights() {
         color="#ffd2a0"
         intensity={20}
         angle={0.5}
+        distance={5}
+      />
+      {/* spot embutido no teto, só sobre a mesa de centro: destaca o que está em
+          cima dela (revistas, porta-joias, cinzeiro) sem clarear a sala */}
+      <Spot
+        from={[SPOT.table[0] + 0.22, top, SPOT.table[2]]}
+        to={[SPOT.table[0] + 0.2, SPOT.table[1], SPOT.table[2]]}
+        color="#ffd9b0"
+        intensity={11}
+        angle={0.26}
         distance={5}
       />
       {/* vermelho da garagem */}
