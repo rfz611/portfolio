@@ -27,21 +27,20 @@ export function Room() {
     floorShape.lineTo(ROOM.x1, -ROOM.z0);
     floorShape.lineTo(ROOM.x0, -ROOM.z0);
     floorShape.closePath();
-    floorShape.holes.push(roundedRect(PIT.outer));
-    const tread = roundedRect(PIT.outer);
-    tread.holes.push(roundedRect(PIT.inner));
+    floorShape.holes.push(roundedRect(PIT));
 
-    const floor = merge([
-      flat(floorShape, 0),
-      flat(tread, -PIT.step),
-      flat(roundedRect(PIT.inner), -PIT.depth),
+    const floor = merge([flat(floorShape, 0), flat(roundedRect(PIT), -PIT.depth)]);
+    const risers = ribbon(roundedRect(PIT), 0, -PIT.depth);
+    // fio de luz âmbar sob a borda do rebaixo
+    const stepLight = ribbon(roundedRect(PIT), -0.025, -0.045, 1, 0.002);
+
+    // sanca de mogno no encontro das paredes com o teto e rodapé alto
+    const trim = merge([
+      box([0.12, 0.16, D], [ROOM.x0 + 0.06, H - 0.08, 0]),
+      box([W, 0.16, 0.12], [0, H - 0.08, ROOM.z1 - 0.06]),
+      box([0.04, 0.14, D], [ROOM.x0 + 0.02, 0.07, 0]),
+      box([W, 0.14, 0.04], [0, 0.07, ROOM.z1 - 0.02]),
     ]);
-    const risers = merge([
-      ribbon(roundedRect(PIT.outer), 0, -PIT.step),
-      ribbon(roundedRect(PIT.inner), -PIT.step, -PIT.depth),
-    ]);
-    // fio de luz âmbar sob a borda do degrau
-    const stepLight = ribbon(roundedRect(PIT.outer), -0.025, -0.05, 1, 0.002);
 
     // esquadrias de bronze: fachada de vidro (norte) e divisória da garagem
     const frames: THREE.BufferGeometry[] = [
@@ -91,12 +90,11 @@ export function Room() {
     // luminárias embutidas no teto (só o ponto de luz aparece)
     const spots: THREE.BufferGeometry[] = [];
     for (const [x, z] of [
-      [0.17, 0.59],
-      [2.85, -3.3],
-      [-4, -3.2],
-      [-3.6, 2.9],
+      [-3.35, -2.4],
+      [-2.2, 3.4],
       [4.3, 1.2],
-      [-0.6, -3.4],
+      [-0.4, -3.4],
+      [-4.6, -0.45],
     ]) {
       const g = new THREE.CircleGeometry(0.055, 12);
       g.rotateX(Math.PI / 2);
@@ -108,6 +106,7 @@ export function Room() {
       floor,
       risers,
       stepLight,
+      trim,
       frames: merge(frames),
       glassNorth,
       glassDivider,
@@ -147,6 +146,7 @@ export function Room() {
       <mesh geometry={geo.floor} material={mat.carpet} />
       <mesh geometry={geo.risers} material={mat.carpetRiser} />
       <mesh geometry={geo.stepLight} material={mat.amberStrip} />
+      <mesh geometry={geo.trim} material={mat.mahoganyDark} />
       <mesh geometry={geo.west} material={walls.west} />
       <mesh geometry={geo.south} material={walls.south} />
       <mesh geometry={geo.ceilingRoom} material={mat.ceiling} />

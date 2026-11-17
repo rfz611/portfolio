@@ -22,11 +22,13 @@
     "mute": "Silenciar o som",
     "unmute": "Ativar o som",
     "lang": "Mudar idioma para inglês",
-    "textVersion": "Versão em texto",
-    "view3d": "Ver em 3D",
+    "textVersion": "Texto",
+    "view3d": "3D",
     "hint": "Clique nos objetos para explorar",
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
-    "room": "Sala"
+    "room": "Sala",
+    "soundOn": "Som",
+    "soundOff": "Mudo"
   },
   "loader": {
     "title": "Subindo para a cobertura",

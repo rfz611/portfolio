@@ -9,7 +9,8 @@ export function BackButton() {
   if (view === 'home') return null;
   return (
     <button type="button" className="back" onClick={() => setView('home')}>
-      <span aria-hidden="true">←</span> {t('ui.back')} <kbd>Esc</kbd>
+      {'< '}
+      {t('ui.back')} [ESC]
     </button>
   );
 }

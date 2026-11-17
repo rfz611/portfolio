@@ -22,11 +22,13 @@
     "mute": "Mute sound",
     "unmute": "Unmute sound",
     "lang": "Switch language to Portuguese",
-    "textVersion": "Text version",
-    "view3d": "View in 3D",
+    "textVersion": "Text",
+    "view3d": "3D",
     "hint": "Click the objects to explore",
     "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
-    "room": "Room"
+    "room": "Room",
+    "soundOn": "Sound",
+    "soundOff": "Muted"
   },
   "loader": {
     "title": "Going up to the penthouse",

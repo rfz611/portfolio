@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { ROOM } from '../config/layout';
 import { VIEWS } from '../store/useScene';
-import { resolveShot, SHOTS } from './shots';
+import { HOME_OPTIONS, resolveShot, SHOTS } from './shots';
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
@@ -19,6 +20,7 @@ describe('planos de câmera', () => {
       for (const view of VIEWS) {
         const base = SHOTS[view];
         const shot = aspect < 1 && base.portrait ? { ...base, ...base.portrait } : base;
+        if (!shot.frame) continue;
         const pose = resolveShot(view, aspect);
         const distance = Math.hypot(
           pose.position[0] - pose.target[0],
@@ -33,9 +35,18 @@ describe('planos de câmera', () => {
     }
   });
 
-  it('o plano inicial fica do lado de fora e acima do teto', () => {
-    const pose = resolveShot('home', 16 / 9);
-    expect(pose.position[2]).toBeGreaterThan(4.5);
-    expect(pose.position[1]).toBeGreaterThan(3.4);
+  it('as opções de plano inicial com posição fixa ficam dentro da sala', () => {
+    for (const option of HOME_OPTIONS.filter((o) => o.position)) {
+      for (const aspect of [16 / 9, 9 / 19.5]) {
+        const pose = resolveShot('home', aspect, option);
+        const [x, y, z] = pose.position;
+        expect(x).toBeGreaterThan(ROOM.x0);
+        expect(x).toBeLessThan(ROOM.x1);
+        expect(z).toBeGreaterThan(ROOM.z0);
+        expect(z).toBeLessThan(ROOM.z1);
+        expect(y).toBeLessThan(ROOM.h);
+        expect(pose.fov).toBeLessThanOrEqual(80);
+      }
+    }
   });
 });

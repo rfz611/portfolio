@@ -1,111 +1,287 @@
 import { useMemo } from 'react';
-import { SPOT } from '../config/layout';
+import * as THREE from 'three';
+import { LAPTOP, SPOT } from '../config/layout';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
-import { lib } from '../textures/library';
-import { box, crease, cyl, merge } from './geo';
+import { hdr, lib } from '../textures/library';
+import { box, crease, cyl, lathe, merge } from './geo';
 import { OptionalModel } from './OptionalModel';
 
 const HALF_PI = Math.PI / 2;
+const TOP = 0.76;
 
-/** Escrivaninha de mogno (1,60 × 0,76 × 0,75 m) com gavetas e puxadores de latão. */
-function Desk() {
+/**
+ * Mesa executiva de mogno (2,20 × 0,76 × 1,00 m), de frente para a sala:
+ * painel frontal com almofadas, dois gaveteiros do lado de quem senta e
+ * tampo com couro verde embutido.
+ */
+function ExecutiveDesk() {
   const { mat } = lib();
-  const geo = useMemo(
-    () => ({
-      top: box([1.6, 0.04, 0.75], [0, 0.74, 0]),
+  const geo = useMemo(() => {
+    const drawers: THREE.BufferGeometry[] = [];
+    const pulls: THREE.BufferGeometry[] = [];
+    for (const x of [-0.82, 0.82]) {
+      for (const y of [0.16, 0.38, 0.6]) {
+        drawers.push(box([0.46, 0.19, 0.02], [x, y, -0.475]));
+        pulls.push(cyl(0.006, 0.006, 0.12, [x, y, -0.49], { seg: 6, rot: [0, 0, HALF_PI] }));
+      }
+    }
+    return {
+      top: box([2.2, 0.045, 1.0], [0, TOP - 0.0225, 0]),
       body: merge([
-        box([0.42, 0.7, 0.7], [-0.57, 0.36, 0], { swap: true }),
-        box([0.42, 0.7, 0.7], [0.57, 0.36, 0], { swap: true }),
-        box([0.72, 0.5, 0.02], [0, 0.47, -0.33]),
+        box([0.52, 0.71, 0.94], [-0.82, 0.355, 0], { swap: true }),
+        box([0.52, 0.71, 0.94], [0.82, 0.355, 0], { swap: true }),
+        box([1.12, 0.56, 0.03], [0, 0.43, 0.44], { swap: true }),
       ]),
-      handles: merge(
-        [-0.57, 0.57].flatMap((x) =>
-          [0.18, 0.4, 0.6].map((y) =>
-            cyl(0.006, 0.006, 0.1, [x, y, 0.36], { seg: 6, rot: [0, 0, HALF_PI] }),
-          ),
-        ),
-      ),
-      seams: merge(
-        [-0.57, 0.57].flatMap((x) =>
-          [0.29, 0.51].map((y) => box([0.4, 0.006, 0.004], [x, y, 0.351])),
-        ),
-      ),
-    }),
-    [],
-  );
+      panels: merge([
+        box([0.4, 0.5, 0.012], [-0.82, 0.36, 0.475], { swap: true }),
+        box([0.4, 0.5, 0.012], [0.82, 0.36, 0.475], { swap: true }),
+        box([0.98, 0.42, 0.012], [0, 0.44, 0.461], { swap: true }),
+      ]),
+      plinth: box([2.16, 0.06, 0.96], [0, 0.03, 0]),
+      brass: merge([
+        box([2.2, 0.008, 0.008], [0, TOP - 0.05, 0.502]),
+        box([2.2, 0.008, 0.008], [0, 0.06, 0.482]),
+        ...pulls,
+      ]),
+      drawers: merge(drawers),
+      pad: new THREE.PlaneGeometry(1.75, 0.68).rotateX(-HALF_PI).translate(0, TOP + 0.001, -0.06),
+    };
+  }, []);
   return (
     <group name="desk">
       <mesh geometry={geo.top} material={mat.varnish} />
       <mesh geometry={geo.body} material={mat.mahogany} />
-      <mesh geometry={geo.seams} material={mat.mahoganyDark} />
-      <mesh geometry={geo.handles} material={mat.brass} />
+      <mesh geometry={geo.panels} material={mat.mahoganyDark} />
+      <mesh geometry={geo.drawers} material={mat.mahogany} />
+      <mesh geometry={geo.plinth} material={mat.mahoganyDark} />
+      <mesh geometry={geo.brass} material={mat.brass} />
+      <mesh geometry={geo.pad} material={mat.leatherGreen} />
+    </group>
+  );
+}
+
+/** Cadeira de diretor em couro marrom com capitonê, sobre rodinhas. */
+function ExecutiveChair() {
+  const { mat } = lib();
+  const geo = useMemo(() => {
+    const legs: THREE.BufferGeometry[] = [];
+    const wheels: THREE.BufferGeometry[] = [];
+    for (let k = 0; k < 5; k++) {
+      const a = (k / 5) * Math.PI * 2;
+      legs.push(
+        box([0.05, 0.035, 0.32], [Math.sin(a) * 0.16, 0.075, Math.cos(a) * 0.16], {
+          rot: [0, a, 0],
+        }),
+      );
+      wheels.push(
+        cyl(0.028, 0.028, 0.03, [Math.sin(a) * 0.3, 0.028, Math.cos(a) * 0.3], {
+          seg: 8,
+          rot: [0, a, HALF_PI],
+        }),
+      );
+    }
+    return {
+      metal: merge([...legs, cyl(0.03, 0.03, 0.32, [0, 0.25, 0], { seg: 10 })]),
+      wheels: merge(wheels),
+      seat: crease(box([0.58, 0.14, 0.54], [0, 0.48, 0.02]), 40),
+      back: crease(box([0.58, 0.78, 0.13], [0, 0.98, -0.25], { rot: [-0.14, 0, 0] }), 40),
+      arms: merge([
+        box([0.09, 0.08, 0.5], [-0.33, 0.67, 0.0]),
+        box([0.09, 0.08, 0.5], [0.33, 0.67, 0.0]),
+        box([0.05, 0.16, 0.05], [-0.33, 0.57, 0.12]),
+        box([0.05, 0.16, 0.05], [0.33, 0.57, 0.12]),
+      ]),
+    };
+  }, []);
+  return (
+    <group name="chair">
+      <mesh geometry={geo.metal} material={mat.chrome} />
+      <mesh geometry={geo.wheels} material={mat.rubber} />
+      <mesh geometry={geo.seat} material={mat.leatherBrown} />
+      <mesh geometry={geo.back} material={mat.leatherBrownTuft} />
+      <mesh geometry={geo.arms} material={mat.leatherBrown} />
     </group>
   );
 }
 
 /**
- * PC bege dos anos 2000: monitor de tubo, gabinete, teclado e mouse.
- * A tela é uma peça separada ("screen"); a área de trabalho retrô entra
- * nela pelo código na Fase 3.
+ * Notebook de alumínio, sem logo. A tela é uma peça separada ("screen"):
+ * a área de trabalho entra nela pelo código na Fase 3.
  */
-function RetroPc() {
+function Laptop() {
   const { mat } = lib();
+  const { w, d, lid, tilt } = LAPTOP;
   const geo = useMemo(
     () => ({
-      monitor: crease(
-        merge([
-          box([0.4, 0.34, 0.12], [0, 0.21, 0.13]),
-          box([0.32, 0.27, 0.24], [0, 0.2, -0.04]),
-          box([0.22, 0.03, 0.2], [0, 0.015, 0.02]),
-          box([0.08, 0.05, 0.08], [0, 0.045, 0.02]),
-        ]),
-      ),
-      bezel: merge([
-        box([0.36, 0.022, 0.01], [0, 0.358, 0.195]),
-        box([0.36, 0.05, 0.01], [0, 0.07, 0.195]),
-        box([0.022, 0.29, 0.01], [-0.17, 0.21, 0.195]),
-        box([0.022, 0.29, 0.01], [0.17, 0.21, 0.195]),
-      ]),
-      tower: box([0.19, 0.42, 0.42], [0, 0.21, 0]),
-      drives: merge([
-        box([0.15, 0.04, 0.005], [0, 0.34, 0.211]),
-        box([0.15, 0.04, 0.005], [0, 0.29, 0.211]),
-        box([0.1, 0.012, 0.005], [0, 0.23, 0.211]),
-      ]),
-      keyboard: box([0.44, 0.025, 0.15], [0, 0.0125, 0]),
-      mouse: box([0.055, 0.03, 0.09], [0, 0.015, 0]),
+      base: crease(box([w, 0.012, d], [0, 0, 0]), 30),
+      keys: new THREE.PlaneGeometry(w * 0.86, d * 0.42)
+        .rotateX(-HALF_PI)
+        .translate(0, 0.0062, -d * 0.12),
+      pad: new THREE.PlaneGeometry(w * 0.36, d * 0.3)
+        .rotateX(-HALF_PI)
+        .translate(0, 0.0062, -d * 0.39),
+      lid: crease(box([w, lid, 0.005], [0, lid / 2, 0]), 30),
     }),
-    [],
+    [w, d, lid],
   );
   return (
-    <group name="retro_pc">
-      <group position={[-0.12, 0.76, -0.16]}>
-        <mesh geometry={geo.monitor} material={mat.beige} />
-        <mesh geometry={geo.bezel} material={mat.beigeDark} />
-        <mesh name="screen" position={[0, 0.215, 0.192]} material={mat.tvScreen}>
-          <planeGeometry args={[0.318, 0.27]} />
-        </mesh>
-        <mesh position={[0.15, 0.07, 0.201]} material={mat.ledRed}>
-          <boxGeometry args={[0.008, 0.006, 0.002]} />
-        </mesh>
-      </group>
-      <group position={[0.58, 0.76, -0.12]}>
-        <mesh geometry={geo.tower} material={mat.beige} />
-        <mesh geometry={geo.drives} material={mat.beigeDark} />
-      </group>
-      <group position={[-0.12, 0.76, 0.2]} rotation={[0.06, 0, 0]}>
-        <mesh geometry={geo.keyboard} material={mat.beige} />
-        <mesh position={[0, 0.0256, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.keyboard}>
-          <planeGeometry args={[0.42, 0.135]} />
+    <group
+      name="laptop"
+      position={[LAPTOP.base[0] - SPOT.desk[0], LAPTOP.base[1], LAPTOP.base[2] - SPOT.desk[2]]}
+    >
+      <mesh geometry={geo.base} material={mat.aluminum} />
+      <mesh geometry={geo.keys} material={mat.blackPlastic} />
+      <mesh geometry={geo.pad} material={mat.darkMetal} />
+      <group position={[0, 0.006, d / 2]} rotation={[tilt, 0, 0]}>
+        <mesh geometry={geo.lid} material={mat.aluminum} />
+        <mesh
+          name="screen"
+          position={[0, lid / 2 + 0.004, -0.0032]}
+          rotation={[0, Math.PI, 0]}
+          material={mat.tvScreen}
+        >
+          <planeGeometry args={[w * 0.9, lid * 0.86]} />
         </mesh>
       </group>
-      <mesh geometry={geo.mouse} material={mat.beige} position={[0.24, 0.76, 0.22]} />
     </group>
   );
 }
 
-/** Escrivaninha com o PC, encostada no vidro (seção Sobre mim). */
+/** Luminária de banqueiro: base de latão e cúpula de vidro verde acesa. */
+function BankerLamp() {
+  const { mat } = lib();
+  const geo = useMemo(
+    () => ({
+      brass: crease(
+        merge([
+          lathe(
+            [
+              [0.001, 0],
+              [0.085, 0],
+              [0.08, 0.02],
+              [0.02, 0.04],
+            ],
+            { seg: 16 },
+          ),
+          cyl(0.01, 0.01, 0.3, [0, 0.19, 0], { seg: 8 }),
+          box([0.02, 0.02, 0.18], [0, 0.34, 0.05]),
+        ]),
+        40,
+      ),
+      shade: new THREE.CylinderGeometry(0.075, 0.075, 0.34, 16, 1, true, 0, Math.PI)
+        .rotateZ(HALF_PI)
+        .rotateY(HALF_PI)
+        .rotateZ(0)
+        .translate(0, 0.33, 0.08),
+      bulb: cyl(0.02, 0.02, 0.18, [0, 0.31, 0.08], { seg: 8, rot: [0, 0, HALF_PI] }),
+    }),
+    [],
+  );
+  const shadeMat = useMemo(() => {
+    const m = mat.bankerShade.clone();
+    m.side = THREE.DoubleSide;
+    return m;
+  }, [mat]);
+  const bulb = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 3), toneMapped: false }),
+    [],
+  );
+  return (
+    <group name="banker-lamp">
+      <mesh geometry={geo.brass} material={mat.brass} />
+      <mesh geometry={geo.shade} material={shadeMat} />
+      <mesh geometry={geo.bulb} material={bulb} />
+      <pointLight
+        position={[0, 0.24, 0.08]}
+        color="#ffcf8f"
+        intensity={2.2}
+        distance={2.4}
+        decay={1.6}
+      />
+    </group>
+  );
+}
+
+/** Coisas largadas na mesa: telefone, papéis, caderno com caneta, caneca e um porta-retrato. */
+function DeskClutter() {
+  const { mat } = lib();
+  const geo = useMemo(
+    () => ({
+      phoneBody: crease(
+        merge([
+          box([0.2, 0.06, 0.22], [0, 0.03, 0]),
+          box([0.16, 0.03, 0.08], [0, 0.07, -0.05], { rot: [0.3, 0, 0] }),
+        ]),
+        35,
+      ),
+      handset: crease(
+        merge([
+          box([0.21, 0.025, 0.045], [0, 0.098, 0.03]),
+          box([0.05, 0.035, 0.055], [-0.085, 0.09, 0.03]),
+          box([0.05, 0.035, 0.055], [0.085, 0.09, 0.03]),
+        ]),
+        35,
+      ),
+      sheet: new THREE.PlaneGeometry(0.21, 0.297).rotateX(-HALF_PI),
+      folder: box([0.24, 0.012, 0.32], [0, 0.006, 0]),
+      notebook: box([0.15, 0.016, 0.21], [0, 0.008, 0]),
+      pen: cyl(0.005, 0.005, 0.14, [0.03, 0.02, 0], { seg: 6, rot: [HALF_PI, 0.2, 0] }),
+      mug: lathe(
+        [
+          [0.001, 0],
+          [0.04, 0],
+          [0.042, 0.095],
+          [0.038, 0.095],
+          [0.036, 0.01],
+        ],
+        { seg: 14 },
+      ),
+      coffee: new THREE.CircleGeometry(0.037, 14).rotateX(-HALF_PI).translate(0, 0.07, 0),
+      frame: box([0.15, 0.2, 0.015], [0, 0.1, 0], { rot: [-0.25, 0, 0] }),
+    }),
+    [],
+  );
+  const coffee = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#1a0c05', roughness: 0.1 }),
+    [],
+  );
+  const folder = useMemo(() => new THREE.MeshLambertMaterial({ color: '#b8925a' }), []);
+  return (
+    <group position={[0, TOP, 0]}>
+      <group position={[0.8, 0.002, 0.18]} rotation={[0, 2.75, 0]} name="phone">
+        <mesh geometry={geo.phoneBody} material={mat.blackPlastic} />
+        <mesh geometry={geo.handset} material={mat.blackPlastic} />
+      </group>
+      <group position={[-0.32, 0.002, -0.14]} rotation={[0, 0.3, 0]} name="papers">
+        <mesh geometry={geo.folder} material={folder} />
+        <mesh geometry={geo.sheet} material={mat.paperSheet} position={[0.02, 0.014, 0.01]} />
+        <mesh
+          geometry={geo.sheet}
+          material={mat.paperSheet}
+          position={[-0.05, 0.016, 0.06]}
+          rotation={[0, 0.35, 0]}
+        />
+      </group>
+      <group position={[0.48, 0.002, -0.22]} rotation={[0, -0.4, 0]} name="notebook">
+        <mesh geometry={geo.notebook} material={mat.leatherBrown} />
+        <mesh geometry={geo.pen} material={mat.brass} />
+      </group>
+      <group position={[0.55, 0.002, 0.16]} name="mug">
+        <mesh geometry={geo.mug} material={mat.ceramic} />
+        <mesh geometry={geo.coffee} material={coffee} />
+      </group>
+      <mesh
+        geometry={geo.frame}
+        material={mat.brass}
+        position={[-0.58, 0.002, 0.32]}
+        rotation={[0, Math.PI + 0.25, 0]}
+      />
+    </group>
+  );
+}
+
+/** Escritório de frente para a sala, com o vidro e a cidade atrás (seção Sobre mim). */
 export function DeskArea() {
   const { mat } = lib();
   const home = useScene((s) => s.view === 'home');
@@ -113,16 +289,26 @@ export function DeskArea() {
   const [x, y, z] = SPOT.desk;
   return (
     <group position={[x, y, z]}>
+      <mesh position={[0, 0.003, -0.25]} rotation={[-HALF_PI, 0, 0]} material={mat.rugDesk}>
+        <planeGeometry args={[3.2, 2.3]} />
+      </mesh>
       <OptionalModel file="desk.glb">
-        <Desk />
+        <ExecutiveDesk />
       </OptionalModel>
+      <group position={[0.72, 0, -0.98]} rotation={[0, -0.5, 0]}>
+        <ExecutiveChair />
+      </group>
       <Interactive id="pc" label="objects.pc" enabled={home} onClick={() => setView('pc')}>
         <OptionalModel file="retro_pc.glb">
-          <RetroPc />
+          <Laptop />
         </OptionalModel>
       </Interactive>
-      <mesh position={[0, 0.004, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
-        <planeGeometry args={[2.2, 1.3]} />
+      <group position={[-0.78, TOP, -0.05]} rotation={[0, Math.PI, 0]}>
+        <BankerLamp />
+      </group>
+      <DeskClutter />
+      <mesh position={[0, 0.005, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
+        <planeGeometry args={[2.8, 1.5]} />
       </mesh>
     </group>
   );

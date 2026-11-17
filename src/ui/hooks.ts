@@ -38,6 +38,22 @@ export function useEscapeToHome() {
   }, []);
 }
 
+/** No plano dos discos, as setas para cima e para baixo regulam o volume. */
+export function useVolumeKeys() {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const s = useScene.getState();
+      if (s.view !== 'discos' || event.target instanceof HTMLInputElement) return;
+      const step = event.key === 'ArrowUp' ? 0.03 : event.key === 'ArrowDown' ? -0.03 : 0;
+      if (!step) return;
+      event.preventDefault();
+      s.setVolume(s.volume + step);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+}
+
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query).matches : false,

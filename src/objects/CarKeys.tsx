@@ -30,7 +30,7 @@ export function CarKeys() {
 
   return (
     <Interactive id="keys" label="objects.keys">
-      <group position={[0.2, 0.421, 0.24]} rotation={[0, 0.5, 0]} name="car_keys">
+      <group position={[0.15, 0.421, 0.33]} rotation={[0, 2.3, 0]} name="car_keys">
         <mesh geometry={geo.metal} material={mat.steel} />
         <mesh geometry={geo.fob} material={mat.blackPlastic} />
         <mesh geometry={geo.button} material={mat.ledRed} />

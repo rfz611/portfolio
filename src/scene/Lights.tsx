@@ -47,7 +47,7 @@ export function Lights() {
 
   useEffect(() => {
     scene.environment = tex.env;
-    scene.environmentIntensity = 1;
+    scene.environmentIntensity = 0.6;
     return () => {
       scene.environment = null;
     };
@@ -55,7 +55,6 @@ export function Lights() {
 
   const [ax, , az] = SPOT.lampA;
   const [bx, , bz] = SPOT.lampB;
-  const [barX, , barZ] = SPOT.bar;
   const [carX, , carZ] = SPOT.car;
   const [tx, , tz] = SPOT.table;
   const [sx, , sz] = SPOT.shelf;
@@ -63,25 +62,25 @@ export function Lights() {
 
   return (
     <>
-      <hemisphereLight args={['#4a5aa0', '#1a0f14', 1.15]} />
+      <hemisphereLight args={['#5a64a8', '#2a1814', 1.7]} />
       {/* cidade e céu entrando pelo vidro */}
       <directionalLight position={[3, 5, -12]} intensity={1.1} color="#6c84ff" />
       {/* abajures do cantinho dos discos */}
       <pointLight
         position={[ax + 0.62, 1.12, az]}
         color={palette.amber}
-        intensity={24}
+        intensity={34}
         distance={9}
         decay={1.8}
       />
       <pointLight
         position={[bx + 0.62, 1.12, bz]}
         color={palette.amber}
-        intensity={24}
+        intensity={34}
         distance={9}
         decay={1.8}
       />
-      {/* luminárias embutidas: toca-discos e mesa redonda */}
+      {/* luminárias embutidas: toca-discos e, fraquinha, a mesa redonda */}
       <Spot
         from={[sx + 0.9, top, sz]}
         to={[sx + 0.1, 1, sz]}
@@ -94,24 +93,9 @@ export function Lights() {
         from={[tx, top, tz]}
         to={[tx, -0.4, tz]}
         color="#ffc98a"
-        intensity={160}
+        intensity={45}
         angle={0.5}
         distance={6}
-      />
-      {/* neon azul do bar */}
-      <pointLight
-        position={[barX, 0.35, barZ + 0.55]}
-        color={palette.neonBlue}
-        intensity={36}
-        distance={6}
-        decay={1.8}
-      />
-      <pointLight
-        position={[barX, 1.5, barZ - 0.6]}
-        color={palette.neonBlue}
-        intensity={12}
-        distance={5}
-        decay={1.8}
       />
       {/* vermelho da garagem */}
       <pointLight

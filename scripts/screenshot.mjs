@@ -71,7 +71,9 @@ for (const device of devices) {
     await page.evaluateOnNewDocument((state) => {
       localStorage.setItem('rfz-portfolio', JSON.stringify({ state, version: 1 }));
     }, prefs);
-    await page.goto(`${url}/${HASH[view] ?? ''}`, { waitUntil: 'load' });
+    await page.goto(`${url}/${process.env.SHOT_QUERY ?? ''}${HASH[view] ?? ''}`, {
+      waitUntil: 'load',
+    });
     if (view !== 'texto') {
       await page.waitForFunction(() => window.__ready === true, { timeout: 60000 });
     }

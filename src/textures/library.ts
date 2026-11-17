@@ -22,6 +22,7 @@ import {
   paintPalmFrond,
   paintWindows,
 } from './room';
+import { paintMarbleTiles, paintPaper, paintRug } from './rugs';
 import {
   paintBlob,
   paintBrushed,
@@ -200,6 +201,47 @@ const painters = {
       canvas(1024, 384, (c, w, h) => paintNeon(c, w, h, 'Raphael', 'SCHARF PASSOS')),
       { clamp: true },
     ),
+  rugPit: () =>
+    tex(
+      canvas(512, 512, (c, w, h) =>
+        paintRug(c, w, h, 121, {
+          field: '#6e1414',
+          border: '#1b2340',
+          accent: '#c8a265',
+          ink: '#2b0a08',
+        }),
+      ),
+      { clamp: true, aniso: 8 },
+    ),
+  rugDesk: () =>
+    tex(
+      canvas(512, 512, (c, w, h) =>
+        paintRug(c, w, h, 127, {
+          field: '#1d2a4a',
+          border: '#6a1a12',
+          accent: '#b89a62',
+          ink: '#0d1224',
+        }),
+      ),
+      { clamp: true, aniso: 8 },
+    ),
+  leatherGreen: () =>
+    tex(
+      canvas(256, 256, (c, w, h) =>
+        paintLeather(c, w, h, { base: '#1d3527', seed: 131, seams: true }),
+      ),
+      { clamp: true },
+    ),
+  marbleTiles: () =>
+    tex(
+      canvas(512, 512, (c, w, h) => paintMarbleTiles(c, w, h, 137)),
+      { repeat: [1 / 0.8, 1 / 0.8] },
+    ),
+  paper: () =>
+    tex(
+      canvas(128, 168, (c, w, h) => paintPaper(c, w, h, 139)),
+      { clamp: true },
+    ),
 } satisfies Record<string, () => THREE.Texture>;
 
 export type TexKey = keyof typeof painters;
@@ -242,7 +284,7 @@ function makeMaterials(t: Textures) {
     mahogany: std({ map: t.wood, roughness: 0.34, metalness: 0, envMapIntensity: 0.9 }),
     mahoganyDark: std({ map: t.woodDark, roughness: 0.5, envMapIntensity: 0.5 }),
     walnut: std({ map: t.woodLight, roughness: 0.42, envMapIntensity: 0.6 }),
-    varnish: std({ map: t.wood, roughness: 0.12, envMapIntensity: 1.5 }),
+    varnish: std({ map: t.wood, roughness: 0.24, envMapIntensity: 1.1 }),
     leatherWine: std({ map: t.leatherWine, roughness: 0.48, envMapIntensity: 0.7 }),
     leatherWineTuft: std({ map: t.leatherWineTuft, roughness: 0.44, envMapIntensity: 0.7 }),
     leatherWineSeat: std({ map: t.leatherWineSeat, roughness: 0.5, envMapIntensity: 0.6 }),
@@ -374,6 +416,31 @@ function makeMaterials(t: Textures) {
       depthWrite: false,
       toneMapped: false,
       side: THREE.DoubleSide,
+    }),
+
+    // tapetes, escritório e bar
+    rugPit: matte({ map: t.rugPit }),
+    rugDesk: matte({ map: t.rugDesk }),
+    leatherGreen: std({ map: t.leatherGreen, roughness: 0.5, envMapIntensity: 0.4 }),
+    marbleFloor: std({ map: t.marbleTiles, roughness: 0.2, metalness: 0.1, envMapIntensity: 1 }),
+    paperSheet: matte({ map: t.paper }),
+    aluminum: std({ color: '#b9bcc2', roughness: 0.32, metalness: 0.85, envMapIntensity: 1.1 }),
+    mirror: std({ color: '#5d6a86', roughness: 0.06, metalness: 1, envMapIntensity: 1.5 }),
+    bankerShade: new THREE.MeshStandardMaterial({
+      color: '#0f4a2a',
+      emissive: '#2a8a4a',
+      emissiveIntensity: 0.6,
+      roughness: 0.15,
+      envMapIntensity: 1.2,
+    }),
+    chrome: std({ color: '#d7dbe2', roughness: 0.12, metalness: 1, envMapIntensity: 1.6 }),
+    ceramic: std({ color: '#e8e2d6', roughness: 0.35, envMapIntensity: 0.6 }),
+    ash: matte({ color: '#5a5650' }),
+    stain: new THREE.MeshBasicMaterial({
+      color: '#000000',
+      transparent: true,
+      opacity: 0.28,
+      depthWrite: false,
     }),
 
     // fontes de luz: cor acima de 1 para o bloom pegar só nelas

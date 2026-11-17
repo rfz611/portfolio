@@ -10,6 +10,14 @@ import { Interactive } from './Interactive';
 
 const geometry = new THREE.BoxGeometry(0.22, 0.008, 0.29);
 
+/** Posição (x, z) e giro de cada revista: de baixo para cima da pilha. */
+const LOOSE: [number, number, number][] = [
+  [0.05, 0.04, 0.45],
+  [-0.08, -0.02, -0.62],
+  [0.02, 0.12, 1.32],
+  [-0.03, 0.03, 0.12],
+];
+
 /**
  * Revistas empilhadas na mesa (0,22 × 0,29 m): cada uma é um certificado.
  * O nome da revista é inventado; o destaque da capa é o nome do curso.
@@ -54,17 +62,19 @@ export function Magazines() {
       enabled={home}
       onClick={() => setView('mesa')}
     >
-      <group position={[-0.15, 0.424, 0.06]} name="magazines">
+      <group position={[-0.17, 0.424, 0.1]} name="magazines">
         {certificates.map((cert, index) => {
           const level = certificates.length - 1 - index;
+          // largadas uma por cima da outra, cada uma num ângulo
+          const [x, z, yaw] = LOOSE[index % LOOSE.length];
           return (
             <mesh
               key={cert.id}
               name={`magazine-${cert.id}`}
               geometry={geometry}
               material={covers[index]}
-              position={[level * 0.012, level * 0.0085, level * 0.01]}
-              rotation={[0, -0.28 + level * 0.19, 0]}
+              position={[x, level * 0.0085, z]}
+              rotation={[0, yaw, 0]}
             />
           );
         })}

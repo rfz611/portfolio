@@ -175,7 +175,7 @@ export function paintWallPanel(ctx: Ctx, w: number, h: number, seed: number) {
 
 /** Teto escuro de ripas de madeira quase invisíveis. */
 export function paintCeiling(ctx: Ctx, w: number, h: number, seed: number) {
-  paintWood(ctx, w, h, { base: '#160a08', seed, contrast: 0.6 });
+  paintWood(ctx, w, h, { base: '#2e1a10', seed, contrast: 0.6 });
   const slats = 8;
   for (let i = 0; i < slats; i++) {
     const y = (i / slats) * h;

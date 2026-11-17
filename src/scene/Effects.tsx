@@ -1,9 +1,12 @@
 import {
   Bloom,
+  BrightnessContrast,
+  HueSaturation,
   EffectComposer,
   N8AO,
   Noise,
   Outline,
+  Sepia,
   ToneMapping,
   Vignette,
 } from '@react-three/postprocessing';
@@ -18,9 +21,9 @@ import { useScene } from '../store/useScene';
 const AMBER = new THREE.Color(palette.amber).getHex();
 
 /**
- * Acabamento moderno por cima do visual PS2: bloom só nas fontes de luz,
- * sombreamento de contato, contorno âmbar no objeto apontado, granulado
- * de filme e vinheta. No nível baixo nada disso roda.
+ * Acabamento por cima do visual PS2: bloom só nas fontes de luz,
+ * sombreamento de contato, contorno âmbar no objeto apontado, cor
+ * sépia e dessaturada como em Max Payne 2, granulado de filme e vinheta. No nível baixo nada disso roda.
  */
 export function Effects() {
   const quality = useScene((s) => s.quality);
@@ -63,12 +66,16 @@ export function Effects() {
         mipmapBlur
         luminanceThreshold={1}
         luminanceSmoothing={0.2}
-        intensity={0.85}
+        intensity={0.6}
         radius={0.72}
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.09} />
-      <Vignette offset={0.28} darkness={0.7} />
+      {/* cor de Max Payne 2: menos saturada, puxada para o sépia, com contraste */}
+      <HueSaturation saturation={-0.16} />
+      <Sepia intensity={0.22} />
+      <BrightnessContrast brightness={0.01} contrast={0.12} />
+      <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.14} />
+      <Vignette offset={0.25} darkness={0.78} />
     </EffectComposer>
   );
 }
