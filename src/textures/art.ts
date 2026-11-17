@@ -180,3 +180,27 @@ export function paintFrame(ctx: Ctx, w: number, h: number) {
   ctx.fillRect(0, 0, w, h);
   grain(ctx, w, h, { seed: 21, fine: 0.08 });
 }
+
+/** Espaço de pôster de filme favorito, até o Raphael mandar os filmes. */
+export function paintPosterSlot(ctx: Ctx, w: number, h: number, index: number, label: string) {
+  const tones = [
+    ['#2a0508', '#070308'],
+    ['#0a1430', '#03050c'],
+    ['#2a1a06', '#080502'],
+  ][index % 3];
+  fade(ctx, 0, 0, w, h, tones[0], tones[1]);
+  ctx.strokeStyle = rgba(palette.amber, 0.5);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(w * 0.08, h * 0.06, w * 0.84, h * 0.88);
+  ctx.fillStyle = rgba(palette.text, 0.85);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `italic 600 ${w * 0.5}px ${DISPLAY}`;
+  ctx.fillText(String(index + 1), w / 2, h * 0.4);
+  ctx.font = `${w * 0.1}px "VT323", monospace`;
+  ctx.fillStyle = palette.amber;
+  ctx.fillText(label.toUpperCase(), w / 2, h * 0.68);
+  ctx.fillStyle = rgba(palette.text, 0.6);
+  ctx.fillText('EM BREVE', w / 2, h * 0.76);
+  grain(ctx, w, h, { seed: 40 + index, fine: 0.06, low: 0.03 });
+}

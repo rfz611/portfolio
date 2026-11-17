@@ -125,6 +125,7 @@
     "hint": "Click a cover to play · turn the brass knob for volume · click the platter to pause"
   },
   "decor": {
+    "posterSlot": "favorite film",
     "posterTitle": "Rain over the City",
     "posterTagline": "Nobody sleeps in the penthouse"
   },

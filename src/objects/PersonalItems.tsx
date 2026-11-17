@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { box, crease, cyl, merge } from '../scene/geo';
 import { sweep } from '../scene/sweep';
+import { makeCanvas, tex } from '../textures/canvas';
 import { lib } from '../textures/library';
 import { Interactive } from './Interactive';
 
@@ -55,7 +56,7 @@ function gloveThumb(side: number) {
 }
 
 /**
- * Luvas de boxe largadas no assento do sofá, perto da ponta: uma de
+ * Luvas de boxe brancas com detalhes pretos, largadas no assento do sofá, perto da ponta: uma de
  * barriga para baixo, a outra tombada de lado, com uma atadura enrolada e
  * outra desenrolada, como quem acabou de voltar do treino.
  */
@@ -85,9 +86,11 @@ export function LooseGloves() {
       ],
     );
     return {
-      left: merge([gloveBody(), gloveThumb(1), cuff]),
-      right: merge([gloveBody(), gloveThumb(-1), cuff.clone()]),
-      strap: merge([strap, patch]),
+      left: merge([gloveBody(), gloveThumb(1)]),
+      right: merge([gloveBody(), gloveThumb(-1)]),
+      cuff,
+      strap,
+      patch,
       liner,
       roll: cyl(0.03, 0.03, 0.05, [0, 0.03, 0], { seg: 16, rot: [0, 0, HALF_PI] }),
       strip,
@@ -96,8 +99,8 @@ export function LooseGloves() {
   const leather = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: '#8e1119',
-        roughness: 0.28,
+        color: '#f1eee8',
+        roughness: 0.3,
         metalness: 0.05,
         envMapIntensity: 1.1,
         side: THREE.DoubleSide,
@@ -109,9 +112,18 @@ export function LooseGloves() {
       new THREE.MeshStandardMaterial({ color: '#ece6da', roughness: 0.5, side: THREE.DoubleSide }),
     [],
   );
-  const dark = useMemo(() => new THREE.MeshLambertMaterial({ color: '#1a0c0c' }), []);
+  const dark = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#121214',
+        roughness: 0.35,
+        envMapIntensity: 1,
+        side: THREE.DoubleSide,
+      }),
+    [],
+  );
   const wrap = useMemo(
-    () => new THREE.MeshLambertMaterial({ color: '#d9d2c2', side: THREE.DoubleSide }),
+    () => new THREE.MeshLambertMaterial({ color: '#1c1c1e', side: THREE.DoubleSide }),
     [],
   );
   return (
@@ -120,13 +132,17 @@ export function LooseGloves() {
         {/* de barriga para baixo */}
         <group position={[0, 0.056, 0]} rotation={[0.04, 0.6, 0]}>
           <mesh geometry={geo.left} material={leather} />
-          <mesh geometry={geo.strap} material={white} />
+          <mesh geometry={geo.cuff} material={dark} />
+          <mesh geometry={geo.strap} material={dark} />
+          <mesh geometry={geo.patch} material={white} />
           <mesh geometry={geo.liner} material={dark} />
         </group>
         {/* tombada de lado, encostada na outra */}
         <group position={[0.17, 0.062, 0.07]} rotation={[0, -0.5, 1.35]}>
           <mesh geometry={geo.right} material={leather} />
-          <mesh geometry={geo.strap} material={white} />
+          <mesh geometry={geo.cuff} material={dark} />
+          <mesh geometry={geo.strap} material={dark} />
+          <mesh geometry={geo.patch} material={white} />
           <mesh geometry={geo.liner} material={dark} />
         </group>
         <mesh
@@ -146,38 +162,119 @@ export function LooseGloves() {
   );
 }
 
+/** Tecido do kimono: trama grossa branca, gola reforçada e costuras. */
+function paintGi(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = '#ece8df';
+  ctx.fillRect(0, 0, w, h);
+  // trama do tecido trançado
+  for (let y = 0; y < h; y += 4) {
+    for (let x = (y / 4) % 2 ? 2 : 0; x < w; x += 4) {
+      ctx.fillStyle = 'rgba(120,110,95,0.12)';
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+  // gola: faixa grossa pelas duas bordas compridas
+  for (const x of [0, w - w * 0.12]) {
+    ctx.fillStyle = '#e2ddd2';
+    ctx.fillRect(x, 0, w * 0.12, h);
+    ctx.strokeStyle = 'rgba(90,80,65,0.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    for (let k = 1; k < 4; k++) {
+      ctx.beginPath();
+      ctx.moveTo(x + (w * 0.12 * k) / 4, 0);
+      ctx.lineTo(x + (w * 0.12 * k) / 4, h);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+  // dobras com sombra suave
+  for (let y = 0; y < h; y += h / 7) {
+    const g = ctx.createLinearGradient(0, y, 0, y + h / 14);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(0.5, 'rgba(60,50,40,0.12)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, y, w, h / 14);
+  }
+}
+
 /**
- * Kimono de jiu-jitsu dobrado no assento da poltrona, com a faixa preta
- * por cima e a ponta caindo pelo braço.
+ * Pano jogado por cima de um braço de poltrona: segue um caminho no
+ * plano xy (assento → por cima do braço → caindo do lado de fora) e se
+ * estende em z, com ondinhas de dobra.
+ */
+function drapeGeometry(path: [number, number][], width: number, folds: number) {
+  const g = new THREE.PlaneGeometry(1, width, path.length - 1, 8);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const t = Math.round((p.getX(i) + 0.5) * (path.length - 1));
+    const z = p.getY(i);
+    const [x, y] = path[t];
+    const prev = path[Math.max(0, t - 1)];
+    const next = path[Math.min(path.length - 1, t + 1)];
+    const nx = -(next[1] - prev[1]);
+    const ny = next[0] - prev[0];
+    const len = Math.hypot(nx, ny) || 1;
+    const wave = Math.sin(z * folds) * 0.009 * (t / path.length);
+    p.setXYZ(i, x + (nx / len) * wave, y + (ny / len) * wave, z);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Caminho por cima do braço direito da poltrona (centro do rolo em x 0.37, y 0.68). */
+function overArm(seatX: number, fallTo: number, steps = 22): [number, number][] {
+  const out: [number, number][] = [];
+  const seatSteps = 5;
+  for (let k = 0; k < seatSteps; k++) out.push([seatX + (k / seatSteps) * (0.27 - seatX), 0.575]);
+  const arcSteps = 9;
+  for (let k = 0; k <= arcSteps; k++) {
+    const a = Math.PI - (k / arcSteps) * Math.PI;
+    out.push([0.37 + Math.cos(a) * 0.115, 0.68 + Math.sin(a) * 0.115 - (k === 0 ? 0.0 : 0)]);
+  }
+  const rest = steps - out.length;
+  for (let k = 1; k <= rest; k++) {
+    out.push([0.49 + k * 0.004, 0.68 - (k / rest) * (0.68 - fallTo)]);
+  }
+  return out;
+}
+
+/**
+ * Kimono de jiu-jitsu aberto, jogado por cima do braço da poltrona: o
+ * corpo cai pelos dois lados, uma manga pendura para fora e a faixa preta
+ * escorre junto.
  */
 export function ArmchairKimono() {
   const geo = useMemo(
     () => ({
-      gi: crease(
-        merge([
-          box([0.4, 0.045, 0.32], [0, 0.0225, 0]),
-          box([0.38, 0.042, 0.31], [0.006, 0.066, 0.004], { rot: [0, 0.04, 0] }),
-          box([0.36, 0.04, 0.29], [-0.004, 0.107, -0.003], { rot: [0, -0.03, 0] }),
-        ]),
-        40,
-      ),
-      collar: box([0.05, 0.014, 0.29], [-0.13, 0.133, -0.003], { rot: [0, -0.03, 0] }),
-      belt: merge([
-        box([0.3, 0.008, 0.045], [0.08, 0.131, 0.05]),
-        box([0.14, 0.008, 0.045], [0.29, 0.2, 0.05], { rot: [0, 0, 0.45] }),
-        box([0.045, 0.3, 0.008], [0.43, 0.06, 0.05], { rot: [0, 0, 0.05] }),
-      ]),
+      body: drapeGeometry(overArm(0.0, 0.15), 0.62, 30),
+      sleeve: new THREE.CylinderGeometry(0.06, 0.075, 0.5, 12, 1, true)
+        .scale(1, 1, 0.55)
+        .rotateZ(0.12)
+        .translate(0.53, 0.4, 0.22),
+      belt: drapeGeometry(overArm(0.12, 0.08), 0.045, 0),
     }),
     [],
   );
-  const cloth = useMemo(() => new THREE.MeshLambertMaterial({ color: '#e6e1d6' }), []);
-  const black = useMemo(() => new THREE.MeshLambertMaterial({ color: '#0e0d0e' }), []);
+  const cloth = useMemo(
+    () =>
+      new THREE.MeshLambertMaterial({
+        map: tex(makeCanvas(256, 256, paintGi), { clamp: true }),
+        side: THREE.DoubleSide,
+      }),
+    [],
+  );
+  const black = useMemo(
+    () => new THREE.MeshLambertMaterial({ color: '#0e0d0e', side: THREE.DoubleSide }),
+    [],
+  );
   return (
     <Interactive id="kimono" label="objects.kimono">
       <group name="kimono">
-        <mesh geometry={geo.gi} material={cloth} />
-        <mesh geometry={geo.collar} material={cloth} />
-        <mesh geometry={geo.belt} material={black} />
+        <mesh geometry={geo.body} material={cloth} />
+        <mesh geometry={geo.sleeve} material={cloth} />
+        <mesh geometry={geo.belt} material={black} position={[0.004, 0.006, -0.05]} />
       </group>
     </Interactive>
   );

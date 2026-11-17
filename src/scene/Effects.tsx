@@ -64,9 +64,9 @@ export function Effects() {
       />
       <Bloom
         mipmapBlur
-        luminanceThreshold={1}
+        luminanceThreshold={1.35}
         luminanceSmoothing={0.2}
-        intensity={0.6}
+        intensity={0.45}
         radius={0.72}
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />

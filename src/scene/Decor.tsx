@@ -6,7 +6,7 @@ import { palette } from '../config/palette';
 import { makeCanvas, tex } from '../textures/canvas';
 import { art } from '../textures/artLibrary';
 import { hdr, lib } from '../textures/library';
-import { paintPoster } from '../textures/art';
+import { paintPosterSlot } from '../textures/art';
 import { box, crease, cyl, merge } from './geo';
 import { Interactive } from '../objects/Interactive';
 import { coverUrl } from '../content/tracks';
@@ -136,38 +136,42 @@ function SideTable({ position }: { position: V3 }) {
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const { t } = useTranslation();
-  const posterTitle = t('decor.posterTitle');
-  const posterTagline = t('decor.posterTagline');
-  const poster = useMemo(
+  const slotLabel = t('decor.posterSlot');
+  const slots = useMemo(
     () =>
-      tex(
-        makeCanvas(256, 384, (c, w, h) => paintPoster(c, w, h, posterTitle, posterTagline)),
-        { clamp: true },
+      [0, 1, 2].map((i) =>
+        tex(
+          makeCanvas(192, 288, (c, w, h) => paintPosterSlot(c, w, h, i, slotLabel)),
+          { clamp: true },
+        ),
       ),
-    [posterTitle, posterTagline],
+    [slotLabel],
   );
   const pieces = art();
   const south = ROOM.z1 - 0.02;
   const west = ROOM.x0 + 0.02;
   return (
     <group name="decor">
-      {/* parede do fundo (sul): paisagem entre arandelas e o pôster de filme */}
-      <Painting
-        map={pieces.landscape}
-        size={[1.7, 1.05]}
-        position={[-1.2, 1.78, south]}
-        rotationY={Math.PI}
-      />
+      {/* parede do fundo (sul), de frente para quem senta à escrivaninha:
+          três quadros de filmes favoritos entre as arandelas e a paisagem à direita */}
+      {slots.map((map, i) => (
+        <Interactive key={i} id={`poster-${i}`} label="objects.poster">
+          <Painting
+            map={map}
+            size={[0.6, 0.88]}
+            position={[-1.98 + i * 0.78, 1.78, south]}
+            rotationY={Math.PI}
+          />
+        </Interactive>
+      ))}
       <Sconce position={[-2.55, 1.85, south]} rotationY={Math.PI} />
       <Sconce position={[0.15, 1.85, south]} rotationY={Math.PI} />
-      <Interactive id="poster" label="objects.poster">
-        <Painting
-          map={poster}
-          size={[0.72, 1.06]}
-          position={[2.6, 1.75, south]}
-          rotationY={Math.PI}
-        />
-      </Interactive>
+      <Painting
+        map={pieces.landscape}
+        size={[1.3, 0.8]}
+        position={[2.6, 1.78, south]}
+        rotationY={Math.PI}
+      />
       {/* parede esquerda (oeste): disco emoldurado à direita de quem está no sofá
           e o tigre de Rousseau grande à esquerda */}
       <FramedRecord position={[west, 1.72, -3.2]} rotationY={HALF_PI} />

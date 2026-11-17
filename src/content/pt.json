@@ -125,6 +125,7 @@
     "hint": "Clique numa capa para tocar · gire o botão de latão para o volume · clique no prato para pausar"
   },
   "decor": {
+    "posterSlot": "filme favorito",
     "posterTitle": "Chuva sobre a Cidade",
     "posterTagline": "Ninguém dorme na cobertura"
   },

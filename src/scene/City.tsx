@@ -1,10 +1,11 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { GARAGE, ROOM } from '../config/layout';
+import { BILLBOARD, GARAGE, ROOM } from '../config/layout';
 import { retile } from '../textures/canvas';
 import { hdr, lib } from '../textures/library';
 import { mulberry32 } from '../textures/random';
+import { Billboard } from './Billboard';
 import { box, merge } from './geo';
 
 const GROUND_Y = -95;
@@ -16,13 +17,21 @@ function tint(g: THREE.BufferGeometry, brightness: number) {
   const colors = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
     const roof = i >= 8 && i < 16;
-    colors[i * 3] = roof ? 0.012 : brightness * 0.95;
-    colors[i * 3 + 1] = roof ? 0.014 : brightness * 0.97;
-    colors[i * 3 + 2] = roof ? 0.03 : brightness * 1.1;
+    // telhado em tom grafite: a textura de janelas aparece fraquinha, como luzes de cobertura
+    colors[i * 3] = roof ? 0.16 : brightness * 0.95;
+    colors[i * 3 + 1] = roof ? 0.17 : brightness * 0.97;
+    colors[i * 3 + 2] = roof ? 0.22 : brightness * 1.1;
   }
   g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   return g;
 }
+
+/** Parque no meio da cidade, ao norte (em metros, a partir da sala). */
+const PARK = { x0: CENTER_X - 140, x1: CENTER_X + 140, z0: -620, z1: -200 } as const;
+const inPark = (x: number, z: number) =>
+  x > PARK.x0 - 12 && x < PARK.x1 + 12 && z > PARK.z0 - 12 && z < PARK.z1 + 12;
+const nearBillboard = (x: number, z: number) =>
+  Math.abs(x - BILLBOARD.x) < 40 && Math.abs(z - BILLBOARD.z) < 40;
 
 function buildCity() {
   const r = mulberry32(77);
@@ -33,9 +42,12 @@ function buildCity() {
     const north = r() < 0.72;
     const angle = north ? -Math.PI * (0.1 + r() * 0.8) : r() * Math.PI * 2;
     const distance = 36 + Math.pow(r(), 1.6) * 250;
+    // perto da janela (ao norte) ficam poucos prédios, para a vista ir longe
+    if (north && distance < 210 && Math.abs(Math.cos(angle)) < 0.55 && r() < 0.9) continue;
     const x = CENTER_X + Math.cos(angle) * distance;
     const z = Math.sin(angle) * distance;
     if (Math.abs(x - CENTER_X) < 20 && Math.abs(z) < 16) continue;
+    if (inPark(x, z)) continue;
     const w = 11 + r() * 22;
     const d = 11 + r() * 22;
     const tall = distance > 75 && r() < 0.16;
@@ -54,10 +66,13 @@ function buildCity() {
   const crowns: THREE.BufferGeometry[] = [];
   const accents: THREE.BufferGeometry[] = [];
   for (let i = 0; i < 20; i++) {
-    const angle = -Math.PI * (0.12 + (i / 19) * 0.76) + (r() - 0.5) * 0.08;
-    const distance = 85 + r() * 175;
+    // torres nas laterais; o centro fica aberto para o parque
+    const side = i % 2 === 0 ? 0.1 + r() * 0.26 : 0.64 + r() * 0.26;
+    const angle = -Math.PI * side;
+    const distance = 110 + r() * 240;
     const x = CENTER_X + Math.cos(angle) * distance;
     const z = Math.sin(angle) * distance;
+    if (inPark(x, z) || nearBillboard(x, z)) continue;
     const w = 12 + r() * 14;
     const d = 12 + r() * 14;
     const top = -30 + Math.pow(r(), 1.3) * 80;
@@ -91,7 +106,7 @@ function buildCity() {
     const dist = Math.hypot(pos.getX(i) - CENTER_X, pos.getZ(i));
     const b = Math.max(0, Math.min(1, 1.12 - dist / 560));
     colors.set([b, b, b], i * 3);
-    uv.setXY(i, uv.getX(i) * 9, uv.getY(i) * 9);
+    uv.setXY(i, uv.getX(i) * 5, uv.getY(i) * 5);
   }
   ground.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
@@ -139,6 +154,15 @@ export function City() {
         <sphereGeometry args={[760, 24, 16]} />
       </mesh>
       <mesh geometry={geo.ground} material={mat.cityGround} />
+      {/* parque no meio da cidade */}
+      <mesh
+        position={[(PARK.x0 + PARK.x1) / 2, GROUND_Y + 0.3, (PARK.z0 + PARK.z1) / 2]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        material={mat.park}
+      >
+        <planeGeometry args={[PARK.x1 - PARK.x0, PARK.z1 - PARK.z0]} />
+      </mesh>
+      <Billboard />
       {geo.blocks.map((g, i) => (
         <mesh key={i} geometry={g} material={blocks[i]} />
       ))}

@@ -20,6 +20,7 @@ import {
   paintMonstera,
   paintNeon,
   paintPalmFrond,
+  paintPark,
   paintWindows,
 } from './room';
 import { paintMarbleTiles, paintPaper, paintRug } from './rugs';
@@ -178,19 +179,20 @@ const painters = {
   facade: () => tex(canvas(512, 256, (c, w, h) => paintFacade(c, w, h, 105))),
   windowsA: () =>
     tex(
-      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 111, 0.24)),
+      canvas(256, 512, (c, w, h) => paintWindows(c, w, h, 111, 0.24)),
       { repeat: [1, 0.5] },
     ),
   windowsB: () =>
     tex(
-      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 113, 0.42)),
+      canvas(256, 512, (c, w, h) => paintWindows(c, w, h, 113, 0.42)),
       { repeat: [1, 0.5] },
     ),
   windowsC: () =>
     tex(
-      canvas(128, 256, (c, w, h) => paintWindows(c, w, h, 115, 0.1)),
+      canvas(256, 512, (c, w, h) => paintWindows(c, w, h, 115, 0.1)),
       { repeat: [1, 0.5] },
     ),
+  park: () => tex(canvas(512, 1024, paintPark), { clamp: true, aniso: 8 }),
   groundLights: () =>
     tex(
       canvas(1024, 1024, (c, w, h) => paintGroundLights(c, w, h, 117)),
@@ -423,6 +425,7 @@ function makeMaterials(t: Textures) {
     cityB: new THREE.MeshBasicMaterial({ map: t.windowsB, vertexColors: true }),
     cityC: new THREE.MeshBasicMaterial({ map: t.windowsC, vertexColors: true }),
     cityGround: new THREE.MeshBasicMaterial({ map: t.groundLights, vertexColors: true }),
+    park: new THREE.MeshBasicMaterial({ map: t.park }),
     sky: new THREE.MeshBasicMaterial({ map: t.sky, side: THREE.BackSide, depthWrite: false }),
     neonSign: new THREE.MeshBasicMaterial({
       map: t.neonName,
@@ -440,7 +443,7 @@ function makeMaterials(t: Textures) {
     marbleFloor: std({ map: t.marbleTiles, roughness: 0.2, metalness: 0.1, envMapIntensity: 1 }),
     paperSheet: matte({ map: t.paper }),
     aluminum: std({ color: '#b9bcc2', roughness: 0.32, metalness: 0.85, envMapIntensity: 1.1 }),
-    mirror: std({ color: '#5d6a86', roughness: 0.3, metalness: 1, envMapIntensity: 1.2 }),
+    mirror: std({ color: '#30384a', roughness: 0.32, metalness: 1, envMapIntensity: 0.55 }),
     bankerShade: new THREE.MeshStandardMaterial({
       color: '#0f4a2a',
       emissive: '#2a8a4a',
@@ -460,8 +463,8 @@ function makeMaterials(t: Textures) {
     }),
 
     // fontes de luz: cor acima de 1 para o bloom pegar só nelas
-    amberStrip: light(hdr(palette.amber, 1.5)),
-    amberBulb: light(hdr(palette.amber, 3)),
+    amberStrip: light(hdr(palette.amber, 1.2)),
+    amberBulb: light(hdr(palette.amber, 1.8)),
     amberDim: light(hdr(palette.amber, 0.25)),
     neonRed: light(hdr(palette.neonRed, 4)),
     neonBlue: light(hdr(palette.neonBlue, 4.5)),
@@ -473,7 +476,7 @@ function makeMaterials(t: Textures) {
     glowAmberSoft: additive(t.glowSoft, palette.amber, 0.3),
     glowBlue: additive(t.glow, palette.neonBlue, 0.6),
     glowRed: additive(t.glow, palette.neonRed, 0.6),
-    spriteAmber: sprite(palette.amber, 0.5),
+    spriteAmber: sprite(palette.amber, 0.22),
     shadow: new THREE.MeshBasicMaterial({
       map: t.blob,
       transparent: true,

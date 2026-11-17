@@ -271,67 +271,206 @@ export function paintFacade(ctx: Ctx, w: number, h: number, seed: number) {
   }
 }
 
-/** Janelas de um prédio: algumas acesas, a maioria apagada. */
+/**
+ * Fachada de prédio vista de longe: lajes marcando os andares, pilares,
+ * caixilhos, janelas apagadas (azul-escuro), acesas (âmbar ou branco),
+ * algumas com cortina meio fechada e outras com o brilho azul de TV.
+ */
 export function paintWindows(ctx: Ctx, w: number, h: number, seed: number, lit: number) {
   const r = mulberry32(seed);
-  ctx.fillStyle = '#04050a';
+  ctx.fillStyle = '#05060c';
   ctx.fillRect(0, 0, w, h);
   const cols = 8;
   const rows = 16;
   const cw = w / cols;
   const ch = h / rows;
   for (let j = 0; j < rows; j++) {
+    // laje do andar
+    ctx.fillStyle = '#0d0f18';
+    ctx.fillRect(0, j * ch, w, ch * 0.16);
     for (let i = 0; i < cols; i++) {
+      const x = i * cw + cw * 0.1;
+      const y = j * ch + ch * 0.22;
+      const ww = cw * 0.8;
+      const wh = ch * 0.66;
       const on = r() < lit;
       if (on) {
         const pick = r();
-        const color = pick < 0.62 ? '#ffc477' : pick < 0.9 ? '#e9f0ff' : '#7fa8ff';
-        ctx.fillStyle = rgba(color, 0.45 + r() * 0.55);
+        const base = pick < 0.6 ? '#ffc477' : pick < 0.85 ? '#f2f0e6' : '#7fa8ff';
+        const g = ctx.createLinearGradient(0, y, 0, y + wh);
+        g.addColorStop(0, rgba(base, 0.55 + r() * 0.4));
+        g.addColorStop(1, rgba(base, 0.25 + r() * 0.3));
+        ctx.fillStyle = g;
+        ctx.fillRect(x, y, ww, wh);
+        if (r() > 0.6) {
+          // cortina meio fechada
+          ctx.fillStyle = 'rgba(30,18,10,0.6)';
+          ctx.fillRect(x, y, ww * (0.3 + r() * 0.4), wh);
+        }
       } else {
-        ctx.fillStyle = r() > 0.5 ? '#070914' : '#0a0d1a';
+        ctx.fillStyle = r() > 0.5 ? '#0a0e1d' : '#0d1226';
+        ctx.fillRect(x, y, ww, wh);
+        // reflexo frio do céu no vidro apagado
+        ctx.fillStyle = 'rgba(90,110,170,0.08)';
+        ctx.fillRect(x, y, ww, wh * 0.35);
       }
-      ctx.fillRect(i * cw + 2, j * ch + 3, cw - 4, ch - 6);
+      // caixilho no meio da janela
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(x + ww / 2 - 1, y, 2, wh);
     }
   }
+  // pilares verticais a cada duas janelas
+  ctx.fillStyle = 'rgba(14,16,26,0.9)';
+  for (let i = 0; i <= cols; i += 2) ctx.fillRect(i * cw - 2, 0, 4, h);
 }
 
-/** Cidade vista de cima: ruas de pontinhos de luz até o horizonte. */
-export function paintGroundLights(ctx: Ctx, w: number, h: number, seed: number) {
-  const r = mulberry32(seed);
-  ctx.fillStyle = '#020309';
+/**
+ * Parque no meio da cidade (inspirado no Central Park): gramado escuro com
+ * copas de árvore, caminhos curvos iluminados por postes, um lago que
+ * reflete as luzes e a avenida acesa contornando tudo.
+ */
+export function paintPark(ctx: Ctx, w: number, h: number) {
+  const r = mulberry32(1857);
+  ctx.fillStyle = '#0c1710';
   ctx.fillRect(0, 0, w, h);
-  const dot = (x: number, y: number, size: number, color: string, alpha: number) => {
-    ctx.fillStyle = rgba(color, alpha);
-    ctx.fillRect(x, y, size, size);
-  };
-  const blocks = 8;
-  const step = w / blocks;
-  // avenidas: fileiras de postes âmbar
-  for (let b = 0; b < blocks; b++) {
-    const major = b % 4 === 0;
-    for (let t = 0; t < w; t += major ? 5 : 9) {
-      const jitter = r() * 1.5;
-      dot(t, b * step + jitter, major ? 2.4 : 1.6, '#ffb35c', major ? 0.95 : 0.6);
-      dot(b * step + jitter, t, major ? 2.4 : 1.6, '#ffb35c', major ? 0.95 : 0.6);
-      if (major && r() > 0.7) dot(t, b * step + 4, 1.6, r() > 0.5 ? '#ff4433' : '#ffffff', 0.8);
-    }
-  }
-  // janelas e letreiros dentro dos quarteirões
-  for (let i = 0; i < 5200; i++) {
-    const pick = r();
-    const color =
-      pick < 0.6 ? '#ffc98a' : pick < 0.86 ? '#dfe8ff' : pick < 0.94 ? '#6f8cff' : '#ff5a6a';
-    dot(r() * w, r() * h, 1 + r() * 1.4, color, 0.25 + r() * 0.6);
-  }
-  // manchas de claridade
-  for (let i = 0; i < 26; i++) {
+  // copas de árvores
+  for (let i = 0; i < 2200; i++) {
     const x = r() * w;
     const y = r() * h;
-    const rad = 20 + r() * 60;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
-    g.addColorStop(0, rgba(r() > 0.3 ? '#ffb35c' : '#5f7bff', 0.16));
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+    const rad = 2 + r() * 6;
+    ctx.fillStyle = r() > 0.5 ? 'rgba(30,52,30,0.9)' : 'rgba(16,32,18,0.9)';
+    ctx.beginPath();
+    ctx.arc(x, y, rad, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // lago
+  ctx.fillStyle = '#0a1426';
+  ctx.beginPath();
+  ctx.ellipse(w * 0.52, h * 0.58, w * 0.22, h * 0.09, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  for (let i = 0; i < 40; i++) {
+    ctx.fillStyle = rgba('#ffc477', 0.25 + r() * 0.4);
+    ctx.fillRect(w * (0.36 + r() * 0.32), h * (0.53 + r() * 0.1), 1 + r() * 4, 1);
+  }
+  // caminhos com postes de luz
+  const path = (pts: [number, number][]) => {
+    ctx.strokeStyle = 'rgba(70,60,45,0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x * w, y * h) : ctx.lineTo(x * w, y * h)));
+    ctx.stroke();
+    for (let k = 0; k < pts.length - 1; k++) {
+      const [x0, y0] = pts[k];
+      const [x1, y1] = pts[k + 1];
+      for (let t = 0; t < 1; t += 0.12) {
+        const px = (x0 + (x1 - x0) * t) * w;
+        const py = (y0 + (y1 - y0) * t) * h;
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, 9);
+        glow.addColorStop(0, 'rgba(255,205,140,0.55)');
+        glow.addColorStop(1, 'rgba(255,205,140,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(px - 9, py - 9, 18, 18);
+        ctx.fillStyle = 'rgba(255,225,170,1)';
+        ctx.fillRect(px - 2, py - 2, 4, 4);
+      }
+    }
+  };
+  path([
+    [0.1, 0.05],
+    [0.3, 0.2],
+    [0.25, 0.4],
+    [0.4, 0.5],
+    [0.3, 0.7],
+    [0.45, 0.9],
+    [0.6, 0.98],
+  ]);
+  path([
+    [0.9, 0.08],
+    [0.7, 0.25],
+    [0.78, 0.45],
+    [0.7, 0.68],
+    [0.85, 0.85],
+  ]);
+  path([
+    [0.1, 0.3],
+    [0.5, 0.33],
+    [0.9, 0.3],
+  ]);
+  path([
+    [0.1, 0.8],
+    [0.5, 0.78],
+    [0.9, 0.82],
+  ]);
+  // avenida em volta
+  ctx.strokeStyle = 'rgba(255,190,110,0.95)';
+  ctx.lineWidth = 6;
+  ctx.setLineDash([3, 4]);
+  ctx.strokeRect(2, 2, w - 4, h - 4);
+  ctx.setLineDash([]);
+}
+
+/**
+ * Cidade vista do alto: quarteirões com telhados escuros e algumas luzes,
+ * avenidas largas e acesas (com brilho em volta, para aparecer de longe)
+ * e ruas menores mais fracas. Feita para ser vista a 100–600 m.
+ */
+export function paintGroundLights(ctx: Ctx, w: number, h: number, seed: number) {
+  const r = mulberry32(seed);
+  ctx.fillStyle = '#05070f';
+  ctx.fillRect(0, 0, w, h);
+  const block = w / 8;
+  // telhados dos quarteirões, cada um num tom
+  for (let j = 0; j < 8; j++) {
+    for (let i = 0; i < 8; i++) {
+      const tone = 10 + Math.floor(r() * 16);
+      ctx.fillStyle = `rgb(${tone},${tone + 2},${tone + 10})`;
+      ctx.fillRect(i * block + 10, j * block + 10, block - 20, block - 20);
+      // luzes de cobertura e janelas vistas de cima
+      for (let k = 0; k < 10; k++) {
+        const pick = r();
+        ctx.fillStyle =
+          pick < 0.6
+            ? 'rgba(255,196,120,0.8)'
+            : pick < 0.85
+              ? 'rgba(220,230,255,0.7)'
+              : 'rgba(110,140,255,0.7)';
+        const s = 2 + r() * 4;
+        ctx.fillRect(
+          i * block + 14 + r() * (block - 32),
+          j * block + 14 + r() * (block - 32),
+          s,
+          s,
+        );
+      }
+    }
+  }
+  // ruas: brilho largo + linha de postes
+  const street = (x0: number, y0: number, x1: number, y1: number, major: boolean) => {
+    ctx.strokeStyle = major ? 'rgba(255,170,80,0.28)' : 'rgba(255,170,80,0.14)';
+    ctx.lineWidth = major ? 16 : 8;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    ctx.strokeStyle = major ? 'rgba(255,214,150,0.95)' : 'rgba(255,200,130,0.6)';
+    ctx.lineWidth = major ? 4 : 2;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  };
+  for (let k = 0; k <= 8; k++) {
+    const major = k % 2 === 0;
+    street(k * block, 0, k * block, h, major);
+    street(0, k * block, w, k * block, major);
+  }
+  // faróis de carro nas avenidas (pontinhos brancos e vermelhos)
+  for (let i = 0; i < 160; i++) {
+    const along = r() * w;
+    const line = Math.floor(r() * 5) * 2 * block;
+    const red = r() > 0.5;
+    ctx.fillStyle = red ? 'rgba(255,60,50,0.9)' : 'rgba(255,255,240,0.95)';
+    if (r() > 0.5) ctx.fillRect(along, line - 3 + (red ? 4 : 0), 4, 2);
+    else ctx.fillRect(line - 3 + (red ? 4 : 0), along, 2, 4);
   }
 }

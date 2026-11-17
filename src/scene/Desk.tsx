@@ -5,7 +5,10 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { ExecutiveChair } from '../objects/Chairs';
 import { Clock } from '../objects/Clock';
 import { Interactive } from '../objects/Interactive';
+import { DeskPhone, Mug, Notebook } from '../objects/DeskItems';
+import { paintLaptopKeys, paintLaptopScreen } from '../textures/laptop';
 import { ChairSeat, Drawer, PhotoFrame, Steam } from '../objects/OfficeProps';
+import { useSeated } from '../objects/seat';
 import { useScene } from '../store/useScene';
 import { paintApple } from '../textures/apple';
 import { makeCanvas, tex } from '../textures/canvas';
@@ -90,6 +93,23 @@ function Laptop() {
     }),
     [w, d, lid],
   );
+  const seated = useSeated();
+  const keys = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        map: tex(makeCanvas(256, 112, paintLaptopKeys), { clamp: true }),
+        roughness: 0.5,
+      }),
+    [],
+  );
+  const screenOn = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        map: tex(makeCanvas(256, 160, paintLaptopScreen), { clamp: true }),
+        toneMapped: false,
+      }),
+    [],
+  );
   const silver = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -117,7 +137,7 @@ function Laptop() {
       position={[LAPTOP.base[0] - SPOT.desk[0], LAPTOP.base[1], LAPTOP.base[2] - SPOT.desk[2]]}
     >
       <mesh geometry={geo.base} material={silver} />
-      <mesh geometry={geo.keys} material={mat.blackPlastic} />
+      <mesh geometry={geo.keys} material={keys} />
       <mesh geometry={geo.pad} material={mat.darkMetal} />
       <group position={[0, 0.0045, d / 2]} rotation={[tilt, 0, 0]}>
         <mesh geometry={geo.lid} material={silver} />
@@ -128,7 +148,7 @@ function Laptop() {
           name="screen"
           position={[0, lid / 2 + 0.004, -0.0024]}
           rotation={[0, Math.PI, 0]}
-          material={mat.tvScreen}
+          material={seated ? screenOn : mat.tvScreen}
         >
           <planeGeometry args={[w * 0.92, lid * 0.88]} />
         </mesh>
@@ -173,7 +193,7 @@ function BankerLamp() {
     return m;
   }, [mat]);
   const bulb = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 3), toneMapped: false }),
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.6), toneMapped: false }),
     [],
   );
   return (
@@ -230,16 +250,11 @@ function DeskClutter() {
     }),
     [],
   );
-  const coffee = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#1a0c05', roughness: 0.1 }),
-    [],
-  );
   const folder = useMemo(() => new THREE.MeshLambertMaterial({ color: '#b8925a' }), []);
   return (
     <group position={[0, TOP, 0]}>
-      <group position={[0.8, 0.002, 0.18]} rotation={[0, 2.75, 0]} name="phone">
-        <mesh geometry={geo.phoneBody} material={mat.blackPlastic} />
-        <mesh geometry={geo.handset} material={mat.blackPlastic} />
+      <group position={[0.8, 0.002, 0.16]} rotation={[0, 2.75, 0]}>
+        <DeskPhone />
       </group>
       <Interactive id="papers" label="objects.papers">
         <group position={[-0.32, 0.002, -0.14]} rotation={[0, 0.3, 0]} name="papers">
@@ -253,13 +268,12 @@ function DeskClutter() {
           />
         </group>
       </Interactive>
-      <group position={[0.48, 0.002, -0.22]} rotation={[0, -0.4, 0]} name="notebook">
-        <mesh geometry={geo.notebook} material={mat.leatherBrown} />
-        <mesh geometry={geo.pen} material={mat.brass} />
+      <group position={[0.36, 0.002, -0.22]} rotation={[0, -0.4, 0]}>
+        <Notebook />
       </group>
-      <group position={[0.55, 0.002, 0.16]} name="mug">
-        <mesh geometry={geo.mug} material={mat.ceramic} />
-        <mesh geometry={geo.coffee} material={coffee} />
+      {/* caneca perto da mão de quem senta, com a alça virada para a pessoa */}
+      <group position={[0.66, 0.002, -0.08]} rotation={[0, 1.25, 0]}>
+        <Mug />
         <Steam />
       </group>
       <group position={[-0.5, 0.002, 0.28]} rotation={[0, -0.35, 0]}>

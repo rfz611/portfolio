@@ -131,11 +131,12 @@ export const SHOTS: Record<ViewId, Shot> = {
   },
   // Olhando a cidade e o neon com o nome.
   janela: {
-    target: [SPOT.neon[0], 1.5, -4.5],
-    dir: [0, 0.08, 1],
-    frame: [5.8, 3.4],
-    fov: 46,
-    portrait: { frame: [2.6, 3.6], target: [SPOT.neon[0], 1.9, -4.5] },
+    // encostado no vidro, olhando a cidade lá embaixo: parque, avenidas e o outdoor
+    target: [SPOT.neon[0] + 0.6, 0.55, -4.6],
+    dir: [-0.1, 0.42, 1],
+    frame: [3.9, 2.5],
+    fov: 52,
+    portrait: { frame: [2.4, 3.6] },
   },
   // No balcão do bar, olhando o copo sendo servido e a cristaleira atrás.
   bar: {

@@ -125,7 +125,7 @@ function paintPhotoPlaceholder(ctx: CanvasRenderingContext2D, w: number, h: numb
   ctx.fillStyle = 'rgba(240,225,200,0.75)';
   ctx.font = '22px "VT323", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('SUA FOTO', w / 2, h / 2);
+  ctx.fillText('EM BREVE', w / 2, h / 2);
 }
 
 /** Porta-retrato de latão virado para quem senta à mesa. */
@@ -134,8 +134,19 @@ export function PhotoFrame() {
   const geo = useMemo(
     () => ({
       frame: crease(box([0.16, 0.21, 0.014], [0, 0.105, 0]), 30),
+      inlay: merge([
+        box([0.138, 0.003, 0.002], [0, 0.105 + 0.093, -0.0075]),
+        box([0.138, 0.003, 0.002], [0, 0.105 - 0.093, -0.0075]),
+        box([0.003, 0.186, 0.002], [-0.0675, 0.105, -0.0075]),
+        box([0.003, 0.186, 0.002], [0.0675, 0.105, -0.0075]),
+      ]),
       leg: box([0.02, 0.15, 0.006], [0, 0.07, 0.05], { rot: [0.5, 0, 0] }),
     }),
+    [],
+  );
+  const lacquer = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({ color: '#0b0b0d', roughness: 0.12, envMapIntensity: 1.5 }),
     [],
   );
   const photo = useMemo(() => {
@@ -158,10 +169,11 @@ export function PhotoFrame() {
   return (
     <Interactive id="photo" label="objects.photo">
       <group rotation={[0.18, 0, 0]} name="photo-frame">
-        <mesh geometry={geo.frame} material={mat.brass} />
-        <mesh geometry={geo.leg} material={mat.brass} />
+        <mesh geometry={geo.frame} material={lacquer} />
+        <mesh geometry={geo.leg} material={lacquer} />
+        <mesh geometry={geo.inlay} material={mat.brass} />
         <mesh position={[0, 0.105, -0.0075]} rotation={[0, Math.PI, 0]} material={photo}>
-          <planeGeometry args={[0.13, 0.18]} />
+          <planeGeometry args={[0.125, 0.175]} />
         </mesh>
       </group>
     </Interactive>

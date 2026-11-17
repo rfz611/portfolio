@@ -150,7 +150,6 @@ export function Room() {
       <mesh geometry={geo.west} material={walls.west} />
       <mesh geometry={geo.south} material={walls.south} />
       <mesh geometry={geo.ceilingRoom} material={mat.ceiling} />
-      <mesh geometry={geo.spots} material={mat.amberBulb} />
       <mesh geometry={geo.frames} material={mat.bronze} />
       <mesh geometry={geo.glassNorth} material={mat.glass} renderOrder={2} />
       <mesh geometry={geo.glassDivider} material={mat.glass} renderOrder={3} />

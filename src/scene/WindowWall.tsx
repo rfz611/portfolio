@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { ROOM, SPOT } from '../config/layout';
-import { palette } from '../config/palette';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
 import { lib } from '../textures/library';
@@ -70,18 +69,8 @@ export function WindowWall() {
           </mesh>
         }
       >
-        <mesh position={[nx, ny, nz]} material={mat.neonSign} renderOrder={5} name="neon">
-          <planeGeometry args={[2.1, 0.7875]} />
-        </mesh>
+        <group />
       </Interactive>
-      <mesh geometry={geo.hangers} material={mat.bronze} />
-      <pointLight
-        position={[nx, ny - 0.1, nz + 0.7]}
-        color={palette.amber}
-        intensity={2.5}
-        distance={4.5}
-        decay={1.8}
-      />
     </group>
   );
 }
