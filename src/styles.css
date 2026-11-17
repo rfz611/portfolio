@@ -313,6 +313,31 @@ main:focus {
   color: var(--amber);
 }
 
+.hint--soft {
+  color: var(--muted);
+}
+
+.spot-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  z-index: 30;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spot-nav__name {
+  min-width: 13ch;
+  text-align: center;
+  font: 1.3rem/1 var(--font-crt);
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.95);
+}
+
 @keyframes hint {
   50% {
     opacity: 0.45;
@@ -510,6 +535,12 @@ main:focus {
   .back {
     left: 12px;
     bottom: 12px;
+    transform: none;
+  }
+
+  .spot-nav {
+    left: 8px;
+    bottom: 54px;
     transform: none;
   }
 

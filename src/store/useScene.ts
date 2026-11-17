@@ -37,6 +37,8 @@ export interface Hover {
 
 export interface SceneState {
   view: ViewId;
+  /** Ponto de vista atual no plano inicial (índice em camera/spots.ts). */
+  spot: number;
   mode: '3d' | 'text';
   hovered: Hover | null;
   lang: Lang;
@@ -54,6 +56,7 @@ export interface SceneState {
   ready: boolean;
 
   setView: (view: ViewId) => void;
+  setSpot: (spot: number) => void;
   setMode: (mode: '3d' | 'text') => void;
   setHovered: (hover: Hover | null) => void;
   setLang: (lang: Lang) => void;
@@ -85,6 +88,7 @@ export const useScene = create<SceneState>()(
   persist(
     (set) => ({
       view: 'home',
+      spot: 0,
       mode: '3d',
       hovered: null,
       lang: detectLang(),
@@ -100,6 +104,7 @@ export const useScene = create<SceneState>()(
       ready: false,
 
       setView: (view) => set({ view, hovered: null }),
+      setSpot: (spot) => set({ spot, view: 'home', hovered: null }),
       setMode: (mode) => set({ mode }),
       setHovered: (hovered) => set({ hovered }),
       setLang: (lang) => set({ lang }),

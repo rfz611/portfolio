@@ -78,6 +78,8 @@ for (const device of devices) {
     if (view !== 'texto') {
       await page.waitForFunction(() => window.__ready === true, { timeout: 60000 });
     }
+    // SHOT_PRE: código rodado na página antes de esperar (ex.: trocar de ponto de vista)
+    if (process.env.SHOT_PRE) await page.evaluate(process.env.SHOT_PRE);
     await new Promise((resolve) => setTimeout(resolve, wait));
     for (const point of (process.env.SHOT_CLICK ?? '').split(';').filter(Boolean)) {
       const [x, y] = point.split(',').map(Number);

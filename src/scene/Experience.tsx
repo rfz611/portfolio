@@ -9,6 +9,7 @@ import { useScene, type Quality } from '../store/useScene';
 import { buildLibrary, isLibraryReady } from '../textures/library';
 import { Bar } from './Bar';
 import { City } from './City';
+import { BoxingGloves, CoatStand } from '../objects/PersonalItems';
 import { Decor } from './Decor';
 import { DeskArea } from './Desk';
 import { Effects } from './Effects';
@@ -17,6 +18,7 @@ import { Lounge } from './Lounge';
 import { Plants } from './Plants';
 import { Rain } from './Rain';
 import { RecordCorner } from './RecordCorner';
+import { SpotMarkers } from './SpotMarkers';
 import { Room } from './Room';
 import { WindowWall } from './WindowWall';
 
@@ -56,6 +58,9 @@ function World() {
       <Bar />
       <Plants />
       <Decor />
+      <SpotMarkers />
+      <BoxingGloves />
+      <CoatStand position={[5.55, 0, 3.95]} />
       <WindowWall />
       <City />
       <Rain />

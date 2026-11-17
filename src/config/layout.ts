@@ -41,7 +41,7 @@ export const SPOT = {
   table: [0.45, -PIT.depth, 0.6],
   armchair: [-3.05, 0, 3.25],
   arcLamp: [3.75, 0, 3.45],
-  palm: [5.2, 0, 3.8],
+  palm: [5.55, 0, 0.85],
   monstera: [5.3, 0, -1.55],
   neon: [-0.35, 2.45, -4.42],
   car: [9.3, 0, 0.5],

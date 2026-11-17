@@ -95,8 +95,8 @@ const PLANTS: Spot[] = [
   { kind: 'palm', at: [-5.45, 0, -4.05], scale: 1.25, yaw: 1.2 },
   { kind: 'palm', at: [0.85, 0, -4.05], scale: 1.05, yaw: 2.1 },
   { kind: 'palm', at: [5.55, 0, -4.1], scale: 1.0, yaw: 0.4 },
-  { kind: 'palm', at: [-5.45, 0, 4.05], scale: 1.1, yaw: 2.8 },
-  { kind: 'monstera', at: [-2.15, 0, -2.25], scale: 0.85, yaw: 1.7 },
+  { kind: 'palm', at: [-3.85, 0, 4.1], scale: 1.1, yaw: 2.8 },
+  { kind: 'monstera', at: [-1.75, 0, -4.05], scale: 0.85, yaw: 1.7 },
   { kind: 'monstera', at: [1.35, 0, 4.1], scale: 0.9, yaw: 3.6 },
   { kind: 'palm', at: [4.15, 0, 4.1], scale: 0.85, yaw: 5.1 },
 ];

@@ -4,6 +4,7 @@ import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
 import { ClubChair } from '../objects/Chairs';
+import { FoldedKimono } from '../objects/PersonalItems';
 import { Magazines } from '../objects/Magazines';
 import { makeCanvas, tex } from '../textures/canvas';
 import { hdr, lib } from '../textures/library';
@@ -242,28 +243,29 @@ function CoffeeTable() {
 }
 
 /**
- * O que ficou largado na mesa: copo de uísque pela metade com marca de
- * copo no verniz, cinzeiro com charuto e cinza, isqueiro e cartas
- * espalhadas (o lugar das cartas colecionáveis, detalhe pessoal).
+ * O que ficou largado na mesa, como quem acabou de chegar: cinzeiro com
+ * charuto, isqueiro, relógio de ouro tirado do pulso, porta-joias de prata
+ * aberto com uma corrente de ouro escorrendo, um perfume e as cartas
+ * (lugar das cartas colecionáveis). Tudo apoiado no tampo, dentro do
+ * contorno da mesa.
  */
 function TableClutter() {
   const { mat } = lib();
-  const geo = useMemo(
-    () => ({
-      glass: lathe(
-        [
-          [0.001, 0.003],
-          [0.036, 0.003],
-          [0.04, 0.09],
-        ],
-        { seg: 16 },
-      ),
-      whisky: cyl(0.0375, 0.0345, 0.028, [0, 0.018, 0], { seg: 16 }),
-      ice: merge([
-        box([0.022, 0.022, 0.022], [0.008, 0.038, 0.004], { rot: [0.4, 0.5, 0.2] }),
-        box([0.02, 0.02, 0.02], [-0.01, 0.042, -0.006], { rot: [0.2, 1.1, 0.6] }),
-      ]),
-      ring: new THREE.RingGeometry(0.034, 0.041, 20).rotateX(-HALF_PI),
+  const geo = useMemo(() => {
+    // corrente: sai de dentro do porta-joias, passa pela borda e cai solta no tampo
+    const chainPath = new THREE.CatmullRomCurve3(
+      [
+        [-0.02, 0.03, 0.0],
+        [0.04, 0.05, 0.02],
+        [0.085, 0.045, 0.03],
+        [0.11, 0.01, 0.05],
+        [0.14, 0.003, 0.09],
+        [0.19, 0.003, 0.07],
+        [0.2, 0.003, 0.02],
+        [0.24, 0.003, 0.03],
+      ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+    );
+    return {
       ashtray: crease(
         lathe(
           [
@@ -286,10 +288,26 @@ function TableClutter() {
       }),
       lighter: box([0.038, 0.058, 0.014], [0, 0.007, 0], { rot: [HALF_PI, 0, 0] }),
       card: new THREE.PlaneGeometry(0.063, 0.088).rotateX(-HALF_PI),
-    }),
-    [],
-  );
-  const glass = useTwoSided(mat.clearGlass);
+      // relógio: caixa redonda, mostrador e a pulseira aberta (oval deitado)
+      watchCase: cyl(0.021, 0.021, 0.01, [0, 0.008, 0], { seg: 20 }),
+      watchFace: new THREE.CircleGeometry(0.017, 20).rotateX(-HALF_PI).translate(0, 0.0135, 0),
+      watchBand: new THREE.TorusGeometry(0.04, 0.006, 6, 24)
+        .rotateX(HALF_PI)
+        .scale(1, 1, 0.75)
+        .translate(0.045, 0.005, 0),
+      // porta-joias de prata com a tampa aberta e veludo vinho por dentro
+      jewelBox: crease(box([0.15, 0.055, 0.1], [0, 0.0275, 0]), 30),
+      jewelLid: crease(box([0.15, 0.012, 0.1], [0, 0.006, 0.05]), 30),
+      velvet: new THREE.PlaneGeometry(0.135, 0.085).rotateX(-HALF_PI).translate(0, 0.045, 0),
+      chain: new THREE.TubeGeometry(chainPath, 48, 0.0028, 5, false),
+      ring: new THREE.TorusGeometry(0.011, 0.0025, 6, 16)
+        .rotateX(HALF_PI)
+        .translate(-0.03, 0.05, -0.02),
+      // perfume: frasco facetado com tampa dourada
+      perfume: crease(box([0.06, 0.085, 0.035], [0, 0.0425, 0]), 25),
+      perfumeCap: crease(box([0.03, 0.03, 0.03], [0, 0.1, 0], { rot: [0, 0.785, 0] }), 25),
+    };
+  }, []);
   const cards = useMemo(
     () =>
       (
@@ -307,21 +325,33 @@ function TableClutter() {
       }),
     [],
   );
+  const silver = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#d4d8de',
+        roughness: 0.32,
+        metalness: 0.75,
+        envMapIntensity: 1.3,
+      }),
+    [],
+  );
+  const face = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#efe6d2', roughness: 0.2 }),
+    [],
+  );
+  const perfumeGlass = useMemo(() => {
+    const m = mat.bottleAmber.clone();
+    m.opacity = 0.72;
+    return m;
+  }, [mat]);
   const cardSpots: [number, number, number][] = [
-    [0.2, -0.32, 0.4],
-    [0.27, -0.28, -0.3],
-    [0.31, -0.37, 1.2],
+    [0.5, 0.05, 0.4],
+    [0.56, 0.13, -0.3],
+    [0.46, 0.17, 1.2],
   ];
   return (
     <group position={[0, TOP, 0]}>
-      <group position={[0.24, 0.001, -0.17]} name="glass">
-        <mesh geometry={geo.whisky} material={mat.whisky} />
-        <mesh geometry={geo.ice} material={mat.ice} name="ice" />
-        <mesh geometry={geo.glass} material={glass} renderOrder={6} />
-      </group>
-      {/* marca de copo antiga no verniz */}
-      <mesh geometry={geo.ring} material={mat.stain} position={[0.31, 0.0015, -0.04]} />
-      <group position={[-0.06, 0.001, -0.33]} rotation={[0, 0.7, 0]} name="ashtray">
+      <group position={[0.38, 0.001, -0.22]} rotation={[0, 0.7, 0]} name="ashtray">
         <mesh geometry={geo.ashtray} material={mat.marble} />
         <mesh geometry={geo.ash} material={mat.ash} />
         <mesh geometry={geo.cigar} material={mat.cigar} />
@@ -330,9 +360,27 @@ function TableClutter() {
       <mesh
         geometry={geo.lighter}
         material={mat.brass}
-        position={[0.08, 0.001, -0.42]}
+        position={[0.2, 0.001, -0.33]}
         rotation={[0, 1.1, 0]}
       />
+      <group position={[0.06, 0.001, 0.12]} rotation={[0, -0.6, 0]} name="watch">
+        <mesh geometry={geo.watchBand} material={mat.brass} />
+        <mesh geometry={geo.watchCase} material={mat.brass} />
+        <mesh geometry={geo.watchFace} material={face} />
+      </group>
+      <group position={[-0.5, 0.001, 0.12]} rotation={[0, 0.35, 0]} name="jewelry-box">
+        <mesh geometry={geo.jewelBox} material={silver} />
+        <mesh geometry={geo.velvet} material={mat.leatherWine} />
+        <group position={[0, 0.055, -0.05]} rotation={[-1.95, 0, 0]}>
+          <mesh geometry={geo.jewelLid} material={silver} />
+        </group>
+        <mesh geometry={geo.chain} material={mat.brass} />
+        <mesh geometry={geo.ring} material={mat.brass} />
+      </group>
+      <group position={[0.25, 0.001, 0.2]} rotation={[0, 0.4, 0]} name="perfume-table">
+        <mesh geometry={geo.perfume} material={perfumeGlass} renderOrder={6} />
+        <mesh geometry={geo.perfumeCap} material={mat.brass} />
+      </group>
       {cardSpots.map(([x, z, yaw], i) => (
         <mesh
           key={i}
@@ -394,8 +442,8 @@ function ArcLamp() {
         <pointLight
           position={[0, -0.25, 0]}
           color="#ffc58a"
-          intensity={16}
-          distance={8}
+          intensity={34}
+          distance={9}
           decay={1.6}
         />
       </group>
@@ -440,6 +488,9 @@ export function Lounge() {
         <OptionalModel file="armchair.glb">
           <ClubChair />
         </OptionalModel>
+        <group position={[0.02, 0.555, 0.08]} rotation={[0, 0.25, 0]}>
+          <FoldedKimono />
+        </group>
         <mesh position={[0, 0.005, 0]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>
           <planeGeometry args={[1.5, 1.5]} />
         </mesh>

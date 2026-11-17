@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useScene } from '../store/useScene';
 import { prefersReducedMotion } from '../ui/hooks';
-import { resolveShot } from './shots';
+import { homeShot, resolveShot } from './shots';
 
 const MAX_PARALLAX = (3 * Math.PI) / 180;
 const UP = new THREE.Vector3(0, 1, 0);
@@ -18,6 +18,7 @@ const PITCH_LIMIT = { min: -0.55, max: 0.45 };
  */
 export function CameraRig() {
   const view = useScene((s) => s.view);
+  const spot = useScene((s) => s.spot);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const dom = useThree((s) => s.gl.domElement);
   const width = useThree((s) => s.size.width);
@@ -29,6 +30,7 @@ export function CameraRig() {
     fov: 40,
     started: false,
     view,
+    spot,
   });
   const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
   const look = useRef({ yaw: 0, pitch: 0, sYaw: 0, sPitch: 0, drag: false, lastX: 0, lastY: 0 });
@@ -88,9 +90,12 @@ export function CameraRig() {
 
   useEffect(() => {
     const r = rig.current;
-    const pose = resolveShot(view, width / Math.max(1, height));
-    const viewChanged = r.view !== view;
+    const aspect = width / Math.max(1, height);
+    const pose =
+      view === 'home' ? resolveShot('home', aspect, homeShot(spot)) : resolveShot(view, aspect);
+    const viewChanged = r.view !== view || r.spot !== spot;
     r.view = view;
+    r.spot = spot;
     // ao trocar de plano, o olhar volta para a frente
     if (viewChanged) {
       look.current.yaw = 0;
@@ -105,7 +110,7 @@ export function CameraRig() {
     gsap.to(r.position, { x: px, y: py, z: pz, duration, ease, overwrite: true });
     gsap.to(r.target, { x: tx, y: ty, z: tz, duration, ease, overwrite: true });
     gsap.to(r, { fov: pose.fov, duration, ease, overwrite: 'auto' });
-  }, [view, width, height]);
+  }, [view, spot, width, height]);
 
   useFrame((_, delta) => {
     const r = rig.current;

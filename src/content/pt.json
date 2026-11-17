@@ -24,7 +24,7 @@
     "lang": "Mudar idioma para inglês",
     "textVersion": "Texto",
     "view3d": "3D",
-    "hint": "Arraste para olhar em volta · clique nos objetos para explorar",
+    "hint": "Arraste para olhar em volta · clique nos círculos do chão para andar · clique nos objetos",
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
     "room": "Sala",
     "soundOn": "Som",
@@ -128,6 +128,20 @@
     "posterTitle": "Chuva sobre a Cidade",
     "posterTagline": "Ninguém dorme na cobertura"
   },
+  "spots": {
+    "sofa": "Sofá",
+    "entrada": "Entrada",
+    "escritorio": "Escritório",
+    "bar": "Bar",
+    "janela": "Janela",
+    "geral": "Vista geral"
+  },
+  "nav3d": {
+    "prev": "Lugar anterior",
+    "next": "Próximo lugar",
+    "goTo": "ir para",
+    "place": "Lugar"
+  },
   "objects": {
     "records": "discos",
     "turntable": "toca-discos",
@@ -140,6 +154,12 @@
     "window": "início",
     "bar": "bar",
     "perfume": "perfume · em breve",
+    "poster": "filmes favoritos · em breve",
+    "starry": "A Noite Estrelada · homenagem a Van Gogh",
+    "framedRecord": "Raining but It's Ok · o disco do prato",
+    "gloves": "boxe · em breve",
+    "kimono": "jiu-jitsu · em breve",
+    "jacket": "estilo · em breve",
     "clock": "hora certa"
   }
 }

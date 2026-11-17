@@ -1,8 +1,10 @@
 import type * as THREE from 'three';
 import { paintLandscape, paintSunset } from './art';
 import { makeCanvas, tex } from './canvas';
+import { paintStarryNight } from './starry';
 
-let cache: Record<'landscape' | 'landscapeSmall' | 'sunset', THREE.Texture> | null = null;
+let cache: Record<'landscape' | 'landscapeSmall' | 'sunset' | 'starry', THREE.Texture> | null =
+  null;
 
 /** Pinturas das paredes, geradas uma vez só. */
 export function art() {
@@ -19,6 +21,7 @@ export function art() {
         },
       ),
       sunset: tex(makeCanvas(384, 288, paintSunset), { clamp: true }),
+      starry: tex(makeCanvas(640, 504, paintStarryNight), { clamp: true, aniso: 8 }),
     };
   }
   return cache;

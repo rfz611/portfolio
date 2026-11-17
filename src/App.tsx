@@ -6,6 +6,7 @@ import { Controls } from './ui/Controls';
 import { hasWebGL, useEscapeToHome, useHashSync, useVolumeKeys } from './ui/hooks';
 import { HoverLabel } from './ui/HoverLabel';
 import { Loader } from './ui/Loader';
+import { SpotNav } from './ui/SpotNav';
 import { TextPage } from './ui/TextPage';
 
 // A cena 3D é carregada à parte: os controles e o menu aparecem antes dela.
@@ -57,8 +58,11 @@ export default function App() {
           <Loader />
           <BackButton />
           <HoverLabel />
+          {ready && <SpotNav />}
           {ready && HINTS[view] && (
-            <p className={`hint${view === 'home' ? '' : ' hint--top'}`}>{t(HINTS[view])}</p>
+            <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
+              {t(HINTS[view])}
+            </p>
           )}
         </>
       )}

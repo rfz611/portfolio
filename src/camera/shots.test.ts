@@ -50,3 +50,21 @@ describe('planos de câmera', () => {
     }
   });
 });
+
+describe('pontos de vista da sala', () => {
+  it('todos ficam dentro da sala, e os de pé ficam fora do rebaixo', async () => {
+    const { SPOTS } = await import('./spots');
+    const { PIT } = await import('../config/layout');
+    for (const spot of SPOTS) {
+      const [x, y, z] = spot.position!;
+      expect(x).toBeGreaterThan(ROOM.x0);
+      expect(x).toBeLessThan(ROOM.x1);
+      expect(z).toBeGreaterThan(ROOM.z0);
+      expect(z).toBeLessThan(ROOM.z1);
+      expect(y).toBeLessThan(ROOM.h);
+      if (spot.id === 'sofa') continue;
+      const inPit = x > PIT.x0 && x < PIT.x1 && z > PIT.z0 && z < PIT.z1;
+      expect(inPit).toBe(false);
+    }
+  });
+});

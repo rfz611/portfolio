@@ -1,5 +1,6 @@
 import { LAPTOP, SPOT, TV_SCREEN_WORLD } from '../config/layout';
 import type { ViewId } from '../store/useScene';
+import { SPOTS } from './spots';
 
 type V3 = [number, number, number];
 
@@ -82,15 +83,20 @@ export const HOME_OPTIONS: Shot[] = [
   },
 ];
 
-function homeOption(): number {
-  if (typeof window === 'undefined') return 4;
+/** Opção fixa pedida no endereço (?camera=1 a 5), usada para comparar ângulos. */
+function cameraParam(): Shot | null {
+  if (typeof window === 'undefined') return null;
   const n = Number(new URLSearchParams(window.location.search).get('camera'));
-  // sem escolha no endereço, fica a opção 5 (sentado no sofá)
-  return Number.isInteger(n) && n >= 1 && n <= HOME_OPTIONS.length ? n - 1 : 4;
+  return Number.isInteger(n) && n >= 1 && n <= HOME_OPTIONS.length ? HOME_OPTIONS[n - 1] : null;
+}
+
+/** Plano inicial para o ponto de vista escolhido (sofá, bar, janela...). */
+export function homeShot(spot: number): Shot {
+  return { ...(cameraParam() ?? SPOTS[spot] ?? SPOTS[0]), duration: 1.6 };
 }
 
 export const SHOTS: Record<ViewId, Shot> = {
-  home: { ...HOME_OPTIONS[homeOption()], duration: 1.6 },
+  home: { ...SPOTS[0], duration: 1.6 },
   // Frontal no cantinho, toca-discos no terço superior.
   discos: {
     target: [shelfX + 0.3, 1.2, shelfZ - 0.25],

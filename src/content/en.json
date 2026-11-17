@@ -24,7 +24,7 @@
     "lang": "Switch language to Portuguese",
     "textVersion": "Text",
     "view3d": "3D",
-    "hint": "Drag to look around · click the objects to explore",
+    "hint": "Drag to look around · click the floor circles to move · click the objects",
     "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
     "room": "Room",
     "soundOn": "Sound",
@@ -128,6 +128,20 @@
     "posterTitle": "Rain over the City",
     "posterTagline": "Nobody sleeps in the penthouse"
   },
+  "spots": {
+    "sofa": "Sofa",
+    "entrada": "Entrance",
+    "escritorio": "Office",
+    "bar": "Bar",
+    "janela": "Window",
+    "geral": "Overview"
+  },
+  "nav3d": {
+    "prev": "Previous spot",
+    "next": "Next spot",
+    "goTo": "go to",
+    "place": "Spot"
+  },
   "objects": {
     "records": "records",
     "turntable": "turntable",
@@ -140,6 +154,12 @@
     "window": "home",
     "bar": "bar",
     "perfume": "perfume · coming soon",
+    "poster": "favorite films · coming soon",
+    "starry": "The Starry Night · a Van Gogh tribute",
+    "framedRecord": "Raining but It's Ok · the record on the platter",
+    "gloves": "boxing · coming soon",
+    "kimono": "jiu-jitsu · coming soon",
+    "jacket": "style · coming soon",
     "clock": "local time"
   }
 }
