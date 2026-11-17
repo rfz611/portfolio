@@ -64,10 +64,10 @@ export function GhostPerfume() {
   const metal = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: '#5a524c',
-        metalness: 1,
-        roughness: 0.16,
-        envMapIntensity: 1.9,
+        color: '#a39b93',
+        metalness: 0.65,
+        roughness: 0.28,
+        envMapIntensity: 1.6,
       }),
     [],
   );

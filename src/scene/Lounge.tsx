@@ -6,11 +6,12 @@ import { CarKeys } from '../objects/CarKeys';
 import { ClubChair } from '../objects/Chairs';
 import { ArmchairKimono, LooseGloves } from '../objects/PersonalItems';
 import { Magazines } from '../objects/Magazines';
+import { JewelryTray, MushroomLamp, RedAshtray } from '../objects/TableSet';
 import { makeCanvas, tex } from '../textures/canvas';
 import { hdr, lib } from '../textures/library';
 import { GhostPerfume } from '../objects/GhostPerfume';
 import { paintCardBack, paintCardFace } from '../textures/tableProps';
-import { box, crease, cyl, lathe, merge } from './geo';
+import { box, crease, cyl, merge } from './geo';
 import { OptionalModel } from './OptionalModel';
 import { arcPoints, sweep } from './sweep';
 
@@ -244,113 +245,16 @@ function CoffeeTable() {
 }
 
 /**
- * O que ficou largado na mesa, como quem acabou de chegar: cinzeiro
- * cromado com charuto, isqueiro, relógio de pulso cromado (sem caixa),
- * uma corrente de ouro solta, o perfume de metal com a bala e as cartas
- * (lugar das cartas colecionáveis). Tudo apoiado no tampo.
+ * O que ficou largado na mesa, como quem acabou de chegar: a luminária-
+ * cogumelo acesa na ponta, o porta-joias cromado (carteira, os dois
+ * relógios e a corrente de ouro), o cinzeiro vermelho, o perfume de metal
+ * com a bala dourada e as cartas. Tudo apoiado no tampo.
  */
-/** Mostrador do relógio: branco, marcadores, ponteiros e um aro fino. */
-function paintDial(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const c = w / 2;
-  ctx.fillStyle = '#f2efe8';
-  ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = '#1a1a1e';
-  for (let k = 0; k < 12; k++) {
-    const a = (k / 12) * Math.PI * 2;
-    ctx.save();
-    ctx.translate(c + Math.sin(a) * w * 0.38, c - Math.cos(a) * w * 0.38);
-    ctx.rotate(a);
-    ctx.fillRect(-2, -6, 4, k % 3 === 0 ? 14 : 9);
-    ctx.restore();
-  }
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#1a1a1e';
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(c, c);
-  ctx.lineTo(c + w * 0.18, c - w * 0.12);
-  ctx.stroke();
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(c, c);
-  ctx.lineTo(c - w * 0.08, c - w * 0.32);
-  ctx.stroke();
-  ctx.strokeStyle = '#a3121f';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(c, c);
-  ctx.lineTo(c + w * 0.3, c + w * 0.18);
-  ctx.stroke();
-}
-
 function TableClutter() {
-  const { mat } = lib();
-  const geo = useMemo(() => {
-    // corrente de ouro largada em curvas no tampo
-    const chainPath = new THREE.CatmullRomCurve3(
-      [
-        [0.0, 0.003, 0.0],
-        [0.05, 0.003, 0.03],
-        [0.09, 0.003, 0.0],
-        [0.07, 0.003, -0.05],
-        [0.02, 0.003, -0.04],
-        [0.0, 0.003, -0.08],
-        [0.04, 0.003, -0.12],
-        [0.11, 0.003, -0.1],
-      ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
-    );
-    // pulseira de elos: pequenos blocos em volta de um oval deitado
-    const links: THREE.BufferGeometry[] = [];
-    for (let k = 0; k < 26; k++) {
-      const a = (k / 26) * Math.PI * 2;
-      links.push(
-        box([0.012, 0.004, 0.018], [0.045 + Math.cos(a) * 0.04, 0.004, Math.sin(a) * 0.03], {
-          rot: [0, -a, 0],
-        }),
-      );
-    }
-    return {
-      // cinzeiro maciço: fundo grosso, parede inclinada e borda larga
-      ashtray: crease(
-        lathe(
-          [
-            [0.001, 0.014],
-            [0.045, 0.014],
-            [0.055, 0.036],
-            [0.078, 0.038],
-            [0.082, 0.03],
-            [0.08, 0.002],
-            [0.07, 0],
-            [0.001, 0],
-          ],
-          { seg: 28 },
-        ),
-        35,
-      ),
-      ash: new THREE.CircleGeometry(0.035, 12).rotateX(-HALF_PI).translate(0.008, 0.0152, 0),
-      cigar: cyl(0.0085, 0.0085, 0.13, [0.03, 0.042, 0.012], {
-        seg: 10,
-        rot: [0.05, 0.4, HALF_PI],
-      }),
-      cigarBand: cyl(0.0088, 0.0088, 0.012, [0.07, 0.043, -0.006], {
-        seg: 10,
-        rot: [0.05, 0.4, HALF_PI],
-      }),
-      ember: cyl(0.0087, 0.0087, 0.012, [-0.03, 0.041, 0.039], {
-        seg: 10,
-        rot: [0.05, 0.4, HALF_PI],
-      }),
-      lighter: crease(box([0.038, 0.058, 0.014], [0, 0.007, 0], { rot: [HALF_PI, 0, 0] }), 30),
-      card: new THREE.PlaneGeometry(0.063, 0.088).rotateX(-HALF_PI),
-      watchCase: cyl(0.023, 0.023, 0.012, [0, 0.009, 0], { seg: 28 }),
-      watchBezel: new THREE.TorusGeometry(0.021, 0.003, 6, 28)
-        .rotateX(HALF_PI)
-        .translate(0, 0.015, 0),
-      watchFace: new THREE.CircleGeometry(0.0185, 28).rotateX(-HALF_PI).translate(0, 0.0152, 0),
-      watchLinks: merge(links),
-      chain: new THREE.TubeGeometry(chainPath, 60, 0.0026, 5, false),
-    };
-  }, []);
+  const geo = useMemo(
+    () => ({ card: new THREE.PlaneGeometry(0.063, 0.088).rotateX(-HALF_PI) }),
+    [],
+  );
   const cards = useMemo(() => {
     const face = (suit: string, rank: string, red: boolean) =>
       new THREE.MeshStandardMaterial({
@@ -372,54 +276,29 @@ function TableClutter() {
       }),
     ];
   }, []);
-  // mostrador branco com marcadores e ponteiros, para ler de longe que é um relógio
-  const dial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        map: tex(makeCanvas(128, 128, paintDial), { clamp: true }),
-        roughness: 0.2,
-        envMapIntensity: 0.8,
-      }),
-    [],
-  );
-  const chromeSolid = useMemo(() => {
-    const m = mat.chrome.clone();
-    m.side = THREE.DoubleSide;
-    return m;
-  }, [mat]);
-  const band = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#b8893a', metalness: 0.8, roughness: 0.3 }),
-    [],
-  );
   const cardSpots: [number, number, number][] = [
-    [0.5, 0.05, 0.4],
-    [0.56, 0.13, -0.3],
-    [0.46, 0.17, 1.2],
-    [0.62, -0.02, 2.1],
+    [0.6, 0.0, 0.4],
+    [0.64, 0.09, -0.3],
+    [0.58, 0.12, 1.2],
+    [0.67, -0.06, 2.1],
   ];
   return (
     <group position={[0, TOP, 0]}>
-      <group position={[0.38, 0.001, -0.22]} rotation={[0, 0.7, 0]} name="ashtray">
-        <mesh geometry={geo.ashtray} material={chromeSolid} />
-        <mesh geometry={geo.ash} material={mat.ash} />
-        <mesh geometry={geo.cigar} material={mat.cigar} />
-        <mesh geometry={geo.cigarBand} material={band} />
-        <mesh geometry={geo.ember} material={mat.cigarEmber} />
+      <group position={[-0.6, 0.001, -0.1]} name="table-lamp">
+        <MushroomLamp />
       </group>
-      <mesh
-        geometry={geo.lighter}
-        material={mat.chrome}
-        position={[0.2, 0.001, -0.33]}
-        rotation={[0, 1.1, 0]}
-      />
-      <group position={[0.04, 0.001, 0.12]} rotation={[0, -0.6, 0]} name="watch">
-        <mesh geometry={geo.watchLinks} material={mat.chrome} />
-        <mesh geometry={geo.watchCase} material={mat.chrome} />
-        <mesh geometry={geo.watchBezel} material={mat.chrome} />
-        <mesh geometry={geo.watchFace} material={dial} />
+      <group position={[0.31, 0.001, 0.19]} rotation={[0, 0.18, 0]}>
+        <JewelryTray />
       </group>
-      <mesh geometry={geo.chain} material={mat.brass} position={[-0.56, 0.001, 0.14]} />
-      <group position={[0.25, 0.001, 0.2]} rotation={[0, 0.4, 0]} name="perfume-table">
+      <group position={[0.42, 0.001, -0.21]} rotation={[0, 0.5, 0]}>
+        <RedAshtray />
+      </group>
+      <group
+        position={[0.13, 0.001, -0.29]}
+        rotation={[0, 0.3, 0]}
+        scale={1.5}
+        name="perfume-table"
+      >
         <GhostPerfume />
       </group>
       {cardSpots.map(([x, z, yaw], i) => (
