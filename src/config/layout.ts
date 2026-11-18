@@ -47,6 +47,9 @@ export const SPOT = {
   car: [10.0, 0, 0.5],
 } as const satisfies Record<string, P3>;
 
+/** Altura das rampas do elevador da garagem (o carro fica em cima delas). */
+export const CAR_LIFT = 0.08;
+
 /** Centro da tela da TV no mundo (usado pelo plano de câmera "tv"). */
 export const TV_SCREEN_WORLD = [
   SPOT.tvRack[0] + 0.262,

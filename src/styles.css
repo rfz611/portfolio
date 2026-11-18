@@ -1400,12 +1400,11 @@ main:focus {
 
 .car-radio {
   position: fixed;
-  left: 50%;
-  bottom: 64px;
+  right: 24px;
+  top: 72px;
   z-index: 20;
-  width: min(460px, calc(100vw - 32px));
+  width: min(420px, calc(100vw - 32px));
   padding: 14px 16px 10px;
-  transform: translateX(-50%);
   background: linear-gradient(#141215, #08070a);
   border: 1px solid #2c282c;
   border-radius: 6px;
@@ -1545,6 +1544,8 @@ main:focus {
   }
 
   .car-radio {
+    top: auto;
+    right: 16px;
     bottom: 96px;
   }
 }

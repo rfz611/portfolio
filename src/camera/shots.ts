@@ -1,4 +1,4 @@
-import { LAPTOP, SPOT, TV_SCREEN_WORLD } from '../config/layout';
+import { CAR_LIFT, LAPTOP, SPOT, TV_SCREEN_WORLD } from '../config/layout';
 import type { ViewId } from '../store/useScene';
 import { SPOTS } from './spots';
 
@@ -165,14 +165,14 @@ export const SHOTS: Record<ViewId, Shot> = {
     portrait: { frame: [1.5, 2.0] },
   },
   // Banco do motorista olhando o painel e o rádio.
-  // do banco do motorista (olhos em x + 0,25, 1,2 m, lado +z), olhando o painel e o rádio
+  // nos olhos de quem senta no banco do motorista (posição fixa: a câmera
+  // nunca recua para dentro do encosto em tela estreita), olhando o painel e o rádio
   interior: {
-    target: [carX - 0.5, 0.92, carZ],
-    dir: [0.75, 0.28, 0.38],
-    frame: [1.75, 0.98],
-    fov: 50,
+    position: [carX + 0.6, 1.17 + CAR_LIFT, carZ + 0.38],
+    target: [carX - 0.6, 0.86 + CAR_LIFT, carZ + 0.08],
+    hfov: 74,
     duration: 1.6,
-    portrait: { frame: [0.7, 1.0] },
+    portrait: { hfov: 72 },
   },
 };
 

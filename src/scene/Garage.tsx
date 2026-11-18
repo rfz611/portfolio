@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
-import { GARAGE, SPOT } from '../config/layout';
+import { CAR_LIFT, GARAGE, SPOT } from '../config/layout';
 import { Car } from '../objects/car/Car';
 import { useScene } from '../store/useScene';
 import { makeCanvas, tex } from '../textures/canvas';
@@ -14,8 +14,7 @@ import { box, cyl, merge } from './geo';
 RectAreaLightUniformsLib.init();
 
 const [carX, , carZ] = SPOT.car;
-/** Altura das rampas do elevador (o carro fica em cima delas). */
-const LIFT = 0.08;
+const LIFT = CAR_LIFT;
 
 /** Fachos dos faróis: acesos, entram na sala pelo vidro. */
 function HeadlightBeams() {
@@ -129,6 +128,22 @@ export function Garage() {
       <mesh geometry={geo.tires} material={mat.rubber} />
       <mesh geometry={geo.housings} material={mat.darkMetal} />
       <mesh geometry={geo.tubes} material={tube} />
+      {/* luz fraca atrás: a traseira e as lanternas não somem */}
+      <pointLight
+        position={[carX + 3.3, 1.0, carZ - 0.4]}
+        color="#ffd6c0"
+        intensity={3}
+        distance={4.5}
+        decay={2}
+      />
+      {/* luz de frente, fraca: a grade, a boca e os faróis não somem no escuro */}
+      <pointLight
+        position={[carX - 3.6, 1.0, carZ + 0.6]}
+        color="#ffe2c4"
+        intensity={4}
+        distance={5}
+        decay={2}
+      />
       {/* luz lateral fraca, para a lateral do carro não sumir no escuro */}
       <pointLight
         position={[carX, 1.1, carZ + 3.2]}

@@ -160,6 +160,17 @@ export function CameraRig() {
   }, [view, spot, width, height]);
 
   useFrame((_, delta) => {
+    // só em desenvolvimento: câmera livre para inspecionar a cena (window.__cam)
+    const free = import.meta.env.DEV ? window.__cam : undefined;
+    if (free) {
+      camera.position.set(...free.position);
+      camera.lookAt(...free.target);
+      if (free.fov && camera.fov !== free.fov) {
+        camera.fov = free.fov;
+        camera.updateProjectionMatrix();
+      }
+      return;
+    }
     const r = rig.current;
     const p = pointer.current;
     const l = look.current;

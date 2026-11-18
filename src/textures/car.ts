@@ -226,3 +226,187 @@ export function paintUnderglow(ctx: Ctx, w: number, h: number) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
 }
+
+/**
+ * Frestas e detalhes pintados na lataria (multiplicam a cor da tinta).
+ * u corre ao longo do carro (frente → trás, 4,45 m) e v pelos 13 pontos do
+ * perfil (0 = embaixo no meio, 1 = no meio do teto); veja car/carBody.ts.
+ */
+export function paintBodyDetail(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  const L = 4.45;
+  const u = (x: number) => ((x + 2.25) / L) * w;
+  const v = (j: number) => (1 - j / 12) * h;
+  const gap = (x: number, j0: number, j1: number) => {
+    ctx.fillStyle = 'rgba(0,0,0,0.72)';
+    ctx.fillRect(u(x) - 1.5, v(j1), 3, v(j0) - v(j1));
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillRect(u(x) + 1.5, v(j1), 1.5, v(j0) - v(j1));
+  };
+  const seam = (x0: number, x1: number, j: number) => {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(u(x0), v(j) - 1.5, u(x1) - u(x0), 3);
+  };
+  // portas (a da frente do motorista também tem a fresta de verdade)
+  gap(-0.56, 2, 8);
+  gap(0.385, 2, 8);
+  gap(0.92, 3, 8);
+  // para-choques
+  gap(-1.86, 2.5, 6.6);
+  gap(1.86, 2.2, 6.2);
+  // tampa do porta-malas
+  gap(1.66, 9.7, 12);
+  seam(1.66, 2.16, 7.4);
+  // tampinha do tanque
+  ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(u(1.47), v(6.6), u(1.6) - u(1.47), v(5.4) - v(6.6));
+  // vinco da saia lateral
+  seam(-0.95, 0.9, 2.4);
+}
+
+/** Tecido dos bancos esportivos: preto com o miolo em trama vermelha escura. */
+export function paintSeatFabric(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#121113';
+  ctx.fillRect(0, 0, w, h);
+  const r = mulberry32(55);
+  for (let i = 0; i < 2600; i++) {
+    ctx.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.25)';
+    ctx.fillRect(r() * w, r() * h, 2, 2);
+  }
+  // miolo
+  ctx.fillStyle = '#3a0c12';
+  ctx.fillRect(w * 0.28, h * 0.08, w * 0.44, h * 0.84);
+  for (let y = h * 0.08; y < h * 0.92; y += 4) {
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(w * 0.28, y, w * 0.44, 1.5);
+  }
+  // costuras
+  ctx.strokeStyle = 'rgba(190,40,40,0.7)';
+  ctx.setLineDash([4, 3]);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(w * 0.28 + 2, h * 0.08 + 2, w * 0.44 - 4, h * 0.84 - 4);
+  ctx.setLineDash([]);
+}
+
+/** Saída de ar do capô: venezianas escuras em diagonal. */
+export function paintLouvers(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#060607';
+  ctx.fillRect(0, 0, w, h);
+  for (let x = 4; x < w; x += 10) {
+    const g = ctx.createLinearGradient(x, 0, x + 7, 0);
+    g.addColorStop(0, '#202125');
+    g.addColorStop(1, '#060607');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, 2, 6, h - 4);
+  }
+  ctx.strokeStyle = '#1c1c20';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1.5, 1.5, w - 3, h - 3);
+}
+
+/** Intercooler visto pela boca do para-choque: aletas prateadas horizontais. */
+export function paintIntercooler(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#25272b';
+  ctx.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y += 3) {
+    ctx.fillStyle = y % 6 ? '#8b9098' : '#5c6168';
+    ctx.fillRect(0, y, w, 1.5);
+  }
+  ctx.fillStyle = '#121316';
+  ctx.fillRect(0, 0, w, h * 0.08);
+  ctx.fillRect(0, h * 0.92, w, h * 0.08);
+}
+
+/** Plástico do painel: cinza-chumbo com granulado fino. */
+export function paintDashPlastic(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#16161a';
+  ctx.fillRect(0, 0, w, h);
+  const r = mulberry32(91);
+  for (let i = 0; i < 3000; i++) {
+    ctx.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.3)';
+    ctx.fillRect(r() * w, r() * h, 1.5, 1.5);
+  }
+}
+
+/** Painel de porta: plástico escuro com o miolo de tecido e o puxador. */
+export function paintDoorCard(ctx: Ctx, w: number, h: number) {
+  paintDashPlastic(ctx, w, h);
+  ctx.fillStyle = '#26090d';
+  ctx.fillRect(w * 0.12, h * 0.38, w * 0.62, h * 0.3);
+  ctx.fillStyle = '#0a0a0c';
+  ctx.fillRect(w * 0.08, h * 0.3, w * 0.8, h * 0.05);
+  ctx.fillStyle = '#8a8e96';
+  ctx.fillRect(w * 0.72, h * 0.24, w * 0.12, h * 0.04);
+}
+
+/** Farol do sedã: refletor cromado, projetor redondo e o pisca âmbar por fora. */
+export function paintEvoHeadlight(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  // forma do farol: trapézio com a quina de fora puxada para trás
+  ctx.beginPath();
+  ctx.moveTo(w * 0.02, h * 0.2);
+  ctx.lineTo(w * 0.98, h * 0.04);
+  ctx.lineTo(w * 0.96, h * 0.96);
+  ctx.lineTo(w * 0.05, h * 0.84);
+  ctx.closePath();
+  ctx.save();
+  ctx.clip();
+  // fundo da carcaça: escuro, com reflexo da lente por cima
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#2a3038');
+  g.addColorStop(0.5, '#151a20');
+  g.addColorStop(1, '#0c0f13');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+  for (const [x, r] of [
+    [w * 0.24, h * 0.3],
+    [w * 0.52, h * 0.27],
+  ]) {
+    // anel cromado, refletor e o projetor no meio
+    const ring = ctx.createRadialGradient(x, h / 2, r * 0.6, x, h / 2, r);
+    ring.addColorStop(0, '#5d6670');
+    ring.addColorStop(0.6, '#e8edf2');
+    ring.addColorStop(1, '#6f7882');
+    ctx.fillStyle = ring;
+    ctx.beginPath();
+    ctx.arc(x, h / 2, r, 0, Math.PI * 2);
+    ctx.fill();
+    const lens = ctx.createRadialGradient(x - r * 0.2, h / 2 - r * 0.2, 0, x, h / 2, r * 0.62);
+    lens.addColorStop(0, '#ffffff');
+    lens.addColorStop(0.4, '#cfd9e4');
+    lens.addColorStop(1, '#3d4752');
+    ctx.fillStyle = lens;
+    ctx.beginPath();
+    ctx.arc(x, h / 2, r * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // pisca âmbar por fora e o reflexo do vidro
+  ctx.fillStyle = '#d98a2a';
+  ctx.fillRect(w * 0.76, h * 0.22, w * 0.18, h * 0.56);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillRect(0, h * 0.08, w, h * 0.12);
+  ctx.restore();
+  ctx.strokeStyle = '#08090b';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+}
+
+/** Grade do meio (escudo trapezoidal) e boca de baixo: colmeia preta com moldura. */
+export function paintShieldGrille(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.beginPath();
+  ctx.moveTo(w * 0.04, 0);
+  ctx.lineTo(w * 0.96, 0);
+  ctx.lineTo(w * 0.8, h);
+  ctx.lineTo(w * 0.2, h);
+  ctx.closePath();
+  ctx.save();
+  ctx.clip();
+  paintGrille(ctx, w, h);
+  ctx.restore();
+  ctx.strokeStyle = '#2b2c30';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+}
