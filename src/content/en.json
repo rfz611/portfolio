@@ -196,7 +196,11 @@
     "lampOn": "turn the lamp on",
     "lampOff": "turn the lamp off",
     "jacket": "style · coming soon",
-    "clock": "local time"
+    "clock": "local time",
+    "ad": {
+      "unicar": "UniCar · watch on TV",
+      "frotas": "Fleet Automation · watch on TV"
+    }
   },
   "films": {
     "magnolia": {
@@ -208,5 +212,11 @@
     "arrival": {
       "notes": "Science fiction that is not about guns or explosions, but about the weight of time and communication. Language is the wildest weapon here, and the ending hits your head hard."
     }
+  },
+  "city": {
+    "unicarTag": "Rides between college students · Curitiba",
+    "frotasTag": "Fleet policy PDFs become a standard spreadsheet",
+    "channel": "Channel",
+    "tonight": "Tonight"
   }
 }

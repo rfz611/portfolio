@@ -1,17 +1,18 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { GARAGE, ROOM } from '../config/layout';
+import { useTranslation } from 'react-i18next';
+import { ROOM, GARAGE } from '../config/layout';
+import { Interactive } from '../objects/Interactive';
+import { useScene } from '../store/useScene';
 import { makeCanvas, retile, tex } from '../textures/canvas';
-import { paintAd, paintNoirWindows, type AdKind } from '../textures/city';
+import { paintAd, paintNoirWindows, type AdKind, type AdWords } from '../textures/city';
 import { hdr, lib } from '../textures/library';
 import { mulberry32 } from '../textures/random';
+import { CENTER_X, FACADE_UV, GROUND_Y, ROOFTOPS } from './cityLayout';
 import { box, merge } from './geo';
+import { Rooftops } from './Rooftops';
 
-const GROUND_Y = -95;
-const CENTER_X = (ROOM.x0 + GARAGE.x1) / 2;
-/** Uma repetição da fachada a cada 15 m: janelas pequenas e muitas, como de longe. */
-const FACADE_UV = 15;
 /** Quadra de 64 m com ruas de 16 m. */
 const PITCH = 80;
 const BLOCK = 64;
@@ -37,6 +38,8 @@ interface Ad {
   at: [number, number, number];
   size: [number, number];
   yaw: number;
+  /** Anúncio de um projeto: clicando, a TV abre neste canal. */
+  channel?: number;
 }
 
 /**
@@ -44,11 +47,13 @@ interface Ad {
  * janela, os outros de lado, em prédios diferentes e alturas diferentes.
  */
 const ADS: Ad[] = [
-  { kind: 'ristorante', at: [CENTER_X + 14, -18, -205], size: [40, 13], yaw: -0.06 },
-  { kind: 'casino', at: [CENTER_X - 118, -42, -150], size: [22, 8.5], yaw: 0.62 },
-  { kind: 'lounge', at: [CENTER_X + 150, -30, -128], size: [22, 7.5], yaw: -0.7 },
-  { kind: 'cinema', at: [CENTER_X - 70, -6, -395], size: [26, 9], yaw: 0.25 },
-  { kind: 'hotel', at: [CENTER_X + 92, -46, -262], size: [5, 26], yaw: -0.35 },
+  { kind: 'unicar', at: [CENTER_X + 14, -18, -205], size: [40, 13], yaw: -0.06, channel: 0 },
+  { kind: 'frotas', at: [CENTER_X + 2, -36, -170], size: [30, 10], yaw: 0.04, channel: 1 },
+  { kind: 'lounge', at: [CENTER_X - 33, -22, -280], size: [26, 8.5], yaw: 0.04 },
+  { kind: 'cinema', at: [CENTER_X - 50, -6, -395], size: [32, 11], yaw: 0.25 },
+  { kind: 'hotel', at: [CENTER_X + 95, -30, -235], size: [5, 26], yaw: -0.4 },
+  { kind: 'casino', at: [CENTER_X - 200, -22, -290], size: [26, 10], yaw: 0.55 },
+  { kind: 'ristorante', at: [CENTER_X + 260, -26, -250], size: [28, 9], yaw: -0.75 },
 ];
 
 /** Torres marcantes ao fundo: topo iluminado em degraus e antena com luz vermelha. */
@@ -70,6 +75,12 @@ function reserved(x: number, z: number) {
   }
   for (const [lx, lz, w] of LANDMARKS) {
     if (Math.abs(x - lx) < w && Math.abs(z - lz) < w) return true;
+  }
+  for (const roof of ROOFTOPS) {
+    const [rw, rd] = roof.size;
+    if (Math.abs(x - roof.at[0]) < rw / 2 + 30 && Math.abs(z - roof.at[1]) < rd / 2 + 30) {
+      return true;
+    }
   }
   return false;
 }
@@ -178,17 +189,28 @@ const SEARCHLIGHTS: [number, number, number][] = [
 
 function AdBoard({ ad }: { ad: Ad }) {
   const { mat } = lib();
+  const { t } = useTranslation();
+  // pela janela (de pé na frente do vidro), os anúncios dos projetos levam à TV
+  const looking = useScene((s) => s.view === 'janela');
+  const words: AdWords = useMemo(
+    () => ({
+      tag: ad.kind === 'unicar' || ad.kind === 'frotas' ? t(`city.${ad.kind}Tag`) : undefined,
+      cta: ad.channel !== undefined ? `${t('city.channel')} 0${ad.channel + 1}` : undefined,
+      tonight: t('city.tonight'),
+    }),
+    [t, ad.kind, ad.channel],
+  );
   const [w, h] = ad.size;
   const face = useMemo(() => {
     const vertical = h > w;
     const map = tex(
       makeCanvas(vertical ? 160 : 1024, vertical ? 832 : Math.round((1024 * h) / w), (c, cw, ch) =>
-        paintAd(c, cw, ch, ad.kind),
+        paintAd(c, cw, ch, ad.kind, words),
       ),
       { clamp: true, aniso: 8 },
     );
     return new THREE.MeshBasicMaterial({ map, color: hdr('#ffffff', 1.05), toneMapped: false });
-  }, [ad.kind, w, h]);
+  }, [ad.kind, w, h, words]);
   const geo = useMemo(
     () => ({
       frame: merge([
@@ -209,9 +231,27 @@ function AdBoard({ ad }: { ad: Ad }) {
     <group position={ad.at} rotation={[0, ad.yaw, 0]}>
       <mesh geometry={geo.building} material={facade} />
       <mesh geometry={geo.frame} material={mat.darkMetal} />
-      <mesh position={[0, 0, 0.05]} material={face}>
-        <planeGeometry args={[w, h]} />
-      </mesh>
+      {ad.channel !== undefined ? (
+        <Interactive
+          id={`ad-${ad.kind}`}
+          label={`objects.ad.${ad.kind}`}
+          enabled={looking}
+          outline={false}
+          onClick={() => {
+            const state = useScene.getState();
+            state.setTvChannel(ad.channel ?? 0);
+            state.setView('tv');
+          }}
+        >
+          <mesh position={[0, 0, 0.05]} material={face}>
+            <planeGeometry args={[w, h]} />
+          </mesh>
+        </Interactive>
+      ) : (
+        <mesh position={[0, 0, 0.05]} material={face}>
+          <planeGeometry args={[w, h]} />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -335,6 +375,7 @@ export function City() {
       {ADS.map((ad) => (
         <AdBoard key={ad.kind} ad={ad} />
       ))}
+      <Rooftops />
       {/* o prédio abaixo da cobertura */}
       <mesh position={[CENTER_X, -33.1, ROOM.z1 + 0.02]} material={mats.facade}>
         <planeGeometry args={[GARAGE.x1 - ROOM.x0 + 0.2, 64]} />

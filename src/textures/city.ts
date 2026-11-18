@@ -52,7 +52,25 @@ export function paintNoirWindows(ctx: Ctx, w: number, h: number, seed: number, l
   for (let i = 0; i <= cols; i += 2) ctx.fillRect(i * cw - 1.5, 0, 3, h);
 }
 
-export type AdKind = 'ristorante' | 'casino' | 'lounge' | 'hotel' | 'cinema';
+export type AdKind = 'ristorante' | 'casino' | 'lounge' | 'hotel' | 'cinema' | 'unicar' | 'frotas';
+
+/** Textos que mudam com o idioma (frase do anúncio, chamada para a TV, "hoje"). */
+export interface AdWords {
+  tag?: string;
+  cta?: string;
+  tonight?: string;
+}
+
+/** Fonte no maior tamanho (até max) em que o texto cabe na largura. */
+function fit(ctx: Ctx, text: string, style: string, max: number, width: number) {
+  let size = max;
+  ctx.font = `${style} ${size}px "Bodoni Moda", Georgia, serif`;
+  while (ctx.measureText(text).width > width && size > 8) {
+    size *= 0.94;
+    ctx.font = `${style} ${size}px "Bodoni Moda", Georgia, serif`;
+  }
+  return ctx.font;
+}
 
 /** Letra de neon: tubo claro no meio com o brilho colorido em volta. */
 function neonText(
@@ -100,7 +118,7 @@ function decoFrame(ctx: Ctx, w: number, h: number, color: string) {
  * de neon, como nos desenhos noir antigos: fundo preto, letra trabalhada
  * e o vermelho puxado para o clima mafioso.
  */
-export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind) {
+export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind, words: AdWords = {}) {
   ctx.fillStyle = '#060405';
   ctx.fillRect(0, 0, w, h);
   ctx.textAlign = 'center';
@@ -150,9 +168,15 @@ export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind) {
       '#ff3a8a',
       '#ffd6ea',
     );
-    ctx.fillStyle = '#c9a0b8';
-    ctx.font = `600 ${h * 0.09}px "Manrope Variable", sans-serif`;
-    ctx.fillText('J A Z Z   ·   C O C K T A I L S', w / 2, h * 0.76);
+    neonText(
+      ctx,
+      `JAZZ  ·  ${(words.tonight ?? 'TONIGHT').toUpperCase()}: SADE`,
+      w / 2,
+      h * 0.77,
+      `700 ${h * 0.1}px "Manrope Variable", sans-serif`,
+      '#ff8ac0',
+      '#ffe6f0',
+    );
   } else if (kind === 'hotel') {
     // letreiro vertical
     const letters = 'HOTEL';
@@ -170,6 +194,32 @@ export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind) {
         '#ffd9c8',
       );
     });
+  } else if (kind === 'unicar' || kind === 'frotas') {
+    // anúncios dos projetos do Raphael: o nome em neon, o que faz e o canal da TV
+    const unicar = kind === 'unicar';
+    decoFrame(ctx, w, h, '#b8893a');
+    const name = unicar ? 'UniCar' : 'Automação de Frotas';
+    neonText(
+      ctx,
+      name,
+      w / 2,
+      h * 0.4,
+      fit(ctx, name, unicar ? 'italic 700' : 'italic 600', h * (unicar ? 0.4 : 0.3), w * 0.8),
+      unicar ? '#ffb020' : '#ff2a1a',
+      unicar ? '#fff2c8' : '#ffd9c8',
+    );
+    ctx.fillStyle = '#e8d0a0';
+    ctx.font = `700 ${h * 0.075}px "Manrope Variable", sans-serif`;
+    ctx.fillText((words.tag ?? '').toUpperCase(), w / 2, h * 0.66);
+    neonText(
+      ctx,
+      `▶  ${(words.cta ?? '').toUpperCase()}`,
+      w / 2,
+      h * 0.8,
+      `800 ${h * 0.075}px "Manrope Variable", sans-serif`,
+      '#ff2a1a',
+      '#ffd0c0',
+    );
   } else {
     // marquise de cinema
     decoFrame(ctx, w, h, '#b8893a');
@@ -190,7 +240,53 @@ export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind) {
       '#ffd9c8',
     );
     ctx.fillStyle = '#e8d0a0';
-    ctx.font = `700 ${h * 0.09}px "Manrope Variable", sans-serif`;
-    ctx.fillText('T O N I G H T   ·   D O U B L E   F E A T U R E', w / 2, h * 0.7);
+    ctx.font = `800 ${h * 0.075}px "Manrope Variable", sans-serif`;
+    ctx.fillText((words.tonight ?? 'TONIGHT').toUpperCase(), w / 2, h * 0.66);
+    ctx.font = `800 ${h * 0.085}px "Manrope Variable", sans-serif`;
+    ctx.fillText('MAGNOLIA  ·  DONNIE DARKO  ·  ARRIVAL', w / 2, h * 0.77);
+  }
+}
+
+/** Letreiro de neon do bar da cobertura, sem fundo (só o tubo aceso). */
+export function paintRooftopSign(ctx: Ctx, w: number, h: number, kind: 'bar') {
+  ctx.clearRect(0, 0, w, h);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  if (kind === 'bar') {
+    neonText(
+      ctx,
+      'Rooftop',
+      w / 2,
+      h * 0.34,
+      `italic 700 ${h * 0.42}px "Bodoni Moda", Georgia, serif`,
+      '#ff3a8a',
+      '#ffd6ea',
+    );
+    neonText(
+      ctx,
+      'B A R',
+      w / 2,
+      h * 0.78,
+      `800 ${h * 0.26}px "Manrope Variable", sans-serif`,
+      '#ffb020',
+      '#fff2c8',
+    );
+  }
+}
+
+/** Brilho colorido da pista de dança (magenta no meio, roxo e azul nas bordas). */
+export function paintPartyGlow(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  const spots: [number, number, string][] = [
+    [0.5, 0.45, 'rgba(255,60,200,0.9)'],
+    [0.25, 0.6, 'rgba(120,70,255,0.7)'],
+    [0.75, 0.6, 'rgba(40,190,255,0.6)'],
+  ];
+  for (const [x, y, color] of spots) {
+    const g = ctx.createRadialGradient(x * w, y * h, 0, x * w, y * h, w * 0.42);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
   }
 }

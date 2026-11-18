@@ -196,7 +196,11 @@
     "lampOn": "acender a luminária",
     "lampOff": "apagar a luminária",
     "jacket": "estilo · em breve",
-    "clock": "hora certa"
+    "clock": "hora certa",
+    "ad": {
+      "unicar": "UniCar · ver na TV",
+      "frotas": "Automação de Frotas · ver na TV"
+    }
   },
   "films": {
     "magnolia": {
@@ -208,5 +212,11 @@
     "arrival": {
       "notes": "Ficção científica que não é sobre tiro nem explosão, mas sobre o peso do tempo e comunicação. Linguagem é a arma mais louca que existe aqui, e o final pega pesado com a sua cabeça."
     }
+  },
+  "city": {
+    "unicarTag": "Caronas entre universitários · Curitiba",
+    "frotasTag": "Apólices em PDF viram Excel padronizado",
+    "channel": "Canal",
+    "tonight": "Hoje"
   }
 }
