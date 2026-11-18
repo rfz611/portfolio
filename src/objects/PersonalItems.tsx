@@ -56,6 +56,7 @@ function gloveThumb(side: number) {
 }
 
 /**
+ * Só decoração (sem rótulo nem contorno no mouse).
  * Luvas de boxe brancas (como as da foto do Raphael): couro branco,
  * punho longo branco com a tira de velcro, MAXIMUM BOXING em preto nas
  * costas da mão e a etiqueta preta na tira. Largadas no assento do sofá,
@@ -129,7 +130,7 @@ export function LooseGloves() {
     </>
   );
   return (
-    <Interactive id="gloves" label="objects.gloves">
+    <>
       <group name="boxing-gloves">
         {/* de barriga para baixo, com as costas da mão (e o nome) para cima */}
         <group position={[0, 0.058, 0]} rotation={[0.04, 0.6, 0]}>
@@ -140,7 +141,7 @@ export function LooseGloves() {
           {glove(-1)}
         </group>
       </group>
-    </Interactive>
+    </>
   );
 }
 

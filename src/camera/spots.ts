@@ -58,10 +58,10 @@ export const SPOTS: Spot[] = [
     label: 'spots.poltrona',
     // recostado na poltrona, um pouco acima e atrás: a sala na frente e a
     // mesinha com os livros no canto; arrastando dá para olhar tudo em volta
-    position: [-3.26, 1.3, 3.53],
-    target: [-1.64, 0.62, 2.35],
+    position: [-3.16, 1.18, 3.13],
+    target: [-1.36, 0.24, 2.91],
     hfov: 84,
-    portrait: { hfov: 70, target: [-2.0, 0.5, 2.6] },
+    portrait: { hfov: 70, target: [-1.6, 0.2, 3.05] },
     marker: null,
   },
   {

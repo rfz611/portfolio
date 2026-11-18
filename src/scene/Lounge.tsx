@@ -470,8 +470,8 @@ export function Lounge() {
         </group>
         <group position={[-0.66, 0, 0.12]}>
           <TrayTable />
-          {/* os 3 livros dos filmes em escadinha na mesinha */}
-          <group position={[-0.02, 0.505, 0.0]} rotation={[0, -0.3, 0]}>
+          {/* os 3 livros dos filmes empilhados, lombadas viradas para a poltrona */}
+          <group position={[-0.03, 0.505, 0.02]}>
             <FilmBooks />
           </group>
         </group>

@@ -17,8 +17,8 @@ function retro(canvas: HTMLCanvasElement) {
 }
 
 /**
- * 3 livros de capa dura na mesinha da poltrona, empilhados em escadinha
- * para aparecer o título de cada um.
+ * 3 livros de capa dura empilhados na mesinha da poltrona, cada um um
+ * pouco torto, com as lombadas (título e ano) viradas para quem senta.
  * Clicar num livro abre a ficha do filme.
  */
 export function FilmBooks() {
@@ -43,8 +43,8 @@ export function FilmBooks() {
     [],
   );
   // lado a lado, cada um num ângulo, todas as capas à vista
-  // empilhados em escadinha: cada livro desliza um pouco, mostrando o título do de baixo
-  const yaws = [0.06, -0.05, 0.08];
+  // pilha arrumada, cada livro num ângulo; lombadas para a poltrona (+x)
+  const yaws = [0.05, -0.07, 0.1];
   const heights = [0, films[0].size[1], films[0].size[1] + films[1].size[1]];
   return (
     <group name="film-books">
@@ -59,7 +59,7 @@ export function FilmBooks() {
           <mesh
             geometry={geos[i]}
             material={mats[i]}
-            position={[(i - 1) * 0.012, heights[i] + film.size[1] / 2 + i * 0.001, (1 - i) * 0.065]}
+            position={[(i - 1) * 0.004, heights[i] + film.size[1] / 2 + i * 0.001, (i % 2) * 0.008]}
             rotation={[0, yaws[i], 0]}
           />
         </Interactive>
