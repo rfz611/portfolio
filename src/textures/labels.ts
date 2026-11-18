@@ -1,6 +1,10 @@
 import { grain, rgba, type Ctx } from './canvas';
 
-/** Rótulos de garrafa com nomes inventados (nenhuma marca real). */
+/**
+ * Rótulos das garrafas do bar com os nomes das marcas (pedido do Raphael),
+ * desenhados com letra simples, sem copiar o logotipo de nenhuma delas.
+ * Os índices 1, 2 e 3 são as garrafas que o barman usa (whisky, negroni, martini).
+ */
 
 const DISPLAY = '"Bodoni Moda", Didot, serif';
 const BODY = '"Manrope Variable", Manrope, system-ui, sans-serif';
@@ -14,20 +18,102 @@ export interface LabelStyle {
 }
 
 export const LABELS: LabelStyle[] = [
-  { name: 'Vieux Moulin', sub: 'COGNAC · XO', paper: '#e8dcc0', ink: '#2a1a10', accent: '#b8893a' },
   {
-    name: 'Royal Oak',
+    name: 'Hennessy',
+    sub: 'COGNAC · V.S.O.P',
+    paper: '#141210',
+    ink: '#e6cf98',
+    accent: '#b8893a',
+  },
+  {
+    name: "Jack Daniel's",
+    sub: 'OLD No. 7 · TENNESSEE',
+    paper: '#0e0e0e',
+    ink: '#f2f0ea',
+    accent: '#d9d6cf',
+  },
+  { name: 'Campari', sub: 'BITTER · MILANO', paper: '#f4efe6', ink: '#b3121e', accent: '#b3121e' },
+  { name: 'Tanqueray', sub: 'LONDON DRY GIN', paper: '#f0ece0', ink: '#1b4a30', accent: '#b3121e' },
+  { name: 'Bacardí', sub: 'RON · AÑEJO', paper: '#f2ecdc', ink: '#9a1a14', accent: '#c9a24a' },
+  { name: 'Martini', sub: 'ROSSO · VERMOUTH', paper: '#f6f2ea', ink: '#14181e', accent: '#b3121e' },
+  {
+    name: 'Grey Goose',
+    sub: 'VODKA · FRANCE',
+    paper: '#e8edf2',
+    ink: '#1d2c44',
+    accent: '#7c8ea8',
+  },
+  {
+    name: "Maker's Mark",
+    sub: 'KENTUCKY BOURBON',
+    paper: '#efe5cc',
+    ink: '#1a1410',
+    accent: '#9a0f16',
+  },
+  {
+    name: 'Johnnie Walker',
+    sub: 'BLACK LABEL · 12',
+    paper: '#0f0f0f',
+    ink: '#d9b45a',
+    accent: '#d9b45a',
+  },
+  {
+    name: 'The Macallan',
     sub: 'SINGLE MALT · 18',
-    paper: '#121212',
-    ink: '#e6d3a3',
+    paper: '#f1e9d6',
+    ink: '#3a2414',
+    accent: '#9a6a2a',
+  },
+  {
+    name: 'Bombay Sapphire',
+    sub: 'LONDON DRY GIN',
+    paper: '#cfe0f0',
+    ink: '#14305a',
     accent: '#c9a24a',
   },
-  { name: 'Castello', sub: 'AMARO', paper: '#7a1018', ink: '#f2e6cf', accent: '#d9b360' },
-  { name: 'No. 7', sub: 'LONDON DRY GIN', paper: '#f0efe8', ink: '#1d3b5a', accent: '#7aa0c0' },
-  { name: 'Gold Reserve', sub: 'RUM · AÑEJO', paper: '#c79a3c', ink: '#24170a', accent: '#5a3a14' },
-  { name: 'Ruby', sub: 'VERMOUTH ROSSO', paper: '#3a0a10', ink: '#f0c9a0', accent: '#b8893a' },
-  { name: 'Sterling', sub: 'VODKA', paper: '#d7dbe0', ink: '#14181e', accent: '#7c8794' },
-  { name: 'Old Harbor', sub: 'BOURBON', paper: '#2b1a0e', ink: '#e8c890', accent: '#a5341f' },
+  {
+    name: 'Don Julio',
+    sub: 'TEQUILA · BLANCO',
+    paper: '#efe8d6',
+    ink: '#2a1e12',
+    accent: '#b8893a',
+  },
+  {
+    name: 'Moët & Chandon',
+    sub: 'CHAMPAGNE · BRUT',
+    paper: '#121212',
+    ink: '#e6cf98',
+    accent: '#c9a24a',
+  },
+  {
+    name: 'Dassai',
+    sub: 'SAKE · JUNMAI DAIGINJO',
+    paper: '#f6f4ee',
+    ink: '#141414',
+    accent: '#9a0f16',
+  },
+  {
+    name: 'Sangría',
+    sub: 'VINO TINTO · ESPAÑA',
+    paper: '#5a0d16',
+    ink: '#f2e2c4',
+    accent: '#d9b360',
+  },
+  { name: 'Sidra', sub: 'NATURAL · ASTURIAS', paper: '#e8e2c8', ink: '#2c4a18', accent: '#8a6a2a' },
+  {
+    name: 'Montenegro',
+    sub: 'AMARO · BOLOGNA',
+    paper: '#efe6cf',
+    ink: '#6a1414',
+    accent: '#b8893a',
+  },
+  {
+    name: 'Jägermeister',
+    sub: 'KRÄUTERLIKÖR',
+    paper: '#e57a1c',
+    ink: '#123a1e',
+    accent: '#f2e2c4',
+  },
 ];
 
 /**

@@ -72,6 +72,23 @@ function ExecutiveDesk() {
   );
 }
 
+/** Alumínio grafite escovado com granulado de PS2 (riscos horizontais finos). */
+function paintBrushedDark(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = '#2b2b31';
+  ctx.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y++) {
+    const v = 36 + ((y * 37) % 11) + ((y * 13) % 5);
+    ctx.fillStyle = `rgba(${v},${v},${v + 4},0.35)`;
+    ctx.fillRect(0, y, w, 1);
+  }
+  for (let i = 0; i < 1800; i++) {
+    const x = (i * 97.3) % w;
+    const y = (i * 61.7) % h;
+    ctx.fillStyle = i % 2 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.12)';
+    ctx.fillRect(x, y, 2, 2);
+  }
+}
+
 /**
  * MacBook de alumínio: base fina e tampa fina de cantos arredondados,
  * teclado preto e a maçã acesa na tampa (visível de quem está na sala).
@@ -89,8 +106,8 @@ function Laptop() {
         .translate(0, 0.0046, -d * 0.12),
       pad: new THREE.PlaneGeometry(w * 0.4, d * 0.3)
         .rotateX(-HALF_PI)
-        .translate(0, 0.0046, -d * 0.37),
-      lid: new RoundedBoxGeometry(w, lid, 0.0045, 2, 0.002).translate(0, lid / 2, 0),
+        .translate(0, 0.0068, -d * 0.37),
+      lid: new RoundedBoxGeometry(w, lid, 0.0055, 3, 0.0026).translate(0, lid / 2, 0),
     }),
     [w, d, lid],
   );
@@ -99,7 +116,7 @@ function Laptop() {
     () =>
       new THREE.MeshStandardMaterial({
         map: tex(makeCanvas(1024, 352, paintLaptopKeys), { clamp: true }),
-        roughness: 0.5,
+        roughness: 0.8,
       }),
     [],
   );
@@ -107,6 +124,7 @@ function Laptop() {
     () =>
       new THREE.MeshBasicMaterial({
         map: tex(makeCanvas(256, 160, paintLaptopScreen), { clamp: true }),
+        color: hdr('#ffffff', 1.15),
         toneMapped: false,
       }),
     [],
@@ -115,24 +133,26 @@ function Laptop() {
     () => new THREE.MeshStandardMaterial({ color: '#0b0b0d', roughness: 0.18, metalness: 0.2 }),
     [],
   );
-  // trackpad de vidro fosco, um pouco mais escuro que o alumínio
+  // trackpad de vidro fosco, mais reflexivo que o teclado
   const trackpad = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: '#a9adb4',
-        roughness: 0.38,
-        metalness: 0.55,
-        envMapIntensity: 1,
+        color: '#34343a',
+        roughness: 0.25,
+        metalness: 0.4,
+        envMapIntensity: 1.4,
       }),
     [],
   );
+  // alumínio escuro escovado, com granulado leve (estilo PS1/PS2)
   const silver = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: '#c9cdd3',
-        roughness: 0.3,
-        metalness: 0.85,
-        envMapIntensity: 1.1,
+        map: tex(makeCanvas(256, 256, paintBrushedDark)),
+        color: '#ffffff',
+        roughness: 0.35,
+        metalness: 0.75,
+        envMapIntensity: 1.2,
       }),
     [],
   );
@@ -173,6 +193,13 @@ function Laptop() {
           <planeGeometry args={[w * 0.92, lid * 0.88]} />
         </mesh>
         <LaptopContent w={w * 0.92} h={lid * 0.88} y={lid / 2 + 0.004} z={-0.0032} />
+        <pointLight
+          position={[0, lid * 0.45, -0.06]}
+          color="#c9b8ff"
+          intensity={seated ? 0.18 : 0}
+          distance={0.6}
+          decay={2}
+        />
       </group>
     </group>
   );

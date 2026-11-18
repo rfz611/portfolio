@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { playIce } from '../audio/player';
 import { ROOM, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
@@ -47,7 +48,7 @@ function zoneShape(r: number) {
 /**
  * Garrafas com formatos de verdade (sem marca), todas de corpo redondo:
  * cada tipo tem silhueta, cor de vidro, tampa e rótulo próprios.
- * Vidros: 0 âmbar, 1 verde-escuro, 2 incolor, 3 vinho, 4 fosco, 5 azul, 6 vermelho.
+ * Vidros: 0 âmbar, 1 verde-escuro, 2 incolor, 3 vinho, 4 fosco, 5 azul, 6 vermelho, 7 cerâmica.
  */
 type BottleKind =
   | 'whisky'
@@ -63,7 +64,11 @@ type BottleKind =
   | 'amaro'
   | 'vermouth'
   | 'aperitivo'
-  | 'herbal';
+  | 'herbal'
+  | 'jack'
+  | 'johnnie'
+  | 'sake'
+  | 'cider';
 
 const GLASS_OF: Record<BottleKind, number> = {
   whisky: 0,
@@ -80,10 +85,36 @@ const GLASS_OF: Record<BottleKind, number> = {
   vermouth: 1,
   aperitivo: 6,
   herbal: 1,
+  jack: 2,
+  johnnie: 0,
+  sake: 7,
+  cider: 1,
+};
+
+/** Marca (índice em LABELS) de cada formato de garrafa. */
+const BRAND: Record<BottleKind, number> = {
+  cognac: 0,
+  jack: 1,
+  aperitivo: 2,
+  gin: 3,
+  rum: 4,
+  vermouth: 5,
+  vodka: 6,
+  bourbon: 7,
+  johnnie: 8,
+  whisky: 9,
+  blueGin: 10,
+  tequila: 11,
+  champagne: 12,
+  sake: 13,
+  wine: 14,
+  cider: 15,
+  amaro: 16,
+  herbal: 17,
 };
 
 /** Perfis (raio, altura) das garrafas: ombros, gargalos e alturas bem diferentes. */
-const PROFILE: Record<Exclude<BottleKind, 'cognac'>, [number, number][]> = {
+const PROFILE: Record<Exclude<BottleKind, 'cognac' | 'jack' | 'johnnie'>, [number, number][]> = {
   // ombro largo e gargalo curto
   whisky: [
     [0.001, 0],
@@ -185,6 +216,25 @@ const PROFILE: Record<Exclude<BottleKind, 'cognac'>, [number, number][]> = {
     [0.015, 0.25],
     [0.015, 0.29],
   ],
+  // garrafinha de cerâmica branca de saquê (tokkuri)
+  sake: [
+    [0.001, 0],
+    [0.038, 0],
+    [0.05, 0.06],
+    [0.046, 0.12],
+    [0.022, 0.17],
+    [0.014, 0.2],
+    [0.019, 0.215],
+  ],
+  // sidra: verde, mais baixa, ombro arredondado
+  cider: [
+    [0.001, 0],
+    [0.038, 0],
+    [0.039, 0.15],
+    [0.028, 0.2],
+    [0.014, 0.23],
+    [0.014, 0.27],
+  ],
   // verde com ombro marcado
   herbal: [
     [0.001, 0],
@@ -205,7 +255,7 @@ interface BottleSet {
 }
 
 const emptySet = (): BottleSet => ({
-  glass: [[], [], [], [], [], [], []],
+  glass: [[], [], [], [], [], [], [], []],
   labels: LABELS.map(() => []),
   caps: [],
   wax: [],
@@ -213,15 +263,34 @@ const emptySet = (): BottleSet => ({
 });
 
 /** Monta uma garrafa no lugar (x, y, z) e reparte as peças por material. */
-function addBottle(
-  set: BottleSet,
-  kind: BottleKind,
-  x: number,
-  y: number,
-  z: number,
-  label: number,
-) {
+function addBottle(set: BottleSet, kind: BottleKind, x: number, y: number, z: number) {
   const g = GLASS_OF[kind];
+  if (kind === 'jack' || kind === 'johnnie') {
+    const jack = kind === 'jack';
+    const bw = jack ? 0.072 : 0.078;
+    const bh = jack ? 0.19 : 0.2;
+    const body = new RoundedBoxGeometry(bw, bh, bw, 2, 0.01).toNonIndexed();
+    body.clearGroups();
+    set.glass[g].push(body.translate(x, y + bh / 2, z));
+    set.glass[g].push(
+      lathe(
+        [
+          [0.024, 0],
+          [0.017, 0.02],
+          [0.015, jack ? 0.065 : 0.05],
+        ],
+        { seg: 12 },
+        [x, y + bh, z],
+      ),
+    );
+    const label = new THREE.PlaneGeometry(bw * 0.86, bh * (jack ? 0.42 : 0.3));
+    if (!jack) label.rotateZ(0.42);
+    set.labels[BRAND[kind]].push(label.translate(x, y + bh * 0.47, z + bw / 2 + 0.0012));
+    set.caps.push(
+      cyl(0.017, 0.017, 0.028, [x, y + bh + (jack ? 0.065 : 0.05) + 0.012, z], { seg: 10 }),
+    );
+    return;
+  }
   if (kind === 'cognac') {
     // corpo de cantil: redondo e achatado na frente
     const body = lathe(
@@ -237,7 +306,7 @@ function addBottle(
       { seg: 16 },
     ).scale(1, 1, 0.55);
     set.glass[g].push(body.translate(x, y, z));
-    set.labels[label].push(
+    set.labels[BRAND[kind]].push(
       new THREE.PlaneGeometry(0.06, 0.035).translate(x, y + 0.07, z + 0.0365 + 0.0012),
     );
     set.caps.push(cyl(0.02, 0.02, 0.03, [x, y + 0.245, z], { seg: 10 }));
@@ -247,7 +316,7 @@ function addBottle(
   const top = profile[profile.length - 1][1];
   const radius = Math.max(profile[1][0], profile[2][0]);
   set.glass[g].push(lathe(profile, { seg: 14 }, [x, y, z]));
-  set.labels[label].push(
+  set.labels[BRAND[kind]].push(
     new THREE.CylinderGeometry(
       radius + 0.0015,
       radius + 0.0015,
@@ -279,7 +348,7 @@ function bottleGroup(set: BottleSet, kinds: BottleKind[], cx: number, y: number,
   kinds.forEach((kind, i) => {
     const x = cx - span / 2 + i * 0.11 + (r() - 0.5) * 0.01;
     const z = (i % 2 ? -0.05 : 0.03) + (r() - 0.5) * 0.015;
-    addBottle(set, kind, x, y, z, (seed + i * 3) % LABELS.length);
+    addBottle(set, kind, x, y, z);
   });
 }
 
@@ -544,10 +613,10 @@ function BackBar() {
   const geo = useMemo(() => {
     const set = emptySet();
     bottleGroup(set, ['vermouth', 'blueGin', 'aperitivo', 'herbal'], cols[0], rows[0] + 0.015, 11);
-    bottleGroup(set, ['whisky', 'cognac', 'whisky'], cols[0], rows[1] + 0.015, 17);
-    bottleGroup(set, ['wine', 'champagne', 'wine'], cols[2], rows[1] + 0.015, 23);
+    bottleGroup(set, ['jack', 'cognac', 'johnnie'], cols[0], rows[1] + 0.015, 17);
+    bottleGroup(set, ['wine', 'champagne', 'sake', 'cider'], cols[2], rows[1] + 0.015, 23);
     bottleGroup(set, ['rum', 'bourbon', 'tequila'], cols[0], rows[2] + 0.015, 29);
-    bottleGroup(set, ['gin', 'vodka', 'amaro', 'vermouth'], cols[3], rows[2] + 0.015, 31);
+    bottleGroup(set, ['gin', 'vodka', 'amaro', 'whisky'], cols[3], rows[2] + 0.015, 31);
     const mergeOr = (list: THREE.BufferGeometry[]) =>
       list.length
         ? merge(
@@ -586,7 +655,7 @@ function BackBar() {
         [-0.68, -0.6, 0.6, 0.68].map((x) => cyl(0.006, 0.006, 0.14, [x, 0.52, 0.275], { seg: 6 })),
       ),
       counterTop: box([w + 0.06, 0.04, 0.54], [0, 0.97, 0.01]),
-      glass: [0, 1, 2, 3, 4, 5, 6].map((k) => mergeOr(set.glass[k])),
+      glass: [0, 1, 2, 3, 4, 5, 6, 7].map((k) => mergeOr(set.glass[k])),
       labels: LABELS.map((_, k) => mergeOr(set.labels[k])),
       caps: mergeOr(set.caps)!,
       wax: mergeOr(set.wax),
@@ -632,6 +701,8 @@ function BackBar() {
       tinted('#e6eaee', 0.7, 0.45),
       tinted('#2a5fb8', 0.75),
       tinted('#b3121e', 0.88),
+      // cerâmica branca do saquê
+      new THREE.MeshStandardMaterial({ color: '#f1ede4', roughness: 0.25, envMapIntensity: 1.2 }),
     ];
   }, [mat]);
   const labelMats = useMemo(

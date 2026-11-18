@@ -2,7 +2,8 @@ import gsap from 'gsap';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { playIce, playPour } from '../audio/player';
-import { box, crease, cyl, lathe } from '../scene/geo';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { box, crease, cyl, lathe, merge } from '../scene/geo';
 import { useScene } from '../store/useScene';
 import { makeCanvas, tex } from '../textures/canvas';
 import { LABELS, paintLabel } from '../textures/labels';
@@ -18,9 +19,12 @@ const BOTTLE_REST: [number, number, number] = [0.08, TOP, 0.08];
 type Kind = 'whisky' | 'martini' | 'negroni';
 
 const DRINKS: Record<Kind, { liquid: string; label: number; glass: string; level: number }> = {
-  whisky: { liquid: '#a85a12', label: 1, glass: '#7a3c10', level: 0.035 },
-  martini: { liquid: '#d9e4e6', label: 3, glass: '#b9c7d2', level: 1 },
-  negroni: { liquid: '#a3121f', label: 2, glass: '#5a0d12', level: 0.05 },
+  // Jack Daniel's: vidro incolor com o whisky escuro dentro
+  whisky: { liquid: '#a85a12', label: 1, glass: '#6a3a14', level: 0.035 },
+  // Tanqueray: vidro verde
+  martini: { liquid: '#d9e4e6', label: 3, glass: '#1b4a30', level: 1 },
+  // Campari: vidro vermelho
+  negroni: { liquid: '#a3121f', label: 2, glass: '#8a0d18', level: 0.05 },
 };
 
 /**
@@ -35,6 +39,8 @@ export function BarService() {
   const drink = useScene((s) => s.drink);
 
   const bottle = useRef<THREE.Group>(null!);
+  const roundBottle = useRef<THREE.Group>(null!);
+  const squareBottle = useRef<THREE.Group>(null!);
   const glassGroup = useRef<THREE.Group>(null!);
   const liquid = useRef<THREE.Mesh>(null!);
   const coneLiquid = useRef<THREE.Mesh>(null!);
@@ -107,6 +113,25 @@ export function BarService() {
         .rotateY(Math.PI)
         .translate(0, 0.11, 0),
       cap: cyl(0.015, 0.015, 0.022, [0, 0.32, 0], { seg: 8 }),
+      // garrafa quadrada da Jack Daniel's
+      square: (() => {
+        const body = new RoundedBoxGeometry(0.072, 0.19, 0.072, 2, 0.01).toNonIndexed();
+        body.clearGroups();
+        const neck = lathe(
+          [
+            [0.024, 0],
+            [0.017, 0.02],
+            [0.015, 0.075],
+          ],
+          { seg: 12 },
+          [0, 0.19, 0],
+        );
+        const neckFlat = neck.index ? neck.toNonIndexed() : neck;
+        neckFlat.clearGroups();
+        return merge([body.translate(0, 0.095, 0), neckFlat]);
+      })(),
+      squareLabel: new THREE.PlaneGeometry(0.062, 0.08).translate(0, 0.09, 0.0372),
+      squareCap: cyl(0.017, 0.017, 0.03, [0, 0.28, 0], { seg: 10 }),
     }),
     [],
   );
@@ -188,6 +213,8 @@ export function BarService() {
     coupe.current.visible = isMartini;
     liquidMat.color.set(recipe.liquid);
     bottleMat.color.set(recipe.glass);
+    roundBottle.current.visible = kind !== 'whisky';
+    squareBottle.current.visible = kind === 'whisky';
     labelMesh.current.material = labelMats[recipe.label];
 
     // bico da garrafa inclinada fica logo acima do copo
@@ -292,9 +319,16 @@ export function BarService() {
   return (
     <>
       <group ref={bottle} position={BOTTLE_REST} name="service-bottle">
-        <mesh geometry={geo.bottle} material={bottleMat} renderOrder={6} />
-        <mesh ref={labelMesh} geometry={geo.label} material={labelMats[1]} />
-        <mesh geometry={geo.cap} material={mat.brass} />
+        <group ref={roundBottle} visible={false}>
+          <mesh geometry={geo.bottle} material={bottleMat} renderOrder={6} />
+          <mesh ref={labelMesh} geometry={geo.label} material={labelMats[3]} />
+          <mesh geometry={geo.cap} material={mat.brass} />
+        </group>
+        <group ref={squareBottle}>
+          <mesh geometry={geo.square} material={bottleMat} renderOrder={6} />
+          <mesh geometry={geo.squareLabel} material={labelMats[1]} />
+          <mesh geometry={geo.squareCap} material={mat.blackPlastic} />
+        </group>
       </group>
       <mesh ref={stream} geometry={geo.stream} material={liquidMat} visible={false} />
       <group ref={glassGroup} position={GLASS} name="served-glass">
