@@ -168,8 +168,8 @@ function PictureLight({ width, height, on }: { width: number; height: number; on
         object={light}
         position={[0, height / 2 + 0.1, 0.32]}
         color="#ffd2a0"
-        intensity={on ? 7 : 0}
-        angle={0.55}
+        intensity={on ? 12 : 0}
+        angle={0.62}
         penumbra={0.8}
         distance={3}
         decay={1.6}

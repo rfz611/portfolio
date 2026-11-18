@@ -318,7 +318,6 @@ export function TrayTable() {
         <mesh geometry={geo.drink} material={mats.drink} />
         <mesh geometry={geo.glass} material={mats.glass} renderOrder={3} />
       </group>
-      <mesh geometry={geo.vial} material={mats.vial} position={[0.12, 0, -0.1]} />
     </group>
   );
 }

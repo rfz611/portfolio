@@ -101,12 +101,14 @@ function Laptop() {
   const geo = useMemo(
     () => ({
       base: new RoundedBoxGeometry(w, 0.009, d, 2, 0.004),
-      keys: new THREE.PlaneGeometry(w * 0.86, d * 0.42)
+      // girado 180°: a fileira de funções fica do lado da tela e as letras não saem espelhadas
+      keys: new THREE.PlaneGeometry(w * 0.86, d * 0.4)
         .rotateX(-HALF_PI)
-        .translate(0, 0.0046, -d * 0.12),
-      pad: new THREE.PlaneGeometry(w * 0.4, d * 0.3)
+        .rotateY(Math.PI)
+        .translate(0, 0.0046, d * 0.07),
+      pad: new THREE.PlaneGeometry(w * 0.4, d * 0.28)
         .rotateX(-HALF_PI)
-        .translate(0, 0.0068, -d * 0.37),
+        .translate(0, 0.0052, -d * 0.31),
       lid: new RoundedBoxGeometry(w, lid, 0.0055, 3, 0.0026).translate(0, lid / 2, 0),
     }),
     [w, d, lid],
@@ -138,7 +140,7 @@ function Laptop() {
     () =>
       new THREE.MeshStandardMaterial({
         color: '#34343a',
-        roughness: 0.25,
+        roughness: 0.42,
         metalness: 0.4,
         envMapIntensity: 1.4,
       }),

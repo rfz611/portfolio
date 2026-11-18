@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { films } from '../content/films';
-import { box, cyl, merge } from '../scene/geo';
+import { box, merge } from '../scene/geo';
 import { useScene } from '../store/useScene';
 import { paintBookCover, paintBookSpine } from '../textures/books';
 import { makeCanvas } from '../textures/canvas';
 import { paintFoldedGi } from '../textures/gi';
-import { lib } from '../textures/library';
 import { Interactive } from './Interactive';
 
 /** Textura pequena com pixels aparentes (estética retrô). */
@@ -19,14 +18,16 @@ function retro(canvas: HTMLCanvasElement) {
   return t;
 }
 
-const BOOK = { w: 0.14, h: 0.028, d: 0.2 };
-
 /**
  * Pilha de 3 livros de capa dura na mesinha da poltrona, um para cada
  * filme favorito. Clicar num livro abre a ficha do filme.
  */
 export function FilmBooks() {
-  const geo = useMemo(() => new THREE.BoxGeometry(BOOK.w, BOOK.h, BOOK.d), []);
+  // cada livro tem o seu tamanho; a pilha sobe somando as espessuras
+  const geos = useMemo(() => films.map((f) => new THREE.BoxGeometry(...f.size)), []);
+  const heights = films.map((_, i) =>
+    films.slice(0, i).reduce((sum, f) => sum + f.size[1] + 0.001, 0),
+  );
   const mats = useMemo(
     () =>
       films.map((film) => {
@@ -45,7 +46,7 @@ export function FilmBooks() {
       }),
     [],
   );
-  const yaws = [0.32, 0.18, 0.4];
+  const yaws = [0.3, 0.12, 0.42];
   return (
     <group name="film-books">
       {films.map((film, i) => (
@@ -57,9 +58,9 @@ export function FilmBooks() {
           onClick={() => useScene.getState().setDossier(film.id)}
         >
           <mesh
-            geometry={geo}
+            geometry={geos[i]}
             material={mats[i]}
-            position={[(i - 1) * 0.006, BOOK.h / 2 + i * (BOOK.h + 0.001), (1 - i) * 0.006]}
+            position={[(i - 1) * 0.008, heights[i] + film.size[1] / 2, (1 - i) * 0.008]}
             rotation={[0, yaws[i], 0]}
           />
         </Interactive>
@@ -68,45 +69,63 @@ export function FilmBooks() {
   );
 }
 
+/** Pano drapeado deitado (plano subdividido com dobras suaves). */
+function drape(w: number, d: number, amp: number, seed: number) {
+  const g = new THREE.PlaneGeometry(w, d, 14, 16).rotateX(-Math.PI / 2);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    const z = p.getZ(i);
+    const fold = Math.sin(x * 11 + seed) * Math.cos(z * 7 + seed * 0.5) * amp;
+    p.setY(i, fold + amp);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
 /**
- * Cabide de pé de madeira com o kimono de jiu-jitsu pendurado aberto: as
- * costas atrás, as duas frentes afastadas mostrando a gola grossa, as
- * mangas caindo e a faixa preta jogada por cima do cabide.
- * Clicar no kimono abre a ficha do jiu-jitsu.
+ * Kimono de jiu-jitsu largado aberto no sofá, como quem acabou de chegar
+ * do treino: o casaco aberto em T, com a gola em V mostrando o forro, as
+ * duas mangas esticadas para os lados e a faixa preta solta em curva.
+ * Clicar nele abre a ficha do jiu-jitsu.
  */
-export function HangingGi() {
-  const { mat } = lib();
+export function GiOnSofa() {
   const geo = useMemo(() => {
-    const top = 1.62;
-    const shoulders = top - 0.06;
-    const sleeve = (side: number) =>
-      new THREE.CylinderGeometry(0.075, 0.06, 0.52, 12, 1, true)
-        .rotateZ(side * 0.1)
-        .translate(side * 0.27, shoulders - 0.27, 0.0);
-    const panel = (side: number) =>
-      box([0.2, 0.74, 0.012], [side * 0.13, shoulders - 0.37, 0.035], {
-        rot: [0, side * -0.35, 0],
-      });
     const lapel = (side: number) =>
-      box([0.05, 0.5, 0.016], [side * 0.075, shoulders - 0.22, 0.05], {
-        rot: [0, side * -0.35, side * -0.32],
-      });
+      box([0.06, 0.018, 0.54], [side * 0.1, 0.03, 0.02], { rot: [0, side * 0.3, 0] });
+    const beltCurve = new THREE.CatmullRomCurve3(
+      [
+        [-0.3, 0.035, 0.1],
+        [-0.1, 0.04, 0.14],
+        [0.1, 0.04, 0.1],
+        [0.28, 0.035, 0.16],
+        [0.4, 0.02, 0.3],
+      ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+    );
     return {
-      stand: merge([
-        cyl(0.17, 0.19, 0.025, [0, 0.0125, 0], { seg: 18 }),
-        cyl(0.014, 0.014, top, [0, top / 2, -0.045], { seg: 10 }),
-        box([0.5, 0.025, 0.03], [0, top, -0.03]),
-      ]),
-      back: box([0.5, 0.76, 0.012], [0, shoulders - 0.38, -0.02]),
-      fronts: merge([panel(1), panel(-1)]),
+      body: drape(0.58, 0.68, 0.008, 1.3),
+      inside: new THREE.ShapeGeometry(
+        new THREE.Shape([
+          new THREE.Vector2(-0.03, 0.3),
+          new THREE.Vector2(0.03, 0.3),
+          new THREE.Vector2(0.17, -0.26),
+          new THREE.Vector2(-0.17, -0.26),
+        ]),
+      )
+        .rotateX(-Math.PI / 2)
+        .translate(0, 0.022, 0),
       lapels: merge([lapel(1), lapel(-1)]),
-      sleeves: merge([sleeve(1), sleeve(-1)]),
-      inside: new THREE.PlaneGeometry(0.16, 0.62).translate(0, shoulders - 0.34, -0.012),
-      belt: merge([
-        box([0.045, 0.006, 0.05], [0.1, top + 0.016, 0]),
-        box([0.045, 0.5, 0.006], [0.1, top - 0.24, 0.03]),
-        box([0.045, 0.42, 0.006], [0.1, top - 0.2, -0.03]),
+      collar: box([0.2, 0.02, 0.06], [0, 0.032, -0.3]),
+      // as duas mangas esticadas para os lados, deitadas no assento (silhueta em T)
+      sleeves: merge([
+        drape(0.46, 0.2, 0.006, 2.1).translate(0.5, 0.004, -0.2),
+        drape(0.46, 0.2, 0.006, 3.4).translate(-0.5, 0.004, -0.2),
       ]),
+      cuffs: merge([
+        box([0.03, 0.02, 0.2], [0.72, 0.016, -0.2]),
+        box([0.03, 0.02, 0.2], [-0.72, 0.016, -0.2]),
+      ]),
+      belt: new THREE.TubeGeometry(beltCurve, 40, 0.022, 6, false).scale(1, 0.3, 1),
     };
   }, []);
   const mats = useMemo(() => {
@@ -117,28 +136,29 @@ export function HangingGi() {
         map,
         roughness: 0.92,
         side: THREE.DoubleSide,
+        color: '#fff4e4',
         emissive: '#3a3228',
-        emissiveIntensity: 0.22,
+        emissiveIntensity: 0.25,
       }),
-      shade: new THREE.MeshStandardMaterial({ color: '#b5ad9f', roughness: 0.95 }),
-      belt: new THREE.MeshStandardMaterial({ color: '#111012', roughness: 0.75 }),
+      shade: new THREE.MeshStandardMaterial({ color: '#a39b8e', roughness: 0.95 }),
+      belt: new THREE.MeshStandardMaterial({ color: '#111012', roughness: 0.7 }),
     };
   }, []);
   return (
-    <group name="hanging-gi">
-      <mesh geometry={geo.stand} material={mat.walnut} />
-      <Interactive
-        id="kimono"
-        label="objects.kimono"
-        onClick={() => useScene.getState().setDossier('gi')}
-      >
-        <mesh geometry={geo.back} material={mats.cloth} />
+    <Interactive
+      id="kimono"
+      label="objects.kimono"
+      onClick={() => useScene.getState().setDossier('gi')}
+    >
+      <group name="gi-on-sofa">
+        <mesh geometry={geo.body} material={mats.cloth} />
         <mesh geometry={geo.inside} material={mats.shade} />
-        <mesh geometry={geo.fronts} material={mats.cloth} />
         <mesh geometry={geo.lapels} material={mats.cloth} />
+        <mesh geometry={geo.collar} material={mats.cloth} />
         <mesh geometry={geo.sleeves} material={mats.cloth} />
+        <mesh geometry={geo.cuffs} material={mats.cloth} />
         <mesh geometry={geo.belt} material={mats.belt} />
-      </Interactive>
-    </group>
+      </group>
+    </Interactive>
   );
 }

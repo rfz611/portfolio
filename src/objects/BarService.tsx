@@ -18,13 +18,16 @@ const BOTTLE_REST: [number, number, number] = [0.08, TOP, 0.08];
 
 type Kind = 'whisky' | 'martini' | 'negroni';
 
-const DRINKS: Record<Kind, { liquid: string; label: number; glass: string; level: number }> = {
+const DRINKS: Record<
+  Kind,
+  { liquid: string; label: number; glass: string; level: number; inside: string | null }
+> = {
   // Jack Daniel's: vidro incolor com o whisky escuro dentro
-  whisky: { liquid: '#a85a12', label: 1, glass: '#6a3a14', level: 0.035 },
+  whisky: { liquid: '#a85a12', label: 1, glass: '#e8e4dc', level: 0.035, inside: '#4a2208' },
   // Tanqueray: vidro verde
-  martini: { liquid: '#d9e4e6', label: 3, glass: '#1b4a30', level: 1 },
+  martini: { liquid: '#d9e4e6', label: 3, glass: '#1b4a30', level: 1, inside: null },
   // Campari: vidro vermelho
-  negroni: { liquid: '#a3121f', label: 2, glass: '#8a0d18', level: 0.05 },
+  negroni: { liquid: '#a3121f', label: 2, glass: '#e8e4dc', level: 0.05, inside: '#b3101a' },
 };
 
 /**
@@ -132,6 +135,8 @@ export function BarService() {
       })(),
       squareLabel: new THREE.PlaneGeometry(0.062, 0.08).translate(0, 0.09, 0.0372),
       squareCap: cyl(0.017, 0.017, 0.03, [0, 0.28, 0], { seg: 10 }),
+      insideRound: cyl(0.034, 0.034, 0.17, [0, 0.091, 0], { seg: 14 }),
+      insideSquare: box([0.062, 0.15, 0.062], [0, 0.081, 0]),
     }),
     [],
   );
@@ -159,11 +164,24 @@ export function BarService() {
         color: DRINKS.whisky.glass,
         roughness: 0.08,
         transparent: true,
-        opacity: 0.85,
+        // começa como a Jack Daniel's: vidro transparente com o whisky aparecendo
+        opacity: 0.28,
         envMapIntensity: 1.8,
       }),
     [],
   );
+  const insideMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#4a2208',
+        roughness: 0.15,
+        transparent: true,
+        opacity: 0.92,
+      }),
+    [],
+  );
+  const insideRound = useRef<THREE.Mesh>(null!);
+  const insideSquare = useRef<THREE.Mesh>(null!);
   const labelMats = useMemo(
     () =>
       LABELS.map(
@@ -213,6 +231,11 @@ export function BarService() {
     coupe.current.visible = isMartini;
     liquidMat.color.set(recipe.liquid);
     bottleMat.color.set(recipe.glass);
+    // vidro transparente deixa ver a bebida; o verde da Tanqueray é mais fechado
+    bottleMat.opacity = recipe.inside ? 0.28 : 0.85;
+    if (recipe.inside) insideMat.color.set(recipe.inside);
+    insideRound.current.visible = recipe.inside !== null && kind !== 'whisky';
+    insideSquare.current.visible = recipe.inside !== null && kind === 'whisky';
     roundBottle.current.visible = kind !== 'whisky';
     squareBottle.current.visible = kind === 'whisky';
     labelMesh.current.material = labelMats[recipe.label];
@@ -320,11 +343,18 @@ export function BarService() {
     <>
       <group ref={bottle} position={BOTTLE_REST} name="service-bottle">
         <group ref={roundBottle} visible={false}>
+          <mesh ref={insideRound} geometry={geo.insideRound} material={insideMat} renderOrder={5} />
           <mesh geometry={geo.bottle} material={bottleMat} renderOrder={6} />
           <mesh ref={labelMesh} geometry={geo.label} material={labelMats[3]} />
           <mesh geometry={geo.cap} material={mat.brass} />
         </group>
         <group ref={squareBottle}>
+          <mesh
+            ref={insideSquare}
+            geometry={geo.insideSquare}
+            material={insideMat}
+            renderOrder={5}
+          />
           <mesh geometry={geo.square} material={bottleMat} renderOrder={6} />
           <mesh geometry={geo.squareLabel} material={labelMats[1]} />
           <mesh geometry={geo.squareCap} material={mat.blackPlastic} />

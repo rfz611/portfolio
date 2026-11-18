@@ -15,6 +15,8 @@ interface Props {
   children: ReactNode;
   /** Área de clique extra que não entra no contorno (ex.: vidro da janela). */
   hit?: ReactNode;
+  /** false = sem contorno amarelo (o objeto mostra o destaque do seu jeito). */
+  outline?: boolean;
 }
 
 /** O evento veio do próprio canvas 3D (e não de uma tela HTML por cima dele)? */
@@ -50,7 +52,16 @@ function inFront(event: ThreeEvent<PointerEvent | MouseEvent>, root: THREE.Objec
  * Regra geral dos objetos: passar o mouse acende (contorno âmbar e rótulo
  * em VT323) e clicar leva a câmera até ele.
  */
-export function Interactive({ id, label, text, enabled = true, onClick, children, hit }: Props) {
+export function Interactive({
+  id,
+  label,
+  text,
+  enabled = true,
+  onClick,
+  children,
+  hit,
+  outline = true,
+}: Props) {
   const hovered = useScene((s) => s.hovered?.id === id);
   const root = useRef<THREE.Group>(null);
 
@@ -75,7 +86,7 @@ export function Interactive({ id, label, text, enabled = true, onClick, children
       onPointerOut={enabled ? out : undefined}
       onClick={enabled && onClick ? click : undefined}
     >
-      <Select enabled={enabled && hovered}>{children}</Select>
+      <Select enabled={outline && enabled && hovered}>{children}</Select>
       {enabled && hit}
     </group>
   );

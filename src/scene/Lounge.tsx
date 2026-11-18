@@ -5,7 +5,7 @@ import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
 import { LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
-import { FilmBooks, HangingGi } from '../objects/ReadingProps';
+import { FilmBooks, GiOnSofa } from '../objects/ReadingProps';
 import { SPOTS } from '../camera/spots';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
@@ -429,6 +429,10 @@ export function Lounge() {
         <PitSofa />
       </OptionalModel>
       <PitSteps />
+      {/* kimono largado aberto no assento, na curva do sofá (lado das luvas) */}
+      <group position={[0.28, -PIT.depth + 0.46, 2.4]} rotation={[0, 0.06, 0]}>
+        <GiOnSofa />
+      </group>
       {/* luvas largadas no assento do lado sul, perto da ponta do sofá */}
       <group position={[-0.5, -PIT.depth + 0.47, PIT.z1 - 0.55]} rotation={[0, 0.3, 0]}>
         <LooseGloves />
@@ -473,10 +477,6 @@ export function Lounge() {
           <group position={[0.02, 0.505, 0.07]}>
             <FilmBooks />
           </group>
-        </group>
-        {/* kimono pendurado aberto no cabide de pé, ao lado da mesinha */}
-        <group position={[-0.95, 0, 0.55]} rotation={[0, Math.PI / 2 + 0.35, 0]}>
-          <HangingGi />
         </group>
         <ArcLamp base={[0.12, -0.78]} aim={[0.02, 0.22]} height={1.72} />
         <mesh position={[0, 0.005, 0.3]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>

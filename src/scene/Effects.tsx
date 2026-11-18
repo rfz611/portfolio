@@ -76,7 +76,8 @@ export function Effects() {
       {/* exposição mais baixa: o Raphael achou a sala clara demais e estourando */}
       <BrightnessContrast brightness={-0.06} contrast={0.14} />
       <Noise blendFunction={BlendFunction.OVERLAY} opacity={0.14} />
-      <Vignette offset={0.25} darkness={0.78} />
+      {/* vinheta leve: forte demais, ela apagava os quadros quando chegavam perto da borda */}
+      <Vignette offset={0.38} darkness={0.5} />
     </EffectComposer>
   );
 }
