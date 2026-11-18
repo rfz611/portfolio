@@ -25,10 +25,11 @@ Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne
 
 Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círculos do chão e trocar de lugar pelas setas da legenda. Quem prefere ler tem o **menu de texto**, com o portfólio inteiro em HTML, e tudo existe em português e inglês.
 
-|                                                               |                                                                    |
-| ------------------------------------------------------------- | ------------------------------------------------------------------ |
-| ![Escritório](docs/prints/readme/home-desktop-escritorio.png) | ![Canto da poltrona](docs/prints/readme/home-desktop-poltrona.png) |
-| ![Bar](docs/prints/readme/home-desktop-bar.png)               | ![A cidade pela janela](docs/prints/readme/janela-desktop.png)     |
+|                                                                    |                                                                    |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| ![Escritório](docs/prints/readme/home-desktop-escritorio.png)      | ![Canto da poltrona](docs/prints/readme/home-desktop-poltrona.png) |
+| ![Bar](docs/prints/readme/home-desktop-bar.png)                    | ![A cidade pela janela](docs/prints/readme/janela-desktop.png)     |
+| ![O carro na garagem](docs/prints/readme/home-desktop-garagem.png) | ![Skills no motor](docs/prints/readme/motor-desktop-skills.png)    |
 
 ## Tecnologias
 
