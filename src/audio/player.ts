@@ -250,3 +250,58 @@ export function resetPlayerForTests() {
   deck = null;
   ambience = null;
 }
+
+/* ---------- rádio do carro ---------- */
+
+let radio: Howl | null = null;
+let radioPausedDeck = false;
+
+/**
+ * Entrou no carro: o toca-discos baixa em fade e o rádio toca uma faixa de
+ * garagem (Jukebox Joints ou E. Coli). Sem clique do visitante, não toca.
+ */
+export function startCarRadio() {
+  const s = store();
+  const garage = tracks.filter((t) => t.garage && s.availability[t.id] !== 'missing');
+  if (!garage.length || radio || !ambience) return;
+  const pick = garage[Math.floor(Math.random() * garage.length)];
+  radioPausedDeck = false;
+  if (deck && s.deck === 'playing') {
+    const howl = deck.howl;
+    howl.fade(howl.volume(), 0, FADE_OUT_MS);
+    window.setTimeout(() => {
+      if (store().deck === 'playing' && deck?.howl === howl) pause();
+    }, FADE_OUT_MS + 40);
+    radioPausedDeck = true;
+  }
+  const howl = new Howl({
+    src: trackSources(pick.id),
+    format: ['opus', 'mp3'],
+    html5: true,
+    loop: true,
+    volume: 0,
+    onloaderror: () => {
+      if (radio === howl) radio = null;
+    },
+  });
+  radio = howl;
+  howl.play();
+  howl.fade(0, Math.min(s.volume, MAX_VOLUME) * 0.85, FADE_IN_MS);
+}
+
+/** Saiu do carro: o rádio some em fade e o disco volta de onde parou. */
+export function stopCarRadio() {
+  if (radio) {
+    const howl = radio;
+    radio = null;
+    howl.fade(howl.volume(), 0, FADE_OUT_MS);
+    window.setTimeout(() => {
+      howl.stop();
+      howl.unload();
+    }, FADE_OUT_MS + 60);
+  }
+  if (radioPausedDeck) {
+    radioPausedDeck = false;
+    resume();
+  }
+}

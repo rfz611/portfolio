@@ -148,27 +148,28 @@ export const SHOTS: Record<ViewId, Shot> = {
   },
   // Diagonal frontal, capô em destaque.
   carro: {
-    target: [carX, 0.55, carZ],
-    dir: [-0.85, 0.32, 0.6],
-    frame: [5.4, 2.5],
+    target: [carX - 0.2, 0.62, carZ],
+    dir: [-0.55, 0.3, 0.78],
+    frame: [6.2, 3.0],
     fov: 40,
     duration: 1.6,
     portrait: { frame: [3.4, 4.2] },
   },
   // De cima do capô aberto.
   motor: {
-    target: [carX - 1.25, 0.8, carZ + 0.9],
-    dir: [-0.5, 1, 0.45],
-    frame: [1.9, 1.3],
+    target: [carX - 1.3, 0.62, carZ],
+    dir: [-0.62, 1.05, 0.3],
+    frame: [2.3, 1.3],
     fov: 40,
     duration: 1.6,
     portrait: { frame: [1.5, 2.0] },
   },
   // Banco do motorista olhando o painel e o rádio.
+  // do banco do motorista (olhos em x + 0,25, 1,2 m, lado +z), olhando o painel e o rádio
   interior: {
-    target: [carX - 0.45, 0.82, carZ + 0.35],
-    dir: [0.8, 0.12, -0.6],
-    frame: [1.1, 0.62],
+    target: [carX - 0.5, 0.92, carZ],
+    dir: [0.75, 0.28, 0.38],
+    frame: [1.75, 0.98],
     fov: 50,
     duration: 1.6,
     portrait: { frame: [0.7, 1.0] },

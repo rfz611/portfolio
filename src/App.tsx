@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useScene } from './store/useScene';
 import { BackButton } from './ui/BackButton';
 import { BarMenu } from './ui/BarMenu';
+import { CarRadio } from './ui/CarRadio';
 import { CvSheet } from './ui/CvSheet';
 import { Dossier } from './ui/Dossier';
 import { MagazineCaption } from './ui/MagazineCaption';
@@ -10,6 +11,7 @@ import { Controls } from './ui/Controls';
 import { hasWebGL, useEscapeToHome, useHashSync, useVolumeKeys } from './ui/hooks';
 import { HoverLabel } from './ui/HoverLabel';
 import { Loader } from './ui/Loader';
+import { SkillsPanel } from './ui/SkillsPanel';
 import { SpotNav } from './ui/SpotNav';
 import { TextPage } from './ui/TextPage';
 
@@ -22,6 +24,8 @@ const HINTS: Partial<Record<string, string>> = {
   discos: 'records.hint',
   tv: 'projects.hint',
   mesa: 'certificates.hint',
+  carro: 'car.hint',
+  motor: 'skills.hint',
 };
 
 export default function App() {
@@ -76,6 +80,8 @@ export default function App() {
           {ready && <MagazineCaption />}
           {ready && <CvSheet />}
           {ready && <Dossier />}
+          {ready && <SkillsPanel />}
+          {ready && <CarRadio />}
           {ready && HINTS[view] && !magazineOpen && (
             <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
               {t(touch && i18n.exists(`${HINTS[view]}Touch`) ? `${HINTS[view]}Touch` : HINTS[view])}

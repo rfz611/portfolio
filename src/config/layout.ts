@@ -44,7 +44,7 @@ export const SPOT = {
   palm: [5.55, 0, 0.85],
   monstera: [5.3, 0, -1.55],
   neon: [-0.35, 2.45, -4.42],
-  car: [9.3, 0, 0.5],
+  car: [10.0, 0, 0.5],
 } as const satisfies Record<string, P3>;
 
 /** Centro da tela da TV no mundo (usado pelo plano de câmera "tv"). */

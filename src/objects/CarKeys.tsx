@@ -1,16 +1,18 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { box, cyl, merge } from '../scene/geo';
+import { useScene } from '../store/useScene';
 import { lib } from '../textures/library';
 import { Interactive } from './Interactive';
 
 /**
  * Chaves do carro na mesa (seção Contato). Sem logo nem emblema.
- * O caminho chaves → carro → rádio chega na Fase 5; por enquanto elas só
- * acendem e mostram o rótulo.
+ * Clicando, a câmera atravessa o vidro até o carro, a porta abre e a vista
+ * entra no banco do motorista, de frente para o rádio com os contatos.
  */
 export function CarKeys() {
   const { mat } = lib();
+  const home = useScene((s) => s.view === 'home');
   const geo = useMemo(() => {
     const ring = new THREE.TorusGeometry(0.014, 0.0014, 5, 16);
     ring.rotateX(Math.PI / 2);
@@ -29,7 +31,19 @@ export function CarKeys() {
   }, []);
 
   return (
-    <Interactive id="keys" label="objects.keys">
+    <Interactive
+      id="keys"
+      label="objects.keys"
+      enabled={home}
+      onClick={() => useScene.getState().setView('interior')}
+      hit={
+        // as chaves são pequenas: uma área de clique invisível um pouco maior
+        <mesh position={[-0.46, 0.437, -0.32]} rotation={[0, 2.3, 0]}>
+          <boxGeometry args={[0.1, 0.03, 0.14]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      }
+    >
       <group position={[-0.46, 0.422, -0.31]} rotation={[0, 2.3, 0]} name="car_keys">
         <mesh geometry={geo.metal} material={mat.steel} />
         <mesh geometry={geo.fob} material={mat.blackPlastic} />

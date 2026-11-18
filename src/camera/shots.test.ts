@@ -52,13 +52,14 @@ describe('planos de câmera', () => {
 });
 
 describe('pontos de vista da sala', () => {
-  it('todos ficam dentro da sala, e os de pé ficam fora do rebaixo', async () => {
+  it('todos ficam dentro da sala (o da garagem, na garagem), e os de pé fora do rebaixo', async () => {
     const { SPOTS } = await import('./spots');
-    const { PIT } = await import('../config/layout');
+    const { GARAGE, PIT } = await import('../config/layout');
     for (const spot of SPOTS) {
       const [x, y, z] = spot.position!;
-      expect(x).toBeGreaterThan(ROOM.x0);
-      expect(x).toBeLessThan(ROOM.x1);
+      const area = spot.id === 'garagem' ? GARAGE : ROOM;
+      expect(x).toBeGreaterThan(area.x0);
+      expect(x).toBeLessThan(area.x1);
       expect(z).toBeGreaterThan(ROOM.z0);
       expect(z).toBeLessThan(ROOM.z1);
       expect(y).toBeLessThan(ROOM.h);

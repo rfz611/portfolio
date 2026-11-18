@@ -110,7 +110,9 @@
     "partIntake": "Admissão de ar",
     "partRadiator": "Radiador",
     "partBattery": "Bateria",
-    "partFuses": "Caixa de fusíveis"
+    "partFuses": "Caixa de fusíveis",
+    "hint": "Passe o mouse nas peças do motor e clique para ver as tecnologias",
+    "pick": "Escolha uma peça do motor"
   },
   "contact": {
     "title": "Contato",
@@ -161,7 +163,8 @@
     "janela": "Janela",
     "geral": "Vista geral",
     "cadeira": "Cadeira do escritório",
-    "poltrona": "Poltrona"
+    "poltrona": "Poltrona",
+    "garagem": "Garagem"
   },
   "nav3d": {
     "prev": "Lugar anterior",
@@ -200,7 +203,11 @@
     "ad": {
       "unicar": "UniCar · ver na TV",
       "frotas": "Automação de Frotas · ver na TV"
-    }
+    },
+    "hood": "capô · skills",
+    "door": "porta · entrar no carro",
+    "headlights": "faróis",
+    "glovebox": "porta-luvas · currículo"
   },
   "films": {
     "magnolia": {
@@ -218,5 +225,18 @@
     "frotasTag": "Apólices em PDF viram Excel padronizado",
     "channel": "Canal",
     "tonight": "Hoje"
+  },
+  "radio": {
+    "hint": "Gire o dial (arraste, roda do mouse ou ← →) para achar as estações",
+    "ok": "OK",
+    "noise": "chiado",
+    "tuned": "sintonizado",
+    "open": "abrir",
+    "copy": "copiar o e-mail",
+    "copied": "e-mail copiado",
+    "stations": "estações"
+  },
+  "car": {
+    "hint": "Clique no capô, na porta ou nos faróis"
   }
 }

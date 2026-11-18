@@ -20,6 +20,7 @@ import { Rain } from './Rain';
 import { RecordCorner } from './RecordCorner';
 import { SpotMarkers } from './SpotMarkers';
 import { Room } from './Room';
+import { Garage } from './Garage';
 import { WindowWall } from './WindowWall';
 
 const ORDER: Quality[] = ['low', 'medium', 'high'];
@@ -60,6 +61,7 @@ function World() {
       <Decor />
       <SpotMarkers />
       <CoatStand position={[5.55, 0, 3.95]} />
+      <Garage />
       <WindowWall />
       <City />
       <Rain />

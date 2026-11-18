@@ -1313,3 +1313,238 @@ main:focus {
     font-size: 1rem;
   }
 }
+
+/* ---------- motor (skills) ---------- */
+
+.skills-panel {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  z-index: 20;
+  width: min(300px, calc(100vw - 32px));
+  padding: 18px 20px 16px;
+  transform: translateY(-50%);
+  background: rgba(7, 6, 8, 0.82);
+  border: 1px solid rgba(184, 137, 58, 0.45);
+  color: var(--text);
+  font-family: var(--font-crt);
+  animation: cv-in 0.3s ease;
+}
+
+.skills-panel__title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.skills-panel__group {
+  margin: 0 0 10px;
+  font-size: 1.7rem;
+  font-weight: 400;
+  color: var(--amber);
+}
+
+.skills-panel__group span {
+  display: block;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.skills-panel__list {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.skills-panel__list li::before {
+  content: '› ';
+  color: var(--red);
+}
+
+.skills-panel__pick {
+  margin: 0 0 14px;
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.skills-panel__parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.skills-panel__parts button {
+  padding: 3px 8px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.skills-panel__parts button:hover,
+.skills-panel__parts button.is-on {
+  color: var(--ink);
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+/* ---------- rádio do carro (contato) ---------- */
+
+.car-radio {
+  position: fixed;
+  left: 50%;
+  bottom: 64px;
+  z-index: 20;
+  width: min(460px, calc(100vw - 32px));
+  padding: 14px 16px 10px;
+  transform: translateX(-50%);
+  background: linear-gradient(#141215, #08070a);
+  border: 1px solid #2c282c;
+  border-radius: 6px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-family: var(--font-crt);
+  animation: cv-in 0.3s ease;
+}
+
+.car-radio__display {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 14px;
+  padding: 8px 12px;
+  background: #0d0303;
+  border: 1px solid #2a0b0b;
+  color: #ff3b2a;
+  text-shadow: 0 0 8px rgba(255, 59, 42, 0.6);
+}
+
+.car-radio__freq {
+  grid-row: span 2;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.car-radio__name {
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.car-radio__value {
+  min-height: 1.1em;
+  font-size: 1.05rem;
+  text-align: right;
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
+.car-radio__scale {
+  position: relative;
+  height: 26px;
+  margin: 10px 4px 6px;
+  border-bottom: 1px solid #3a3236;
+}
+
+.car-radio__scale button {
+  position: absolute;
+  bottom: 4px;
+  padding: 0;
+  transform: translateX(-50%);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.car-radio__scale i {
+  position: absolute;
+  bottom: -4px;
+  width: 2px;
+  height: 22px;
+  background: #ff3b2a;
+  box-shadow: 0 0 6px #ff3b2a;
+  transform: translateX(-50%);
+}
+
+.car-radio__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.car-radio__dial {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4a4448, #141114 70%);
+  border: 2px solid #2c272b;
+  cursor: grab;
+  touch-action: none;
+}
+
+.car-radio__dial::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 3px;
+  height: 14px;
+  margin-left: -1.5px;
+  background: #ff3b2a;
+  border-radius: 2px;
+}
+
+.car-radio__dial:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.car-radio__ok {
+  min-width: 120px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 1.2rem;
+  color: var(--ink);
+  background: var(--amber);
+  border: 0;
+  cursor: pointer;
+}
+
+.car-radio__ok:disabled {
+  color: var(--muted);
+  background: #2a2629;
+  cursor: default;
+}
+
+.car-radio__hint {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .skills-panel {
+    top: auto;
+    right: 16px;
+    bottom: 96px;
+    transform: none;
+  }
+
+  .car-radio {
+    bottom: 96px;
+  }
+}

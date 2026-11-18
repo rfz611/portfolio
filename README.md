@@ -4,22 +4,24 @@ Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne
 
 ![A sala, vista do sofá](docs/prints/readme/home-desktop-sala.png)
 
-> Em construção: falta a garagem com o carro (skills e contato) e o acabamento final. A especificação completa está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
+> Em construção: falta o acabamento final. A especificação completa está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
 
 ## O que tem em cada canto
 
-| Lugar      | Objeto                     | O que abre                                                                                                                               |
-| ---------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Sala       | TV de tubo                 | Os projetos, um por canal, com vídeo, tecnologias e link                                                                                 |
-| Sala       | Toca-discos e estante      | As músicas que eu gosto, tocando de verdade (capa, faixa, volume)                                                                        |
-| Sala       | Revistas na mesa de centro | Os certificados, cada um como capa de revista                                                                                            |
-| Escritório | Notebook                   | Sobre mim, formação e experiência                                                                                                        |
-| Escritório | Papéis na mesa             | O currículo em PDF, para ler ou baixar                                                                                                   |
-| Escritório | Gaveta do meio (sentado)   | Um segredo riscado no fundo                                                                                                              |
-| Poltrona   | Livros na mesinha          | Meus filmes favoritos, com o que eu acho de cada um                                                                                      |
-| Bar        | Garrafas                   | Um drink servido no balcão (whisky, martini ou negroni)                                                                                  |
-| Janela     | A cidade                   | Anúncios do UniCar e da Automação de Frotas que levam ao canal certo da TV, cinema, clube de jazz, cassino, hotel e coberturas com festa |
-| Garagem    | Carro                      | Skills e contato (em construção)                                                                                                         |
+| Lugar      | Objeto                          | O que abre                                                                                                                               |
+| ---------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Sala       | TV de tubo                      | Os projetos, um por canal, com vídeo, tecnologias e link                                                                                 |
+| Sala       | Toca-discos e estante           | As músicas que eu gosto, tocando de verdade (capa, faixa, volume)                                                                        |
+| Sala       | Revistas na mesa de centro      | Os certificados, cada um como capa de revista                                                                                            |
+| Escritório | Notebook                        | Sobre mim, formação e experiência                                                                                                        |
+| Escritório | Papéis na mesa                  | O currículo em PDF, para ler ou baixar                                                                                                   |
+| Escritório | Gaveta do meio (sentado)        | Um segredo riscado no fundo                                                                                                              |
+| Poltrona   | Livros na mesinha               | Meus filmes favoritos, com o que eu acho de cada um                                                                                      |
+| Bar        | Garrafas                        | Um drink servido no balcão (whisky, martini ou negroni)                                                                                  |
+| Janela     | A cidade                        | Anúncios do UniCar e da Automação de Frotas que levam ao canal certo da TV, cinema, clube de jazz, cassino, hotel e coberturas com festa |
+| Garagem    | Carro (capô)                    | As skills: cada peça do motor é um grupo de tecnologias                                                                                  |
+| Garagem    | Carro (porta ou chaves na mesa) | Entra no carro: o rádio tem os contatos nas estações (e-mail, LinkedIn, GitHub, currículo) e o porta-luvas guarda o currículo            |
+| Garagem    | Faróis                          | Ligam e desligam; acesos, iluminam o chão até a sala                                                                                     |
 
 Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círculos do chão e trocar de lugar pelas setas da legenda. Quem prefere ler tem o **menu de texto**, com o portfólio inteiro em HTML, e tudo existe em português e inglês.
 
@@ -114,7 +116,7 @@ As capas de discos, as músicas e os títulos de filmes pertencem aos seus donos
 
 # 3D Portfolio — Raphael Scharf Passos
 
-An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-era games. Every object opens a part of the portfolio: the CRT TV shows the projects (one per channel), the laptop tells who I am, the magazines are my certificates, the turntable really plays, the books by the armchair hold notes on my favorite films, and through the window the city advertises my projects (click a billboard to jump to its TV channel). The garage with the car (skills and contact) is still being built.
+An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-era games. Every object opens a part of the portfolio: the CRT TV shows the projects (one per channel), the laptop tells who I am, the magazines are my certificates, the turntable really plays, the books by the armchair hold notes on my favorite films, and through the window the city advertises my projects (click a billboard to jump to its TV channel). In the garage, the car holds the skills under the hood and the contacts on the radio.
 
 Everything is modeled in code, low poly with canvas-painted textures, with React Three Fiber, TypeScript and Vite. There is a plain-HTML text menu with the whole portfolio, in Portuguese and English.
 

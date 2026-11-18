@@ -70,6 +70,15 @@ export interface SceneState {
   drinkServed: boolean;
   /** Ponto do mundo para onde a câmera vira o olhar (ex.: dentro da gaveta aberta). */
   glance: [number, number, number] | null;
+  /** Peça do motor clicada (grupo de skills em content/skills.ts). */
+  skill: 'languages' | 'backend' | 'frontend' | 'databases' | 'tools' | null;
+  setSkill: (skill: SceneState['skill']) => void;
+  /** Faróis do carro acesos? */
+  headlights: boolean;
+  /** Frequência sintonizada no rádio do carro (FM, 87,5 a 108). */
+  radioFreq: number;
+  setRadioFreq: (freq: number) => void;
+  toggleHeadlights: () => void;
   /** Ficha de filme aberta no canto da poltrona. */
   dossier: 'magnolia' | 'donnie' | 'arrival' | null;
   setDossier: (dossier: 'magnolia' | 'donnie' | 'arrival' | null) => void;
@@ -126,7 +135,8 @@ export const useScene = create<SceneState>()(
       loadProgress: 0,
       ready: false,
 
-      setView: (view) => set({ view, hovered: null, magazine: null, cvOpen: false, dossier: null }),
+      setView: (view) =>
+        set({ view, hovered: null, magazine: null, cvOpen: false, dossier: null, skill: null }),
       setSpot: (spot) => set({ spot, view: 'home', hovered: null, dossier: null }),
       setMode: (mode) => set({ mode }),
       setHovered: (hovered) => set({ hovered }),
@@ -140,6 +150,9 @@ export const useScene = create<SceneState>()(
       drink: null,
       drinkServed: false,
       glance: null,
+      skill: null,
+      headlights: false,
+      radioFreq: 88.1,
       tvChannel: 0,
       magazine: null,
       tableLamp: true,
@@ -154,6 +167,10 @@ export const useScene = create<SceneState>()(
         set((s) => ({ drink: { kind, order: (s.drink?.order ?? 0) + 1 }, drinkServed: false })),
       setDrinkServed: (drinkServed) => set({ drinkServed }),
       setGlance: (glance) => set({ glance }),
+      setSkill: (skill) => set({ skill }),
+      toggleHeadlights: () => set((s) => ({ headlights: !s.headlights })),
+      setRadioFreq: (radioFreq) =>
+        set({ radioFreq: Math.round(clamp(radioFreq, 87.5, 108) * 10) / 10 }),
       setDeck: (deck, trackId) =>
         set((s) => ({
           deck,

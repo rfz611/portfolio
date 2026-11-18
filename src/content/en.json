@@ -110,7 +110,9 @@
     "partIntake": "Air intake",
     "partRadiator": "Radiator",
     "partBattery": "Battery",
-    "partFuses": "Fuse box"
+    "partFuses": "Fuse box",
+    "hint": "Hover the engine parts and click to see the technologies",
+    "pick": "Pick an engine part"
   },
   "contact": {
     "title": "Contact",
@@ -161,7 +163,8 @@
     "janela": "Window",
     "geral": "Overview",
     "cadeira": "Office chair",
-    "poltrona": "Lounge chair"
+    "poltrona": "Lounge chair",
+    "garagem": "Garage"
   },
   "nav3d": {
     "prev": "Previous spot",
@@ -200,7 +203,11 @@
     "ad": {
       "unicar": "UniCar · watch on TV",
       "frotas": "Fleet Automation · watch on TV"
-    }
+    },
+    "hood": "hood · skills",
+    "door": "door · get in the car",
+    "headlights": "headlights",
+    "glovebox": "glovebox · résumé"
   },
   "films": {
     "magnolia": {
@@ -218,5 +225,18 @@
     "frotasTag": "Fleet policy PDFs become a standard spreadsheet",
     "channel": "Channel",
     "tonight": "Tonight"
+  },
+  "radio": {
+    "hint": "Turn the dial (drag, mouse wheel or ← →) to find the stations",
+    "ok": "OK",
+    "noise": "static",
+    "tuned": "tuned in",
+    "open": "open",
+    "copy": "copy e-mail",
+    "copied": "e-mail copied",
+    "stations": "stations"
+  },
+  "car": {
+    "hint": "Click the hood, the door or the headlights"
   }
 }
