@@ -82,6 +82,14 @@
     "tip": "double-click to open",
     "tipTouch": "tap to open"
   },
+  "dossier": {
+    "film": "Favorite film",
+    "interest": "Away from code",
+    "director": "directed by",
+    "giTitle": "Jiu-jitsu",
+    "giSub": "Gi and black belt",
+    "notesSoon": "Raphael's notes coming soon."
+  },
   "certificates": {
     "title": "Certificates",
     "inProgress": "in progress",
@@ -156,7 +164,8 @@
     "bar": "Bar",
     "janela": "Window",
     "geral": "Overview",
-    "cadeira": "Office chair"
+    "cadeira": "Office chair",
+    "poltrona": "Lounge chair"
   },
   "nav3d": {
     "prev": "Previous spot",
@@ -185,6 +194,8 @@
     "papers": "résumé",
     "photo": "photo · coming soon",
     "kimono": "jiu-jitsu gi",
+    "book": "book",
+    "lounge": "sit in the lounge chair",
     "storm": "Rembrandt · The Storm on the Sea of Galilee (1633)",
     "nativity": "Caravaggio · Nativity with St. Francis and St. Lawrence (1600)",
     "lampOn": "turn the lamp on",

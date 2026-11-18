@@ -4,7 +4,11 @@ import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PIT, PIT_SEAT, PIT_SOFA_X0, PIT_STEPS, SPOT } from '../config/layout';
 import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
-import { FoldedGi, LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
+import { LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
+import { FilmBooks, HangingGi } from '../objects/ReadingProps';
+import { SPOTS } from '../camera/spots';
+import { Interactive } from '../objects/Interactive';
+import { useScene } from '../store/useScene';
 import { LooseGloves } from '../objects/PersonalItems';
 import { Magazines } from '../objects/Magazines';
 import { JewelryTray, MushroomLamp, RedAshtray } from '../objects/TableSet';
@@ -408,9 +412,14 @@ function ArcLamp({
   );
 }
 
+/** Ponto de vista sentado na poltrona lounge. */
+const READING_SPOT = SPOTS.findIndex((s) => s.id === 'poltrona');
+
 /** Sala rebaixada: sofá embutido, degraus, tapete persa, mesa de centro e a luminária de arco. */
 export function Lounge() {
   const { mat } = lib();
+  const home = useScene((s) => s.view === 'home');
+  const spot = useScene((s) => s.spot);
   const [tx, ty, tz] = SPOT.table;
   const [ax, ay, az] = SPOT.armchair;
   const armYaw = Math.atan2(PIT.x0 - ax + 0.4, 0.6 - az);
@@ -445,17 +454,29 @@ export function Lounge() {
       {/* canto de leitura: poltrona lounge virada para o rebaixo, o banquinho com
           o kimono dobrado, a mesinha de canto e a luminária de arco por cima */}
       <group position={[ax, ay, az]} rotation={[0, armYaw, 0]} name="reading-corner">
-        <OptionalModel file="armchair.glb">
-          <LoungeChair />
-        </OptionalModel>
+        {/* clicar na poltrona: senta nela, olhando a mesinha */}
+        <Interactive
+          id="lounge"
+          label="objects.lounge"
+          enabled={home && spot !== READING_SPOT}
+          onClick={() => useScene.getState().setSpot(READING_SPOT)}
+        >
+          <OptionalModel file="armchair.glb">
+            <LoungeChair />
+          </OptionalModel>
+        </Interactive>
         <group position={[0, 0, 0.88]} rotation={[0, Math.PI, 0]}>
           <Ottoman />
         </group>
-        <group position={[0.02, 0.43, 0.86]} rotation={[-0.05, 0.25, 0]}>
-          <FoldedGi />
-        </group>
         <group position={[-0.66, 0, 0.12]}>
           <TrayTable />
+          <group position={[0.02, 0.505, 0.07]}>
+            <FilmBooks />
+          </group>
+        </group>
+        {/* kimono pendurado aberto no cabide de pé, ao lado da mesinha */}
+        <group position={[-0.95, 0, 0.55]} rotation={[0, Math.PI / 2 + 0.35, 0]}>
+          <HangingGi />
         </group>
         <ArcLamp base={[0.12, -0.78]} aim={[0.02, 0.22]} height={1.72} />
         <mesh position={[0, 0.005, 0.3]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>

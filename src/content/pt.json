@@ -82,6 +82,14 @@
     "tip": "clique duas vezes para abrir",
     "tipTouch": "toque para abrir"
   },
+  "dossier": {
+    "film": "Filme favorito",
+    "interest": "Fora do código",
+    "director": "direção de",
+    "giTitle": "Jiu-jitsu",
+    "giSub": "Kimono e faixa preta",
+    "notesSoon": "Notas do Raphael em breve."
+  },
   "certificates": {
     "title": "Certificados",
     "inProgress": "em estudo",
@@ -156,7 +164,8 @@
     "bar": "Bar",
     "janela": "Janela",
     "geral": "Vista geral",
-    "cadeira": "Cadeira do escritório"
+    "cadeira": "Cadeira do escritório",
+    "poltrona": "Poltrona"
   },
   "nav3d": {
     "prev": "Lugar anterior",
@@ -185,6 +194,8 @@
     "papers": "currículo",
     "photo": "foto · em breve",
     "kimono": "kimono de jiu-jitsu",
+    "book": "livro",
+    "lounge": "sentar na poltrona",
     "storm": "Rembrandt · A Tempestade no Mar da Galileia (1633)",
     "nativity": "Caravaggio · Natividade com São Francisco e São Lourenço (1600)",
     "lampOn": "acender a luminária",

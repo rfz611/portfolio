@@ -68,6 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Ficha aberta no canto da poltrona (um filme ou o kimono). */
+  dossier: 'magnolia' | 'donnie' | 'arrival' | 'gi' | null;
+  setDossier: (dossier: 'magnolia' | 'donnie' | 'arrival' | 'gi' | null) => void;
   /** Folha do currículo aberta (clicando nos papéis da mesa)? */
   cvOpen: boolean;
   setCvOpen: (open: boolean) => void;
@@ -120,8 +123,8 @@ export const useScene = create<SceneState>()(
       loadProgress: 0,
       ready: false,
 
-      setView: (view) => set({ view, hovered: null, magazine: null, cvOpen: false }),
-      setSpot: (spot) => set({ spot, view: 'home', hovered: null }),
+      setView: (view) => set({ view, hovered: null, magazine: null, cvOpen: false, dossier: null }),
+      setSpot: (spot) => set({ spot, view: 'home', hovered: null, dossier: null }),
       setMode: (mode) => set({ mode }),
       setHovered: (hovered) => set({ hovered }),
       setLang: (lang) => set({ lang }),
@@ -137,6 +140,8 @@ export const useScene = create<SceneState>()(
       magazine: null,
       tableLamp: true,
       cvOpen: false,
+      dossier: null,
+      setDossier: (dossier) => set({ dossier }),
       setCvOpen: (cvOpen) => set({ cvOpen }),
       toggleTableLamp: () => set((s) => ({ tableLamp: !s.tableLamp })),
       setMagazine: (magazine) => set({ magazine }),
