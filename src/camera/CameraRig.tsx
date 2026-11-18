@@ -42,6 +42,28 @@ export function CameraRig() {
     at: new THREE.Vector3(),
   });
 
+  // olhar para um ponto pedido pela cena (ex.: a gaveta aberta) e voltar depois
+  useEffect(
+    () =>
+      useScene.subscribe((state, prev) => {
+        if (state.glance === prev.glance) return;
+        const l = look.current;
+        const r = rig.current;
+        if (!state.glance) {
+          l.yaw = 0;
+          l.pitch = 0;
+          return;
+        }
+        const d0 = tmp.current.dir.copy(r.target).sub(r.position);
+        const d1 = new THREE.Vector3(...state.glance).sub(r.position);
+        const elev = (d: THREE.Vector3) => Math.atan2(d.y, Math.hypot(d.x, d.z));
+        l.yaw = Math.atan2(d1.x, d1.z) - Math.atan2(d0.x, d0.z);
+        l.yaw = Math.atan2(Math.sin(l.yaw), Math.cos(l.yaw));
+        l.pitch = elev(d1) - elev(d0);
+      }),
+    [],
+  );
+
   // olhar em volta arrastando (só no plano inicial)
   useEffect(() => {
     const l = look.current;

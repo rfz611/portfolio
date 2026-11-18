@@ -84,8 +84,7 @@
   },
   "dossier": {
     "film": "Favorite film",
-    "director": "directed by",
-    "notesSoon": "Raphael's notes coming soon."
+    "director": "directed by"
   },
   "certificates": {
     "title": "Certificates",
@@ -198,5 +197,16 @@
     "lampOff": "turn the lamp off",
     "jacket": "style · coming soon",
     "clock": "local time"
+  },
+  "films": {
+    "magnolia": {
+      "notes": "A chaotic, dramatic mosaic of lives crossing in Los Angeles in surreal ways. Intense, suffocating and full of broken people begging for a drop of peace."
+    },
+    "donnie": {
+      "notes": "A cult classic about a lonely teenager dealing with the silhouette of a giant rabbit in the 80s. It mixes delirium, time travel and a damn melancholic atmosphere that leaves you thinking for days."
+    },
+    "arrival": {
+      "notes": "Science fiction that is not about guns or explosions, but about the weight of time and communication. Language is the wildest weapon here, and the ending hits your head hard."
+    }
   }
 }

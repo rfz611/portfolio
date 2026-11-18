@@ -84,8 +84,7 @@
   },
   "dossier": {
     "film": "Filme favorito",
-    "director": "direção de",
-    "notesSoon": "Notas do Raphael em breve."
+    "director": "direção de"
   },
   "certificates": {
     "title": "Certificados",
@@ -198,5 +197,16 @@
     "lampOff": "apagar a luminária",
     "jacket": "estilo · em breve",
     "clock": "hora certa"
+  },
+  "films": {
+    "magnolia": {
+      "notes": "Um mosaico caótico e dramático sobre vidas que se cruzam em Los Angeles de forma surreal. É intenso, sufocante e cheio de gente quebrada implorando por um pingo de paz."
+    },
+    "donnie": {
+      "notes": "Um clássico cult sobre um adolescente solitário lidando com uma silhueta de coelho gigante nos anos 80. Mistura delírio, viagem no tempo e uma atmosfera melancólica fudida que te deixa pensando por dias."
+    },
+    "arrival": {
+      "notes": "Ficção científica que não é sobre tiro nem explosão, mas sobre o peso do tempo e comunicação. Linguagem é a arma mais louca que existe aqui, e o final pega pesado com a sua cabeça."
+    }
   }
 }

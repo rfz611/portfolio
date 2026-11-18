@@ -4,8 +4,7 @@ import { useScene } from '../store/useScene';
 
 /**
  * Ficha que abre ao clicar num livro (filme favorito), no canto da
- * poltrona. Mostra só fatos do filme e as notas do Raphael
- * (em breve, até ele escrever). Esc ou Fechar fecham.
+ * poltrona: ano, direção e o que o Raphael acha do filme. Esc ou Fechar fecham.
  */
 export function Dossier() {
   const { t } = useTranslation();
@@ -22,7 +21,7 @@ export function Dossier() {
         <p className="cv-sheet__role">
           {`${film.year} · ${t('dossier.director')} ${film.director}`}
         </p>
-        <p className="cv-sheet__phrase">{t('dossier.notesSoon')}</p>
+        <p className="cv-sheet__phrase">{t(`films.${film.id}.notes`)}</p>
         <div className="cv-sheet__actions">
           <span />
           <button type="button" className="cv-sheet__close" onClick={() => setDossier(null)}>

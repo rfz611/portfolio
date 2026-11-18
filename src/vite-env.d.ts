@@ -18,4 +18,6 @@ interface Window {
   __ready?: boolean;
   __fps?: number;
   __scene?: typeof import('./store/useScene').useScene;
+  /** Estado do R3F (câmera, cena), só em desenvolvimento. */
+  __three?: import('@react-three/fiber').RootState;
 }

@@ -68,6 +68,8 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Ponto do mundo para onde a câmera vira o olhar (ex.: dentro da gaveta aberta). */
+  glance: [number, number, number] | null;
   /** Ficha de filme aberta no canto da poltrona. */
   dossier: 'magnolia' | 'donnie' | 'arrival' | null;
   setDossier: (dossier: 'magnolia' | 'donnie' | 'arrival' | null) => void;
@@ -85,6 +87,7 @@ export interface SceneState {
   setTvChannel: (channel: number) => void;
   orderDrink: (kind: 'whisky' | 'martini' | 'negroni') => void;
   setDrinkServed: (served: boolean) => void;
+  setGlance: (glance: [number, number, number] | null) => void;
   setDeck: (deck: DeckState, trackId?: string) => void;
   setAvailability: (id: string, value: Availability) => void;
   setLoadProgress: (progress: number) => void;
@@ -136,6 +139,7 @@ export const useScene = create<SceneState>()(
       requestTrack: (id) => set({ requestedTrackId: id, deck: 'changing' }),
       drink: null,
       drinkServed: false,
+      glance: null,
       tvChannel: 0,
       magazine: null,
       tableLamp: true,
@@ -149,6 +153,7 @@ export const useScene = create<SceneState>()(
       orderDrink: (kind) =>
         set((s) => ({ drink: { kind, order: (s.drink?.order ?? 0) + 1 }, drinkServed: false })),
       setDrinkServed: (drinkServed) => set({ drinkServed }),
+      setGlance: (glance) => set({ glance }),
       setDeck: (deck, trackId) =>
         set((s) => ({
           deck,

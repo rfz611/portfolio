@@ -8,7 +8,7 @@ import { Interactive } from '../objects/Interactive';
 import { DeskPhone, Mug, Notebook } from '../objects/DeskItems';
 import { paintLaptopKeys, paintLaptopScreen } from '../textures/laptop';
 import { LaptopContent } from '../objects/LaptopContent';
-import { ChairSeat, Drawer, PhotoFrame, Steam } from '../objects/OfficeProps';
+import { ChairSeat, Drawer, Newspaper, PhotoFrame, Steam } from '../objects/OfficeProps';
 import { useSeated } from '../objects/seat';
 import { useScene } from '../store/useScene';
 import { paintApple } from '../textures/apple';
@@ -32,7 +32,6 @@ function ExecutiveDesk() {
     const pulls: THREE.BufferGeometry[] = [];
     for (const x of [-0.82, 0.82]) {
       for (const y of [0.16, 0.38, 0.6]) {
-        if (x < 0 && y > 0.5) continue; // essa é a gaveta que abre (OfficeProps)
         drawers.push(box([0.46, 0.19, 0.02], [x, y, -0.475]));
         pulls.push(cyl(0.006, 0.006, 0.12, [x, y, -0.49], { seg: 6, rot: [0, 0, HALF_PI] }));
       }
@@ -388,6 +387,10 @@ function DeskClutter() {
       </group>
       <group position={[-0.5, 0.002, 0.28]} rotation={[0, -0.35, 0]}>
         <PhotoFrame />
+      </group>
+      {/* jornal da noite dobrado na mesa */}
+      <group position={[-0.16, 0.002, 0.24]} rotation={[0, 2.75, 0]}>
+        <Newspaper />
       </group>
     </group>
   );

@@ -105,6 +105,9 @@ export default function Experience() {
       gl={{ antialias: false, powerPreference: 'high-performance', stencil: false }}
       camera={{ fov: 36, near: 0.08, far: 900, position: [0, 9, 17] }}
       onPointerMissed={() => useScene.getState().setHovered(null)}
+      onCreated={(state) => {
+        if (import.meta.env.DEV) window.__three = state;
+      }}
     >
       <color attach="background" args={['#04050d']} />
       {autoQuality && (
