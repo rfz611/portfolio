@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { playClick } from '../audio/player';
+import { useScene } from '../store/useScene';
+import { paintGiDisplay } from '../textures/gi';
 import * as THREE from 'three';
 import { PIT, ROOM } from '../config/layout';
 import { palette } from '../config/palette';
@@ -138,7 +140,17 @@ function SideTable({ position }: { position: V3 }) {
  * Luminária de quadro de latão (barra com cúpula comprida) presa em cima da
  * moldura, com um spot quente estreito apontado para a pintura.
  */
-function PictureLight({ width, height, on }: { width: number; height: number; on: boolean }) {
+function PictureLight({
+  width,
+  height,
+  on,
+  strength = 14,
+}: {
+  width: number;
+  height: number;
+  on: boolean;
+  strength?: number;
+}) {
   const { mat } = lib();
   const light = useMemo(() => new THREE.SpotLight(), []);
   const geo = useMemo(
@@ -166,15 +178,15 @@ function PictureLight({ width, height, on }: { width: number; height: number; on
       <mesh geometry={geo.glow} material={glow} />
       <primitive
         object={light}
-        position={[0, height / 2 + 0.1, 0.32]}
+        position={[0, height / 2 + 0.1, 0.7]}
         color="#ffd2a0"
-        intensity={on ? 12 : 0}
-        angle={0.62}
+        intensity={on ? strength : 0}
+        angle={0.75}
         penumbra={0.8}
         distance={3}
         decay={1.6}
       />
-      <primitive object={light.target} position={[0, -0.05, 0]} />
+      <primitive object={light.target} position={[0, -height * 0.3, 0]} />
     </group>
   );
 }
@@ -191,7 +203,13 @@ function LitPainting({
   position,
   rotationY,
   frame,
+  onClick,
+  light,
 }: {
+  /** Força da luz de quadro (padrão 14). */
+  light?: number;
+  /** Clique próprio (no lugar de acender/apagar a luz). */
+  onClick?: () => void;
   id: string;
   label: string;
   map: THREE.Texture;
@@ -207,13 +225,17 @@ function LitPainting({
         id={id}
         label={label}
         onClick={() => {
+          if (onClick) {
+            onClick();
+            return;
+          }
           playClick();
           setOn((v) => !v);
         }}
       >
         <Painting map={map} size={size} position={[0, 0, 0]} rotationY={0} frame={frame} />
       </Interactive>
-      <PictureLight width={size[0]} height={size[1]} on={on} />
+      <PictureLight width={size[0]} height={size[1]} on={on} strength={light} />
     </group>
   );
 }
@@ -221,12 +243,29 @@ function LitPainting({
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const pieces = art();
+  const giMap = useMemo(
+    () => tex(makeCanvas(500, 600, paintGiDisplay), { clamp: true, aniso: 8 }),
+    [],
+  );
   const south = ROOM.z1 - 0.02;
   const west = ROOM.x0 + 0.02;
   return (
     <group name="decor">
       {/* parede do fundo (sul), de frente para quem senta à escrivaninha:
           três quadros de filmes favoritos entre as arandelas e a paisagem à direita */}
+      {/* kimono de jiu-jitsu emoldurado (aberto, com a faixa preta), na parede atrás
+          da poltrona de leitura, com luz de quadro; clicar abre a ficha do jiu-jitsu */}
+      <LitPainting
+        id="kimono"
+        label="objects.kimono"
+        map={giMap}
+        size={[0.85, 1.02]}
+        position={[-3.45, 2.08, south]}
+        rotationY={Math.PI}
+        frame="wood"
+        onClick={() => useScene.getState().setDossier('gi')}
+        light={4.5}
+      />
       {/* Rembrandt largo entre as arandelas, moldura pesada de madeira e luz de quadro */}
       <LitPainting
         id="storm"

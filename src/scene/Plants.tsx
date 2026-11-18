@@ -94,7 +94,7 @@ const PLANTS: Spot[] = [
   { kind: 'monstera', at: [SPOT.monstera[0], 0, SPOT.monstera[2]], scale: 1.1, yaw: 0.6 },
   { kind: 'palm', at: [-5.45, 0, -4.05], scale: 1.25, yaw: 1.2 },
   { kind: 'palm', at: [5.55, 0, -4.1], scale: 1.0, yaw: 0.4 },
-  { kind: 'palm', at: [-3.85, 0, 4.1], scale: 1.1, yaw: 2.8 },
+  { kind: 'palm', at: [-5.35, 0, 4.0], scale: 1.1, yaw: 2.8 },
   { kind: 'monstera', at: [1.35, 0, 4.1], scale: 0.9, yaw: 3.6 },
   { kind: 'palm', at: [4.15, 0, 4.1], scale: 0.85, yaw: 5.1 },
 ];

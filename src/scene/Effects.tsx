@@ -3,7 +3,6 @@ import {
   BrightnessContrast,
   HueSaturation,
   EffectComposer,
-  N8AO,
   Noise,
   Outline,
   Sepia,
@@ -42,18 +41,8 @@ export function Effects() {
 
   return (
     <EffectComposer multisampling={tier.msaa} autoClear={false}>
-      {tier.heavy ? (
-        <N8AO
-          halfRes
-          aoRadius={0.55}
-          distanceFalloff={0.6}
-          intensity={2.4}
-          quality="low"
-          color="#03020a"
-        />
-      ) : (
-        <></>
-      )}
+      {/* sem sombreamento de contato (N8AO): na borda da tela ele escurecia o que
+          estava ali (o quadro apagava quando a vista se mexia) */}
       <Outline
         blur
         edgeStrength={2.6}

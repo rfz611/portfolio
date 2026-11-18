@@ -47,7 +47,7 @@ export const SPOTS: Spot[] = [
     id: 'cadeira',
     label: 'spots.cadeira',
     position: [-3.23, 1.2, -3.78],
-    target: [-3.25, 0.78, -2.55],
+    target: [-3.25, 0.86, -2.55],
     hfov: 80,
     portrait: { hfov: 66, target: [-3.25, 0.6, -2.6] },
     marker: null,

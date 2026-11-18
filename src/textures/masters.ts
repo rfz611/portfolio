@@ -110,8 +110,8 @@ export function paintStormGalilee(ctx: Ctx, w: number, h: number) {
 
   // mar escuro esverdeado
   const sea = ctx.createLinearGradient(0, h * 0.55, 0, h);
-  sea.addColorStop(0, '#2d3328');
-  sea.addColorStop(1, '#0d100c');
+  sea.addColorStop(0, '#46503d');
+  sea.addColorStop(1, '#1e241b');
   ctx.fillStyle = sea;
   ctx.beginPath();
   ctx.moveTo(0, h * 0.62);
@@ -234,7 +234,7 @@ export function paintStormGalilee(ctx: Ctx, w: number, h: number) {
   // escurece as bordas como verniz velho
   const vignette = ctx.createRadialGradient(w * 0.4, h * 0.45, w * 0.2, w * 0.5, h * 0.5, w * 0.85);
   vignette.addColorStop(0, 'rgba(0,0,0,0)');
-  vignette.addColorStop(1, 'rgba(8,5,2,0.75)');
+  vignette.addColorStop(1, 'rgba(8,5,2,0.5)');
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, w, h);
   grain(ctx, w, h, { seed: 33, fine: 0.07, low: 0.05 });
