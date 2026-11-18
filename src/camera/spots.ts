@@ -53,7 +53,7 @@ export const SPOTS: Spot[] = [
     marker: null,
   },
   {
-    // sentado na poltrona lounge, olhando a mesinha com os livros e o kimono no cabide
+    // sentado na poltrona lounge, olhando a sala, com a mesinha dos livros ao lado
     id: 'poltrona',
     label: 'spots.poltrona',
     // recostado na poltrona, um pouco acima e atrás: a sala na frente e a

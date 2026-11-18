@@ -3,10 +3,8 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { box, crease, cyl, lathe, merge } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
-import { paintFoldedGi } from '../textures/gi';
 import { hdr, lib } from '../textures/library';
 import { paintLeather } from '../textures/surfaces';
-import { Interactive } from './Interactive';
 
 const HALF_PI = Math.PI / 2;
 
@@ -143,79 +141,6 @@ export function Ottoman() {
         <mesh geometry={geo.cushion} material={leather.tufted} />
       </group>
     </group>
-  );
-}
-
-/**
- * Kimono de jiu-jitsu dobrado em cima do banquinho, aberto: a gola em V
- * mostra a camada de dentro e a faixa preta dando a volta e
- * amarrada em cima, com as duas pontas caindo.
- */
-export function FoldedGi() {
-  const geo = useMemo(() => {
-    const block = new RoundedBoxGeometry(0.36, 0.075, 0.27, 3, 0.02).toNonIndexed();
-    block.clearGroups();
-    return {
-      block: block.translate(0, 0.0375, 0),
-      // gola dobrada por cima, uma faixa mais grossa ao longo da frente
-      // gola aberta em V: as duas lapelas grossas saem da nuca (atrás) e se
-      // afastam para a frente, mostrando a camada de dentro do kimono
-      collar: merge(
-        [1, -1].map((side) => {
-          const g = new RoundedBoxGeometry(0.05, 0.014, 0.28, 2, 0.006).toNonIndexed();
-          g.clearGroups();
-          return g.rotateY(side * 0.45).translate(side * 0.062, 0.081, 0.004);
-        }),
-      ),
-      inside: new THREE.ShapeGeometry(
-        new THREE.Shape([
-          new THREE.Vector2(0, 0.12),
-          new THREE.Vector2(-0.1, -0.125),
-          new THREE.Vector2(0.1, -0.125),
-        ]),
-      )
-        .rotateX(-HALF_PI)
-        .translate(0, 0.0758, 0),
-      belt: merge([
-        box([0.045, 0.004, 0.276], [0.02, 0.077, 0]),
-        box([0.045, 0.079, 0.004], [0.02, 0.0375, 0.137]),
-        box([0.045, 0.079, 0.004], [0.02, 0.0375, -0.137]),
-      ]),
-      knot: crease(box([0.06, 0.022, 0.05], [0.02, 0.088, 0.0], { rot: [0, 0.5, 0] }), 30),
-      tails: merge([
-        box([0.042, 0.006, 0.17], [-0.04, 0.083, 0.05], { rot: [0.05, 0.55, 0] }),
-        box([0.042, 0.006, 0.16], [0.09, 0.083, 0.06], { rot: [0.05, -0.35, 0] }),
-      ]),
-    };
-  }, []);
-  const mats = useMemo(() => {
-    const map = tex(makeCanvas(256, 256, paintFoldedGi), { clamp: true });
-    return {
-      cloth: new THREE.MeshStandardMaterial({ map, roughness: 0.92, envMapIntensity: 0.3 }),
-      inside: new THREE.MeshStandardMaterial({
-        map,
-        color: '#b9b2a6',
-        roughness: 0.95,
-        envMapIntensity: 0.2,
-      }),
-      belt: new THREE.MeshStandardMaterial({
-        color: '#121113',
-        roughness: 0.75,
-        envMapIntensity: 0.3,
-      }),
-    };
-  }, []);
-  return (
-    <Interactive id="kimono" label="objects.kimono">
-      <group name="folded-gi">
-        <mesh geometry={geo.block} material={mats.cloth} />
-        <mesh geometry={geo.inside} material={mats.inside} />
-        <mesh geometry={geo.collar} material={mats.cloth} />
-        <mesh geometry={geo.belt} material={mats.belt} />
-        <mesh geometry={geo.knot} material={mats.belt} />
-        <mesh geometry={geo.tails} material={mats.belt} />
-      </group>
-    </Interactive>
   );
 }
 

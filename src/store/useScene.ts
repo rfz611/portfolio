@@ -68,9 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
-  /** Ficha aberta no canto da poltrona (um filme ou o kimono). */
-  dossier: 'magnolia' | 'donnie' | 'arrival' | 'gi' | null;
-  setDossier: (dossier: 'magnolia' | 'donnie' | 'arrival' | 'gi' | null) => void;
+  /** Ficha de filme aberta no canto da poltrona. */
+  dossier: 'magnolia' | 'donnie' | 'arrival' | null;
+  setDossier: (dossier: 'magnolia' | 'donnie' | 'arrival' | null) => void;
   /** Folha do currículo aberta (clicando nos papéis da mesa)? */
   cvOpen: boolean;
   setCvOpen: (open: boolean) => void;

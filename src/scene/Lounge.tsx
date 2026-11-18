@@ -6,7 +6,6 @@ import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
 import { LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
 import { FilmBooks } from '../objects/ReadingProps';
-import { GiMannequin } from '../objects/GiMannequin';
 import { SPOTS } from '../camera/spots';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
@@ -430,10 +429,6 @@ export function Lounge() {
         <PitSofa />
       </OptionalModel>
       <PitSteps />
-      {/* kimono de jiu-jitsu vestido num manequim, de pé no canto da poltrona */}
-      <group position={[-2.25, 0, 4.0]} rotation={[0, 2.62, 0]}>
-        <GiMannequin />
-      </group>
       {/* luvas largadas no assento do lado sul, perto da ponta do sofá */}
       <group position={[-0.5, -PIT.depth + 0.47, PIT.z1 - 0.55]} rotation={[0, 0.3, 0]}>
         <LooseGloves />
@@ -457,7 +452,7 @@ export function Lounge() {
         </mesh>
       </group>
       {/* canto de leitura: poltrona lounge virada para o rebaixo, o banquinho com
-          o kimono dobrado, a mesinha de canto e a luminária de arco por cima */}
+          os livros dos filmes na mesinha de canto e a luminária de arco por cima */}
       <group position={[ax, ay, az]} rotation={[0, armYaw, 0]} name="reading-corner">
         {/* clicar na poltrona: senta nela, olhando a mesinha */}
         <Interactive

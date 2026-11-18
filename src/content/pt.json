@@ -84,10 +84,7 @@
   },
   "dossier": {
     "film": "Filme favorito",
-    "interest": "Fora do código",
     "director": "direção de",
-    "giTitle": "Jiu-jitsu",
-    "giSub": "Kimono e faixa preta",
     "notesSoon": "Notas do Raphael em breve."
   },
   "certificates": {
@@ -193,7 +190,6 @@
     "drawer": "gaveta",
     "papers": "currículo",
     "photo": "foto · em breve",
-    "kimono": "kimono de jiu-jitsu",
     "book": "livro",
     "lounge": "sentar na poltrona",
     "storm": "Rembrandt · A Tempestade no Mar da Galileia (1633)",

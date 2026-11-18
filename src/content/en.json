@@ -84,10 +84,7 @@
   },
   "dossier": {
     "film": "Favorite film",
-    "interest": "Away from code",
     "director": "directed by",
-    "giTitle": "Jiu-jitsu",
-    "giSub": "Gi and black belt",
     "notesSoon": "Raphael's notes coming soon."
   },
   "certificates": {
@@ -193,7 +190,6 @@
     "drawer": "drawer",
     "papers": "résumé",
     "photo": "photo · coming soon",
-    "kimono": "jiu-jitsu gi",
     "book": "book",
     "lounge": "sit in the lounge chair",
     "storm": "Rembrandt · The Storm on the Sea of Galilee (1633)",
