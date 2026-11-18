@@ -290,3 +290,42 @@ export function paintPartyGlow(ctx: Ctx, w: number, h: number) {
     ctx.fillRect(0, 0, w, h);
   }
 }
+
+/**
+ * Um trecho de 25 m de rua vista de cima (16 m de largura): calçadas dos
+ * dois lados com meio-fio, asfalto molhado, faixa tracejada no meio e a
+ * poça de luz de sódio de um poste em cada calçada (alternados).
+ * A textura corre ao longo de v; u atravessa a rua.
+ */
+export function paintRoad(ctx: Ctx, w: number, h: number) {
+  const side = w * 0.125; // 2 m de calçada em 16 m
+  ctx.fillStyle = '#1d181b';
+  ctx.fillRect(0, 0, w, h);
+  // asfalto com granulado e manchas de água
+  const r = mulberry32(77);
+  for (let i = 0; i < 900; i++) {
+    ctx.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.18)';
+    ctx.fillRect(r() * w, r() * h, 1 + r() * 2, 1 + r() * 2);
+  }
+  // calçadas
+  ctx.fillStyle = '#3a3134';
+  ctx.fillRect(0, 0, side, h);
+  ctx.fillRect(w - side, 0, side, h);
+  ctx.fillStyle = '#3d3436';
+  ctx.fillRect(side - 1.5, 0, 1.5, h);
+  ctx.fillRect(w - side, 0, 1.5, h);
+  // faixa do meio, tracejada
+  ctx.fillStyle = 'rgba(214,190,120,0.55)';
+  for (let y = h * 0.06; y < h; y += h * 0.25) ctx.fillRect(w / 2 - 1, y, 2, h * 0.12);
+  // poças de luz dos postes: uma em cada calçada, alternadas
+  const pool = (x: number, y: number) => {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, w * 0.62);
+    g.addColorStop(0, 'rgba(255,165,75,0.85)');
+    g.addColorStop(0.45, 'rgba(255,135,55,0.32)');
+    g.addColorStop(1, 'rgba(255,120,40,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  };
+  pool(side * 0.6, h * 0.25);
+  pool(w - side * 0.6, h * 0.75);
+}

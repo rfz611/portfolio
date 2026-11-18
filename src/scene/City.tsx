@@ -6,16 +6,13 @@ import { ROOM, GARAGE } from '../config/layout';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
 import { makeCanvas, retile, tex } from '../textures/canvas';
-import { paintAd, paintNoirWindows, type AdKind, type AdWords } from '../textures/city';
+import { paintAd, paintNoirWindows, paintRoad, type AdKind, type AdWords } from '../textures/city';
 import { hdr, lib } from '../textures/library';
 import { mulberry32 } from '../textures/random';
-import { CENTER_X, FACADE_UV, GROUND_Y, ROOFTOPS } from './cityLayout';
+import { BLOCK, CENTER_X, FACADE_UV, GROUND_Y, PITCH, ROOFTOPS } from './cityLayout';
 import { box, merge } from './geo';
 import { Rooftops } from './Rooftops';
 
-/** Quadra de 64 m com ruas de 16 m. */
-const PITCH = 80;
-const BLOCK = 64;
 /** Distância entre carros na mesma avenida (o padrão que se repete). */
 const CAR_GAP = 40;
 
@@ -40,6 +37,8 @@ interface Ad {
   yaw: number;
   /** Anúncio de um projeto: clicando, a TV abre neste canal. */
   channel?: number;
+  /** Pendurado num prédio que já existe (sem prédio próprio atrás). */
+  bare?: boolean;
 }
 
 /**
@@ -47,13 +46,14 @@ interface Ad {
  * janela, os outros de lado, em prédios diferentes e alturas diferentes.
  */
 const ADS: Ad[] = [
-  { kind: 'unicar', at: [CENTER_X + 14, -18, -205], size: [40, 13], yaw: -0.06, channel: 0 },
-  { kind: 'frotas', at: [CENTER_X + 2, -36, -170], size: [30, 10], yaw: 0.04, channel: 1 },
-  { kind: 'lounge', at: [CENTER_X - 33, -22, -280], size: [26, 8.5], yaw: 0.04 },
-  { kind: 'cinema', at: [CENTER_X - 50, -6, -395], size: [32, 11], yaw: 0.25 },
-  { kind: 'hotel', at: [CENTER_X + 95, -30, -235], size: [5, 26], yaw: -0.4 },
-  { kind: 'casino', at: [CENTER_X - 200, -22, -290], size: [26, 10], yaw: 0.55 },
-  { kind: 'ristorante', at: [CENTER_X + 260, -26, -250], size: [28, 9], yaw: -0.75 },
+  { kind: 'unicar', at: [CENTER_X + 4, -18, -216], size: [40, 13], yaw: 0, channel: 0 },
+  { kind: 'frotas', at: [CENTER_X + 2, -36, -158], size: [30, 10], yaw: 0, channel: 1 },
+  { kind: 'lounge', at: [CENTER_X - 76, -22, -282], size: [26, 8.5], yaw: 0.12 },
+  { kind: 'cinema', at: [CENTER_X - 92, -6, -362], size: [32, 11], yaw: 0.18 },
+  // letreiro vertical na quina do hotel da festa (cobertura da direita)
+  { kind: 'hotel', at: [CENTER_X + 86, -56, -208.6], size: [5, 26], yaw: 0, bare: true },
+  { kind: 'casino', at: [CENTER_X - 160, -22, -282], size: [26, 10], yaw: 0.5 },
+  { kind: 'ristorante', at: [CENTER_X + 240, -26, -202], size: [28, 9], yaw: -0.6 },
 ];
 
 /** Torres marcantes ao fundo: topo iluminado em degraus e antena com luz vermelha. */
@@ -78,7 +78,7 @@ function reserved(x: number, z: number) {
   }
   for (const roof of ROOFTOPS) {
     const [rw, rd] = roof.size;
-    if (Math.abs(x - roof.at[0]) < rw / 2 + 30 && Math.abs(z - roof.at[1]) < rd / 2 + 30) {
+    if (Math.abs(x - roof.at[0]) < rw / 2 + 12 && Math.abs(z - roof.at[1]) < rd / 2 + 12) {
       return true;
     }
   }
@@ -91,6 +91,7 @@ function buildCity() {
   const litTops: THREE.BufferGeometry[] = [];
   const beacons: THREE.BufferGeometry[] = [];
   const spires: THREE.BufferGeometry[] = [];
+  const roofs: THREE.BufferGeometry[] = [];
 
   /** Prédio com recuos: base, um ou dois andares menores e às vezes uma antena. */
   const tower = (
@@ -113,6 +114,26 @@ function buildCity() {
       const g = box([cw, height, cd], [x, bottom + height / 2, z], { uv: FACADE_UV });
       if (lit && last) litTops.push(g);
       else group.push(tint(g, b));
+      if (last && !lit) {
+        roofs.push(box([cw + 0.8, 0.9, cd + 0.8], [x, top + 0.2, z]));
+        const ox = (r() - 0.5) * cw * 0.4;
+        const oz = (r() - 0.5) * cd * 0.4;
+        roofs.push(box([cw * 0.22, 3.2, cd * 0.18], [x + ox, top + 1.6, z + oz]));
+        if (r() > 0.45) {
+          const tx = x - ox * 0.8;
+          const tz = z - oz * 0.8;
+          roofs.push(new THREE.CylinderGeometry(1.8, 1.8, 3, 8).translate(tx, top + 4.5, tz));
+          roofs.push(new THREE.ConeGeometry(2, 0.9, 8).translate(tx, top + 6.45, tz));
+          for (const [lx, lz] of [
+            [-1.2, -1.2],
+            [1.2, -1.2],
+            [-1.2, 1.2],
+            [1.2, 1.2],
+          ]) {
+            roofs.push(box([0.25, 3, 0.25], [tx + lx, top + 1.5, tz + lz]));
+          }
+        }
+      }
       bottom += height;
       cw *= 0.72;
       cd *= 0.72;
@@ -151,33 +172,96 @@ function buildCity() {
     tower(x, z, w, w * 0.9, top, 0.85, true);
   }
 
-  // avenidas de luz de sódio e faróis de carro, no chão entre as quadras
-  const streets: THREE.BufferGeometry[] = [];
-  const cars: THREE.BufferGeometry[] = [];
-  const tails: THREE.BufferGeometry[] = [];
+  // ruas entre as quadras (16 m: asfalto e calçadas), postes de luz de
+  // sódio nas calçadas e carros andando nas faixas, sobre o asfalto
+  const ROAD = PITCH - BLOCK;
+  const TILE = 25;
   const length = 13 * PITCH + 200;
+  const roadsNS: THREE.BufferGeometry[] = [];
+  const roadsEW: THREE.BufferGeometry[] = [];
+  const lamps: THREE.BufferGeometry[] = [];
+  // carros: carroceria escura com faróis (vindo) ou lanternas (indo)
+  const comingBody: THREE.BufferGeometry[] = [];
+  const comingLights: THREE.BufferGeometry[] = [];
+  const comingBeams: THREE.BufferGeometry[] = [];
+  const goingBody: THREE.BufferGeometry[] = [];
+  const goingLights: THREE.BufferGeometry[] = [];
+  const car = (body: THREE.BufferGeometry[], x: number, z: number) => {
+    body.push(box([1.8, 0.7, 4.3], [x, GROUND_Y + 0.5, z]));
+    body.push(box([1.6, 0.55, 2.1], [x, GROUND_Y + 1.12, z + 0.2]));
+  };
+  const zStart = 40;
+  const lamp = (x: number, z: number) =>
+    lamps.push(new THREE.OctahedronGeometry(0.45).translate(x, GROUND_Y + 6, z));
   for (let gx = -8; gx <= 9; gx++) {
     const x = CENTER_X + gx * PITCH - PITCH / 2;
-    streets.push(box([1.4, 0.2, length], [x, GROUND_Y + 0.2, -length / 2 + 40]));
+    roadsNS.push(
+      new THREE.PlaneGeometry(ROAD, length)
+        .rotateX(-Math.PI / 2)
+        .translate(x, GROUND_Y + 0.05, zStart - length / 2),
+    );
+    // postes alinhados com as poças de luz da textura (v = 0 fica em zStart)
+    for (let k = 0; k * TILE < length; k++) {
+      const z0 = zStart - k * TILE;
+      lamp(x - ROAD / 2 + 1.2, z0 - TILE * 0.75);
+      lamp(x + ROAD / 2 - 1.2, z0 - TILE * 0.25);
+    }
     const phase = r() * CAR_GAP;
     for (let z = -20 - phase; z > -length; z -= CAR_GAP) {
-      cars.push(box([0.9, 0.3, 2.2], [x + 3, GROUND_Y + 0.4, z]));
-      tails.push(box([0.9, 0.3, 2.2], [x - 3, GROUND_Y + 0.4, z - CAR_GAP / 2]));
+      // farol (vem para cá) na faixa da direita, lanterna (vai embora) na outra
+      // vindo para cá (+z): faróis na frente e o facho no asfalto à frente
+      const cx = x + 2.6;
+      car(comingBody, cx, z);
+      for (const s of [-0.6, 0.6]) {
+        comingLights.push(box([0.35, 0.22, 0.12], [cx + s, GROUND_Y + 0.6, z + 2.18]));
+      }
+      comingBeams.push(
+        new THREE.PlaneGeometry(2.6, 9)
+          .rotateX(-Math.PI / 2)
+          .translate(cx, GROUND_Y + 0.08, z + 6.6),
+      );
+      // indo embora (-z): lanternas vermelhas atrás, viradas para a janela
+      const gx = x - 2.6;
+      const gz = z - CAR_GAP / 2;
+      car(goingBody, gx, gz);
+      for (const s of [-0.65, 0.65]) {
+        goingLights.push(box([0.4, 0.2, 0.12], [gx + s, GROUND_Y + 0.65, gz + 2.18]));
+      }
     }
   }
+  const widthEW = 17 * PITCH;
   for (let gz = 0; gz <= 13; gz++) {
-    const z = -40 - gz * PITCH + PITCH / 2 - PITCH;
-    streets.push(box([17 * PITCH, 0.2, 1.4], [CENTER_X, GROUND_Y + 0.2, z]));
+    const z = -40 - gz * PITCH + ROAD / 2;
+    roadsEW.push(
+      new THREE.PlaneGeometry(ROAD, widthEW)
+        .rotateX(-Math.PI / 2)
+        .rotateY(Math.PI / 2)
+        .translate(CENTER_X, GROUND_Y + 0.04, z),
+    );
+    for (let k = 0; k * TILE < widthEW; k++) {
+      // aqui v = 0 fica em x = CENTER_X + widthEW / 2 e a textura corre para -x
+      const x0 = CENTER_X + widthEW / 2 - k * TILE;
+      lamp(x0 - TILE * 0.75, z + ROAD / 2 - 1.2);
+      lamp(x0 - TILE * 0.25, z - ROAD / 2 + 1.2);
+    }
   }
 
   return {
     blocks: groups.map((g) => merge(g)),
     litTops: merge(litTops),
     spires: merge(spires),
+    roofs: merge(roofs),
     beacons: merge(beacons),
-    streets: merge(streets),
-    cars: merge(cars),
-    tails: merge(tails),
+    roadsNS: merge(roadsNS),
+    roadsEW: merge(roadsEW),
+    roadLength: length,
+    roadWidthEW: widthEW,
+    lamps: merge(lamps),
+    comingBody: merge(comingBody),
+    comingLights: merge(comingLights),
+    comingBeams: merge(comingBeams),
+    goingBody: merge(goingBody),
+    goingLights: merge(goingLights),
   };
 }
 
@@ -226,10 +310,23 @@ function AdBoard({ ad }: { ad: Ad }) {
     }),
     [w, h],
   );
-  const facade = mat.cityB;
+  // o prédio do anúncio tem janelas como os outros (não é um bloco preto)
+  const facade = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        map: tex(
+          makeCanvas(256, 256, (c, cw, ch) =>
+            paintNoirWindows(c, cw, ch, 300 + ad.kind.length * 7, 0.22),
+          ),
+          { aniso: 8 },
+        ),
+        color: '#8e8890',
+      }),
+    [ad.kind],
+  );
   return (
     <group position={ad.at} rotation={[0, ad.yaw, 0]}>
-      <mesh geometry={geo.building} material={facade} />
+      {!ad.bare && <mesh geometry={geo.building} material={facade} />}
       <mesh geometry={geo.frame} material={mat.darkMetal} />
       {ad.channel !== undefined ? (
         <Interactive
@@ -295,10 +392,37 @@ export function City() {
         toneMapped: false,
       }),
       spire: new THREE.MeshBasicMaterial({ color: '#2a2630' }),
-      street: new THREE.MeshBasicMaterial({ color: hdr('#ffa64a', 1.1), toneMapped: false }),
-      car: new THREE.MeshBasicMaterial({ color: hdr('#fff3dc', 1.3), toneMapped: false }),
-      tail: new THREE.MeshBasicMaterial({ color: hdr('#ff2a1a', 1.3), toneMapped: false }),
-      ground: new THREE.MeshBasicMaterial({ color: '#060405' }),
+      road: (repeat: number) =>
+        new THREE.MeshBasicMaterial({
+          map: tex(makeCanvas(64, 200, paintRoad), { aniso: 8, repeat: [1, repeat] }),
+          color: hdr('#ffffff', 1.5),
+        }),
+      lamp: new THREE.MeshBasicMaterial({ color: hdr('#ffb062', 2.2), toneMapped: false }),
+      roof: new THREE.MeshBasicMaterial({ color: '#171418' }),
+      car: new THREE.MeshBasicMaterial({ color: hdr('#fff3dc', 2.4), toneMapped: false }),
+      carBody: new THREE.MeshBasicMaterial({ color: '#16131a' }),
+      carBeam: new THREE.MeshBasicMaterial({
+        map: tex(
+          makeCanvas(32, 64, (c, w, h) => {
+            const g = c.createLinearGradient(0, h, 0, 0);
+            g.addColorStop(0, 'rgba(255,240,210,0.55)');
+            g.addColorStop(1, 'rgba(255,240,210,0)');
+            c.fillStyle = g;
+            c.beginPath();
+            c.moveTo(w * 0.3, h);
+            c.lineTo(w * 0.7, h);
+            c.lineTo(w, 0);
+            c.lineTo(0, 0);
+            c.fill();
+          }),
+          { clamp: true },
+        ),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+      tail: new THREE.MeshBasicMaterial({ color: hdr('#ff2a1a', 2.2), toneMapped: false }),
+      ground: new THREE.MeshBasicMaterial({ color: '#0b090c' }),
       beam: new THREE.MeshBasicMaterial({
         color: '#ffe2c0',
         transparent: true,
@@ -317,10 +441,12 @@ export function City() {
     };
   }, [mat, t]);
 
+  const roadNS = useMemo(() => mats.road(geo.roadLength / 25), [mats, geo]);
+  const roadEW = useMemo(() => mats.road(geo.roadWidthEW / 25), [mats, geo]);
   const beacon = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
   const base = useRef(hdr('#ff2418', 3));
-  const carsRef = useRef<THREE.Mesh>(null);
-  const tailsRef = useRef<THREE.Mesh>(null);
+  const carsRef = useRef<THREE.Group>(null);
+  const tailsRef = useRef<THREE.Group>(null);
   const beams = useRef<(THREE.Group | null)[]>([]);
   const beamGeo = useMemo(
     () => new THREE.CylinderGeometry(22, 1.2, 620, 18, 1, true).translate(0, 310, 0),
@@ -352,9 +478,18 @@ export function City() {
       >
         <planeGeometry args={[3000, 3000]} />
       </mesh>
-      <mesh geometry={geo.streets} material={mats.street} />
-      <mesh ref={carsRef} geometry={geo.cars} material={mats.car} />
-      <mesh ref={tailsRef} geometry={geo.tails} material={mats.tail} />
+      <mesh geometry={geo.roadsNS} material={roadNS} />
+      <mesh geometry={geo.roadsEW} material={roadEW} />
+      <mesh geometry={geo.lamps} material={mats.lamp} />
+      <group ref={carsRef}>
+        <mesh geometry={geo.comingBody} material={mats.carBody} />
+        <mesh geometry={geo.comingLights} material={mats.car} />
+        <mesh geometry={geo.comingBeams} material={mats.carBeam} />
+      </group>
+      <group ref={tailsRef}>
+        <mesh geometry={geo.goingBody} material={mats.carBody} />
+        <mesh geometry={geo.goingLights} material={mats.tail} />
+      </group>
       {SEARCHLIGHTS.map(([x, z], i) => (
         <group
           key={i}
@@ -371,6 +506,7 @@ export function City() {
       ))}
       <mesh geometry={geo.litTops} material={mats.litTop} />
       <mesh geometry={geo.spires} material={mats.spire} />
+      <mesh geometry={geo.roofs} material={mats.roof} />
       <mesh geometry={geo.beacons} material={beacon} />
       {ADS.map((ad) => (
         <AdBoard key={ad.kind} ad={ad} />

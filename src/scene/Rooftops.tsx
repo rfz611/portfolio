@@ -13,22 +13,32 @@ type Mats = ReturnType<typeof useRoofMats>;
 function useRoofMats() {
   return useMemo(
     () => ({
-      facade: new THREE.MeshBasicMaterial({
+      // prédio antigo de tijolo, janelas quentes e poucas acesas
+      brick: new THREE.MeshBasicMaterial({
         map: tex(
-          makeCanvas(256, 256, (c, w, h) => paintNoirWindows(c, w, h, 241, 0.32)),
-          {
-            aniso: 8,
-          },
+          makeCanvas(256, 256, (c, w, h) => paintNoirWindows(c, w, h, 263, 0.2)),
+          { aniso: 8 },
         ),
-        color: '#a8a4a8',
+        color: '#c98a68',
       }),
+      // hotel moderno: janelas mais claras e frias, muitas acesas
+      hotel: new THREE.MeshBasicMaterial({
+        map: tex(
+          makeCanvas(256, 256, (c, w, h) => paintNoirWindows(c, w, h, 251, 0.45)),
+          { aniso: 8 },
+        ),
+        color: '#b4bfd6',
+      }),
+      crown: new THREE.MeshBasicMaterial({ color: hdr('#e8c48a', 0.95), toneMapped: false }),
+      tank: new THREE.MeshBasicMaterial({ color: '#1d1714' }),
+      door: new THREE.MeshBasicMaterial({ color: hdr('#ffb36a', 1.3), toneMapped: false }),
       slab: new THREE.MeshBasicMaterial({ color: '#141015' }),
       deck: new THREE.MeshBasicMaterial({ color: '#7a4a28' }),
       darkDeck: new THREE.MeshBasicMaterial({ color: '#2a1630' }),
       wood: new THREE.MeshBasicMaterial({ color: '#2a150b' }),
       people: new THREE.MeshBasicMaterial({ color: '#060405' }),
       bulb: new THREE.MeshBasicMaterial({ color: hdr('#ffc27a', 2.2), toneMapped: false }),
-      shelf: new THREE.MeshBasicMaterial({ color: hdr('#ff9440', 1.15), toneMapped: false }),
+      shelf: new THREE.MeshBasicMaterial({ color: hdr('#d27a36', 0.95), toneMapped: false }),
       lantern: new THREE.MeshBasicMaterial({ color: hdr('#ff3420', 2.2), toneMapped: false }),
       violet: new THREE.MeshBasicMaterial({ color: hdr('#b45cff', 2), toneMapped: false }),
       booth: new THREE.MeshBasicMaterial({ color: hdr('#4fd8ff', 1.6), toneMapped: false }),
@@ -58,37 +68,80 @@ function stringLights(a: THREE.Vector3, b: THREE.Vector3, sag: number, step: num
   return merge(bulbs);
 }
 
-/** Prédio com o telhado na altura certa e a mureta em volta. */
-function Building({ roof, mats, deck }: { roof: Rooftop; mats: Mats; deck: THREE.Material }) {
+/**
+ * Prédio de cada cobertura, bem diferentes entre si: o do bar é antigo e
+ * baixo, de tijolo, com cornija larga, caixa d'água sobre pés e a casinha
+ * da escada com a porta acesa; o do hotel é moderno, de janelas claras, com
+ * uma faixa de luz em volta do topo.
+ */
+function Building({ roof, mats }: { roof: Rooftop; mats: Mats }) {
   const [w, d] = roof.size;
+  const old = roof.kind === 'bar';
   const geo = useMemo(() => {
     const height = roof.top - GROUND_Y;
+    const parapet = old ? 1.0 : 1.3;
+    const extras: THREE.BufferGeometry[] = [];
+    if (old) {
+      // caixa d'água de madeira sobre pés, no canto de trás à esquerda
+      const tx = -w / 2 + 3;
+      const tz = -d / 2 + 3;
+      extras.push(cyl(1.6, 1.6, 2.8, [tx, 4.4, tz], { seg: 10 }));
+      extras.push(new THREE.ConeGeometry(1.8, 0.9, 10).translate(tx, 6.25, tz));
+      for (const [lx, lz] of [
+        [-1.1, -1.1],
+        [1.1, -1.1],
+        [-1.1, 1.1],
+        [1.1, 1.1],
+      ]) {
+        extras.push(box([0.2, 3, 0.2], [tx + lx, 1.5, tz + lz]));
+      }
+      // casinha da escada no canto de trás à direita
+      extras.push(box([3.6, 3, 3.2], [w / 2 - 3, 1.5, -d / 2 + 2.8]));
+    }
     return {
       body: box([w, height, d], [0, -height / 2, 0], { uv: FACADE_UV }),
-      slab: box([w + 0.6, 0.5, d + 0.6], [0, -0.2, 0]),
+      slab: old
+        ? box([w + 1.6, 1.0, d + 1.6], [0, -0.52, 0])
+        : box([w + 0.4, 0.4, d + 0.4], [0, -0.22, 0]),
       parapet: merge([
-        box([w, 1.1, 0.4], [0, 0.55, d / 2 - 0.2]),
-        box([w, 1.1, 0.4], [0, 0.55, -d / 2 + 0.2]),
-        box([0.4, 1.1, d], [w / 2 - 0.2, 0.55, 0]),
-        box([0.4, 1.1, d], [-w / 2 + 0.2, 0.55, 0]),
+        box([w, parapet, 0.4], [0, parapet / 2, d / 2 - 0.2]),
+        box([w, parapet, 0.4], [0, parapet / 2, -d / 2 + 0.2]),
+        box([0.4, parapet, d], [w / 2 - 0.2, parapet / 2, 0]),
+        box([0.4, parapet, d], [-w / 2 + 0.2, parapet / 2, 0]),
       ]),
+      extras: extras.length ? merge(extras) : null,
+      door: old
+        ? new THREE.PlaneGeometry(1.1, 2.1).translate(w / 2 - 3, 1.05, -d / 2 + 4.41)
+        : null,
+      // faixa de luz em volta do topo do hotel
+      crown: old
+        ? null
+        : merge([
+            box([w + 0.5, 0.35, 0.1], [0, -1.6, d / 2 + 0.2]),
+            box([w + 0.5, 0.35, 0.1], [0, -1.6, -d / 2 - 0.2]),
+            box([0.1, 0.35, d + 0.5], [w / 2 + 0.2, -1.6, 0]),
+            box([0.1, 0.35, d + 0.5], [-w / 2 - 0.2, -1.6, 0]),
+          ]),
       deck: new THREE.PlaneGeometry(w - 1.2, d - 1.2).rotateX(-Math.PI / 2).translate(0, 0.06, 0),
     };
-  }, [w, d, roof.top]);
+  }, [w, d, roof.top, old]);
   return (
     <>
-      <mesh geometry={geo.body} material={mats.facade} />
+      <mesh geometry={geo.body} material={old ? mats.brick : mats.hotel} />
       <mesh geometry={geo.slab} material={mats.slab} />
       <mesh geometry={geo.parapet} material={mats.slab} />
-      <mesh geometry={geo.deck} material={deck} />
+      <mesh geometry={geo.deck} material={old ? mats.deck : mats.darkDeck} />
+      {geo.extras && <mesh geometry={geo.extras} material={mats.tank} />}
+      {geo.door && <mesh geometry={geo.door} material={mats.door} />}
+      {geo.crown && <mesh geometry={geo.crown} material={mats.crown} />}
     </>
   );
 }
 
 /**
- * Bar na cobertura: deck de madeira, balcão com a prateleira de garrafas
- * acesa, letreiro de neon, varais de lâmpadas, mesinhas com vela e gente
- * em pé conversando.
+ * Bar na cobertura: deck de madeira, balcão sob uma pérgola de ripas com a
+ * prateleira de garrafas acesa embaixo, letreiro de neon em cima, varais de
+ * lâmpadas, mesinhas com vela e gente em pé conversando.
  */
 function RoofBar({ roof, mats }: { roof: Rooftop; mats: Mats }) {
   const [w, d] = roof.size;
@@ -113,7 +166,7 @@ function RoofBar({ roof, mats }: { roof: Rooftop; mats: Mats }) {
     const lines: THREE.BufferGeometry[] = [];
     const posts: THREE.BufferGeometry[] = [];
     for (let k = 0; k < 5; k++) {
-      const z = back + 4 + k * ((d - 10) / 4);
+      const z = back + 4.5 + k * ((d - 10.5) / 4);
       const a = new THREE.Vector3(-w / 2 + 2, 4.2, z);
       const b = new THREE.Vector3(w / 2 - 2, 4.2, z);
       lines.push(stringLights(a, b, 1.1, 1.5));
@@ -143,16 +196,28 @@ function RoofBar({ roof, mats }: { roof: Rooftop; mats: Mats }) {
       bulbs: merge([...lines, ...candles]),
       posts: merge([...posts, ...tables]),
       people: merge(people),
-      counter: box([12, 1.15, 1.6], [0, 0.58, back]),
-      counterGlow: box([12, 0.08, 0.25], [0, 1.18, back + 0.7]),
-      shelf: new THREE.PlaneGeometry(12, 2.4).translate(0, 2.2, back - 1.7),
-      shelfBack: box([13, 4, 0.6], [0, 2, back - 2.1]),
-      sign: new THREE.PlaneGeometry(9, 2.95).translate(0, 5.6, back - 1.75),
+      counter: box([10, 1.15, 1.4], [0, 0.58, back]),
+      counterGlow: box([10, 0.08, 0.25], [0, 1.18, back + 0.6]),
+      shelf: new THREE.PlaneGeometry(8, 0.9).translate(0, 1.7, back - 1.55),
+      shelfBack: box([10, 2.6, 0.5], [0, 1.3, back - 1.85]),
+      pergola: merge([
+        ...[-5.4, 5.4].flatMap((px) => [
+          box([0.22, 3.3, 0.22], [px, 1.65, back - 1.6]),
+          box([0.22, 3.3, 0.22], [px, 1.65, back + 2.2]),
+        ]),
+        box([11.4, 0.22, 0.22], [0, 3.3, back - 1.6]),
+        box([11.4, 0.22, 0.22], [0, 3.3, back + 2.2]),
+        ...Array.from({ length: 9 }, (_, k) =>
+          box([0.18, 0.14, 4.4], [-5 + k * 1.25, 3.45, back + 0.3]),
+        ),
+      ]),
+      sign: new THREE.PlaneGeometry(7, 2.3).translate(0, 4.9, back - 1.7),
     };
   }, [w, d]);
   return (
     <>
       <mesh geometry={geo.shelfBack} material={mats.wood} />
+      <mesh geometry={geo.pergola} material={mats.wood} />
       <mesh geometry={geo.shelf} material={mats.shelf} />
       <mesh geometry={geo.counter} material={mats.wood} />
       <mesh geometry={geo.counterGlow} material={mats.bulb} />
@@ -347,11 +412,7 @@ export function Rooftops() {
           position={[roof.at[0], roof.top, roof.at[1]]}
           rotation={[0, roof.yaw, 0]}
         >
-          <Building
-            roof={roof}
-            mats={mats}
-            deck={roof.kind === 'bar' ? mats.deck : mats.darkDeck}
-          />
+          <Building roof={roof} mats={mats} />
           {roof.kind === 'bar' ? (
             <RoofBar roof={roof} mats={mats} />
           ) : (

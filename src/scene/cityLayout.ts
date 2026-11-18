@@ -21,12 +21,16 @@ export interface Rooftop {
   yaw: number;
 }
 
+/** Quadra de 64 m com ruas de 16 m (uma quadra a cada 80 m). */
+export const PITCH = 80;
+export const BLOCK = 64;
+
 /**
- * Coberturas com gente, na frente da janela: um bar com varal de
- * lâmpadas à esquerda e uma festa ao ar livre, com pagode de madeira e
- * luzes coloridas, à direita.
+ * Coberturas com gente, cada uma dentro de uma quadra: à esquerda, um
+ * prédio antigo e baixo, de tijolo, com um bar sob pérgola; à direita, mais
+ * longe e mais alto, o hotel moderno com a festa no terraço.
  */
 export const ROOFTOPS: Rooftop[] = [
-  { kind: 'bar', at: [CENTER_X - 46, -128], size: [44, 30], top: -30, yaw: 0.12 },
-  { kind: 'party', at: [CENTER_X + 58, -168], size: [52, 38], top: -38, yaw: -0.1 },
+  { kind: 'bar', at: [CENTER_X - 62, -142], size: [26, 30], top: -48, yaw: 0 },
+  { kind: 'party', at: [CENTER_X + 72, -226], size: [36, 34], top: -40, yaw: 0 },
 ];
