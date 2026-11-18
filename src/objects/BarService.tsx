@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { playIce, playPour } from '../audio/player';
-import { box, cyl, lathe } from '../scene/geo';
+import { box, crease, cyl, lathe } from '../scene/geo';
 import { useScene } from '../store/useScene';
 import { makeCanvas, tex } from '../textures/canvas';
 import { LABELS, paintLabel } from '../textures/labels';
@@ -47,15 +47,24 @@ export function BarService() {
 
   const geo = useMemo(
     () => ({
-      rocks: lathe(
-        [
-          [0.001, 0.004],
-          [0.04, 0.004],
-          [0.043, 0.095],
-        ],
-        { seg: 18 },
+      // copo baixo de cristal lapidado: 12 facetas, parede grossa e fundo pesado
+      rocks: crease(
+        lathe(
+          [
+            [0.001, 0],
+            [0.04, 0],
+            [0.043, 0.006],
+            [0.044, 0.095],
+            [0.042, 0.099],
+            [0.0385, 0.096],
+            [0.037, 0.024],
+            [0.001, 0.022],
+          ],
+          { seg: 12 },
+        ),
+        25,
       ),
-      rocksBase: cyl(0.04, 0.04, 0.008, [0, 0.004, 0], { seg: 18 }),
+      rocksBase: cyl(0.0368, 0.0368, 0.02, [0, 0.012, 0], { seg: 12 }),
       martini: lathe(
         [
           [0.036, 0],
@@ -67,7 +76,7 @@ export function BarService() {
         { seg: 18 },
       ),
       // líquido que cresce a partir do fundo (escala em y)
-      liquid: cyl(0.0385, 0.039, 1, [0, 0.5, 0], { seg: 18 }).translate(0, 0.008, 0),
+      liquid: cyl(0.0362, 0.0366, 1, [0, 0.5, 0], { seg: 12 }).translate(0, 0.022, 0),
       cone: lathe(
         [
           [0.002, 0],
