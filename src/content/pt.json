@@ -94,7 +94,7 @@
     "c": "Linguagem C",
     "office": "Pacote Office Avançado",
     "salesforce": "Salesforce",
-    "hint": "Passe o mouse na beirada das revistas · clique para abrir",
+    "hint": "Clique numa revista para abrir",
     "hintTouch": "Toque numa revista para abrir",
     "prev": "revista anterior",
     "next": "próxima revista",

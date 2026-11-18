@@ -5,34 +5,25 @@ export interface Pose {
   quaternion: THREE.Quaternion;
 }
 
-const THICK = 0.0085;
 const UP = new THREE.Vector3(0, 1, 0);
 
-/** Posição (x, z) e giro de cada revista na pilha: índice 0 é a de cima. */
-const LOOSE: [number, number, number][] = [
-  [0, 0.01, 0.1],
-  [0.12, 0.07, -0.22],
-  [-0.11, -0.05, 0.42],
-  [0.07, -0.11, -0.62],
+/**
+ * Lugar de cada revista na mesa: espalhadas em 2 × 2, cada uma levemente
+ * torta, sem uma cobrir a capa da outra (x, z, giro).
+ */
+const SPREAD: [number, number, number][] = [
+  [-0.118, -0.155, 0.08],
+  [0.118, -0.15, -0.06],
+  [-0.122, 0.162, -0.05],
+  [0.112, 0.168, 0.1],
 ];
 
 const yaw = (angle: number) => new THREE.Quaternion().setFromAxisAngle(UP, angle);
 
-/** Lugar de cada revista na pilha largada na mesa. */
-export function stackPose(index: number, count: number): Pose {
-  const [x, z, angle] = LOOSE[index % LOOSE.length];
-  const level = count - 1 - index;
-  return { position: new THREE.Vector3(x, level * THICK, z), quaternion: yaw(angle) };
-}
-
-/** Revista que deslizou para o lado (fica à esquerda, em leque, sobre a mesa). */
-export function slidPose(index: number, focus: number): Pose {
-  const order = focus - 1 - index; // 0 = a que saiu primeiro... a de baixo do monte deslizado
-  const [x, z, angle] = LOOSE[index % LOOSE.length];
-  return {
-    position: new THREE.Vector3(x - 0.24 - order * 0.025, order * THICK, z + 0.07 + order * 0.03),
-    quaternion: yaw(angle + 0.35),
-  };
+/** Revista deitada na mesa; o parâmetro lift a levanta um pouco (mouse em cima). */
+export function tablePose(index: number, lift = 0): Pose {
+  const [x, z, angle] = SPREAD[index % SPREAD.length];
+  return { position: new THREE.Vector3(x, index * 0.0006 + lift, z), quaternion: yaw(angle) };
 }
 
 const up = new THREE.Vector3();

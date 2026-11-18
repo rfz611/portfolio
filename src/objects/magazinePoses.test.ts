@@ -1,14 +1,19 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { frontPose, slidPose, stackPose } from './magazinePoses';
+import { frontPose, tablePose } from './magazinePoses';
 
 describe('revistas', () => {
-  it('a de cima da pilha fica mais alta', () => {
-    expect(stackPose(0, 4).position.y).toBeGreaterThan(stackPose(3, 4).position.y);
+  it('ficam espalhadas: as quatro em lugares diferentes da mesa', () => {
+    const spots = [0, 1, 2, 3].map((i) => tablePose(i).position);
+    for (let a = 0; a < spots.length; a++) {
+      for (let b = a + 1; b < spots.length; b++) {
+        expect(spots[a].distanceTo(spots[b])).toBeGreaterThan(0.2);
+      }
+    }
   });
 
-  it('a revista que desliza sai para o lado da pilha', () => {
-    expect(slidPose(0, 1).position.x).toBeLessThan(stackPose(0, 4).position.x - 0.2);
+  it('o mouse em cima levanta a revista um pouco', () => {
+    expect(tablePose(1, 0.012).position.y).toBeGreaterThan(tablePose(1).position.y);
   });
 
   it('a revista aberta fica na frente da câmera, com a capa virada para ela', () => {
