@@ -68,6 +68,9 @@ export interface SceneState {
   /** Drink pedido no bar (o número muda a cada pedido, para repetir o mesmo drink). */
   drink: { kind: 'whisky' | 'martini' | 'negroni'; order: number } | null;
   drinkServed: boolean;
+  /** Folha do currículo aberta (clicando nos papéis da mesa)? */
+  cvOpen: boolean;
+  setCvOpen: (open: boolean) => void;
   /** Luminária-cogumelo da mesa de centro acesa? */
   tableLamp: boolean;
   toggleTableLamp: () => void;
@@ -117,7 +120,7 @@ export const useScene = create<SceneState>()(
       loadProgress: 0,
       ready: false,
 
-      setView: (view) => set({ view, hovered: null, magazine: null }),
+      setView: (view) => set({ view, hovered: null, magazine: null, cvOpen: false }),
       setSpot: (spot) => set({ spot, view: 'home', hovered: null }),
       setMode: (mode) => set({ mode }),
       setHovered: (hovered) => set({ hovered }),
@@ -133,6 +136,8 @@ export const useScene = create<SceneState>()(
       tvChannel: 0,
       magazine: null,
       tableLamp: true,
+      cvOpen: false,
+      setCvOpen: (cvOpen) => set({ cvOpen }),
       toggleTableLamp: () => set((s) => ({ tableLamp: !s.tableLamp })),
       setMagazine: (magazine) => set({ magazine }),
       setTvChannel: (tvChannel) => set({ tvChannel }),

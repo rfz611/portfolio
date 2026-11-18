@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { playClick } from '../audio/player';
 import * as THREE from 'three';
 import { PIT, ROOM } from '../config/layout';
 import { palette } from '../config/palette';
 import { makeCanvas, tex } from '../textures/canvas';
 import { art } from '../textures/artLibrary';
 import { hdr, lib } from '../textures/library';
-import { paintPosterSlot } from '../textures/art';
 import { box, crease, cyl, merge } from './geo';
 import { Interactive } from '../objects/Interactive';
 import { coverUrl } from '../content/tracks';
@@ -21,16 +20,18 @@ function Painting({
   size,
   position,
   rotationY,
+  frame = 'gold',
 }: {
   map: THREE.Texture;
   size: [number, number];
   position: V3;
   rotationY: number;
+  frame?: 'gold' | 'wood';
 }) {
   const { mat } = lib();
   const [w, h] = size;
   const geo = useMemo(() => {
-    const t = 0.07;
+    const t = frame === 'wood' ? 0.1 : 0.07;
     return {
       frame: crease(
         merge([
@@ -48,15 +49,15 @@ function Painting({
         box([0.012, h, 0.02], [w / 2 + 0.006, 0, 0.04]),
       ]),
     };
-  }, [w, h]);
+  }, [w, h, frame]);
   const canvas = useMemo(
     () => new THREE.MeshStandardMaterial({ map, roughness: 0.55, envMapIntensity: 0.3 }),
     [map],
   );
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
-      <mesh geometry={geo.frame} material={mat.brass} />
-      <mesh geometry={geo.inner} material={mat.mahoganyDark} />
+      <mesh geometry={geo.frame} material={frame === 'wood' ? mat.mahoganyDark : mat.brass} />
+      <mesh geometry={geo.inner} material={frame === 'wood' ? mat.brass : mat.mahoganyDark} />
       <mesh position={[0, 0, 0.012]} material={canvas}>
         <planeGeometry args={[w, h]} />
       </mesh>
@@ -133,66 +134,92 @@ function SideTable({ position }: { position: V3 }) {
   );
 }
 
-/** Filmes favoritos do Raphael (arquivos em public/textures/films). */
-const FILMS: { title: string; file: string }[] = [
-  { title: 'Magnolia', file: '/textures/films/magnolia.png' },
-  { title: 'Donnie Darko', file: '/textures/films/donnie-darko.png' },
-  // aparece sozinho quando o arquivo existir (o Raphael coloca a imagem)
-  { title: 'Arrival', file: '/textures/films/arrival.jpg' },
-];
-
-/** Pôster do filme no quadro; enquanto a imagem não carrega (ou não existe), fica o "em breve". */
-function useFilmPoster(index: number, fallback: THREE.Texture) {
-  const [map, setMap] = useState<THREE.Texture>(fallback);
-  const film = FILMS[index];
+/**
+ * Luminária de quadro de latão (barra com cúpula comprida) presa em cima da
+ * moldura, com um spot quente estreito apontado para a pintura.
+ */
+function PictureLight({ width, height, on }: { width: number; height: number; on: boolean }) {
+  const { mat } = lib();
+  const light = useMemo(() => new THREE.SpotLight(), []);
+  const geo = useMemo(
+    () => ({
+      arm: box([0.025, 0.025, 0.2], [0, height / 2 + 0.12, 0.1]),
+      hood: new THREE.CylinderGeometry(0.035, 0.035, width * 0.55, 14, 1, false, 0, Math.PI)
+        .rotateZ(Math.PI / 2)
+        .rotateX(-0.6)
+        .translate(0, height / 2 + 0.12, 0.2),
+      glow: box([width * 0.52, 0.008, 0.02], [0, height / 2 + 0.1, 0.205]),
+    }),
+    [width, height],
+  );
+  const glow = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: hdr('#ffd9a0', 1.3), toneMapped: false }),
+    [],
+  );
   useEffect(() => {
-    setMap(fallback);
-    if (!film) return;
-    let alive = true;
-    new THREE.TextureLoader().load(film.file, (texture) => {
-      if (!alive) return;
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = 4;
-      setMap(texture);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [film, fallback]);
-  return { map, title: film?.title };
+    glow.color.copy(on ? hdr('#ffd9a0', 1.3) : new THREE.Color('#2a2016'));
+  }, [on, glow]);
+  return (
+    <group>
+      <mesh geometry={geo.arm} material={mat.brass} />
+      <mesh geometry={geo.hood} material={mat.brass} />
+      <mesh geometry={geo.glow} material={glow} />
+      <primitive
+        object={light}
+        position={[0, height / 2 + 0.1, 0.32]}
+        color="#ffd2a0"
+        intensity={on ? 7 : 0}
+        angle={0.55}
+        penumbra={0.8}
+        distance={3}
+        decay={1.6}
+      />
+      <primitive object={light.target} position={[0, -0.05, 0]} />
+    </group>
+  );
 }
 
-function FilmPoster({
-  index,
-  fallback,
+/**
+ * Quadro com luminária própria: clicar na pintura acende ou apaga a luz
+ * de quadro (começa acesa, para dar para ver a obra no escuro da sala).
+ */
+function LitPainting({
+  id,
+  label,
+  map,
+  size,
   position,
+  rotationY,
+  frame,
 }: {
-  index: number;
-  fallback: THREE.Texture;
+  id: string;
+  label: string;
+  map: THREE.Texture;
+  size: [number, number];
   position: V3;
+  rotationY: number;
+  frame?: 'gold' | 'wood';
 }) {
-  const { map, title } = useFilmPoster(index, fallback);
+  const [on, setOn] = useState(true);
   return (
-    <Interactive id={`poster-${index}`} label="objects.poster" text={title}>
-      <Painting map={map} size={[0.6, 0.88]} position={position} rotationY={Math.PI} />
-    </Interactive>
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <Interactive
+        id={id}
+        label={label}
+        onClick={() => {
+          playClick();
+          setOn((v) => !v);
+        }}
+      >
+        <Painting map={map} size={size} position={[0, 0, 0]} rotationY={0} frame={frame} />
+      </Interactive>
+      <PictureLight width={size[0]} height={size[1]} on={on} />
+    </group>
   );
 }
 
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
-  const { t } = useTranslation();
-  const slotLabel = t('decor.posterSlot');
-  const slots = useMemo(
-    () =>
-      [0, 1, 2].map((i) =>
-        tex(
-          makeCanvas(192, 288, (c, w, h) => paintPosterSlot(c, w, h, i, slotLabel)),
-          { clamp: true },
-        ),
-      ),
-    [slotLabel],
-  );
   const pieces = art();
   const south = ROOM.z1 - 0.02;
   const west = ROOM.x0 + 0.02;
@@ -200,35 +227,31 @@ export function Decor() {
     <group name="decor">
       {/* parede do fundo (sul), de frente para quem senta à escrivaninha:
           três quadros de filmes favoritos entre as arandelas e a paisagem à direita */}
-      {slots.map((map, i) => (
-        <FilmPoster key={i} index={i} fallback={map} position={[-1.98 + i * 0.78, 1.78, south]} />
-      ))}
+      {/* Rembrandt largo entre as arandelas, moldura pesada de madeira e luz de quadro */}
+      <LitPainting
+        id="storm"
+        label="objects.storm"
+        map={pieces.storm}
+        size={[1.95, 1.1]}
+        position={[-1.2, 1.78, south]}
+        rotationY={Math.PI}
+        frame="wood"
+      />
       <Sconce position={[-2.55, 1.85, south]} rotationY={Math.PI} />
       <Sconce position={[0.15, 1.85, south]} rotationY={Math.PI} />
-      {/* Caravaggio, Natividade (roubada pela Cosa Nostra em Palermo, 1969):
-          à vista de quem senta na cadeira do escritório, ao lado dos filmes */}
-      <Interactive id="nativity" label="objects.nativity">
-        <Painting
-          map={pieces.nativity}
-          size={[0.92, 1.27]}
-          position={[2.45, 1.8, south]}
-          rotationY={Math.PI}
-        />
-      </Interactive>
       {/* parede esquerda (oeste): disco emoldurado à direita de quem está no sofá
-          e o Rembrandt grande à esquerda */}
+          e o Caravaggio grande à esquerda */}
       <FramedRecord position={[west, 1.72, -3.2]} rotationY={HALF_PI} />
       <Sconce position={[west, 1.85, -2.25]} rotationY={HALF_PI} />
-      {/* Rembrandt, A Tempestade no Mar da Galileia (roubada em 1990, nunca achada),
-          um pouco mais para o centro da parede do que o quadro antigo */}
-      <Interactive id="storm" label="objects.storm">
-        <Painting
-          map={pieces.storm}
-          size={[1.12, 1.4]}
-          position={[west, 1.8, 3.1]}
-          rotationY={HALF_PI}
-        />
-      </Interactive>
+      {/* Caravaggio grande na parede à esquerda da TV, com luz de quadro (clique acende/apaga) */}
+      <LitPainting
+        id="nativity"
+        label="objects.nativity"
+        map={pieces.nativity}
+        size={[1.02, 1.4]}
+        position={[west, 1.8, 3.1]}
+        rotationY={HALF_PI}
+      />
       {/* pontas do sofá */}
       <SideTable position={[PIT.x0 + 0.42, -PIT.depth, PIT.z0 + 0.42]} />
       <SideTable position={[PIT.x0 + 0.42, -PIT.depth, PIT.z1 - 0.42]} />

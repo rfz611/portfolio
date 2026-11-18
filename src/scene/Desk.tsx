@@ -333,7 +333,11 @@ function DeskClutter() {
       <group position={[0.8, 0.002, 0.16]} rotation={[0, 2.75, 0]}>
         <DeskPhone />
       </group>
-      <Interactive id="papers" label="objects.papers">
+      <Interactive
+        id="papers"
+        label="objects.papers"
+        onClick={() => useScene.getState().setCvOpen(true)}
+      >
         <group position={[-0.32, 0.002, -0.14]} rotation={[0, 0.3, 0]} name="papers">
           <mesh geometry={geo.folder} material={folder} />
           <mesh geometry={geo.sheet} material={mat.paperSheet} position={[0.02, 0.014, 0.01]} />

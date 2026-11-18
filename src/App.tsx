@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useScene } from './store/useScene';
 import { BackButton } from './ui/BackButton';
 import { BarMenu } from './ui/BarMenu';
-import { HomeCard } from './ui/HomeCard';
+import { CvSheet } from './ui/CvSheet';
 import { MagazineCaption } from './ui/MagazineCaption';
 import { Controls } from './ui/Controls';
 import { hasWebGL, useEscapeToHome, useHashSync, useVolumeKeys } from './ui/hooks';
@@ -73,7 +73,7 @@ export default function App() {
           {ready && <SpotNav />}
           {ready && <BarMenu />}
           {ready && <MagazineCaption />}
-          {ready && <HomeCard />}
+          {ready && <CvSheet />}
           {ready && HINTS[view] && !magazineOpen && (
             <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
               {t(touch && i18n.exists(`${HINTS[view]}Touch`) ? `${HINTS[view]}Touch` : HINTS[view])}

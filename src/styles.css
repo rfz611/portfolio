@@ -1189,125 +1189,103 @@ main:focus {
   color: var(--muted);
 }
 
-/* ---------- Início: cartão na janela ---------- */
+/* ---------- folha do currículo (papéis da mesa do escritório) ---------- */
 
-.home-card {
+.cv-sheet {
   position: fixed;
+  inset: 0;
   z-index: 30;
-  left: max(24px, 6vw);
-  top: 50%;
-  width: min(460px, 42vw);
-  padding: 22px 24px 18px;
-  border: 1px solid rgba(184, 137, 58, 0.7);
-  outline: 1px solid rgba(184, 137, 58, 0.25);
-  outline-offset: 4px;
-  background: linear-gradient(180deg, rgba(10, 8, 12, 0.86), rgba(20, 10, 10, 0.8));
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
-  color: var(--text);
-  opacity: 0;
-  transform: translateY(calc(-50% + 12px));
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-  pointer-events: none;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(4, 3, 6, 0.55);
+  animation: cv-in 0.35s ease;
 }
 
-.home-card.is-on {
-  opacity: 1;
-  transform: translateY(-50%);
-  pointer-events: auto;
+@keyframes cv-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 }
 
-.home-card__place {
+.cv-sheet__paper {
+  width: min(460px, 100%);
+  padding: 30px 32px 22px;
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 100, 70, 0.05) 0 1px, transparent 1px 26px),
+    linear-gradient(180deg, #f1e8d6, #e3d6bc);
+  color: #24180e;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  transform: rotate(-0.8deg);
+  font-family: 'Courier New', ui-monospace, monospace;
+}
+
+.cv-sheet__place {
   margin: 0 0 6px;
-  font: 1.1rem/1 var(--font-crt);
-  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--brass);
+  color: #7a5a2a;
 }
 
-.home-card h2 {
+.cv-sheet h2 {
   margin: 0;
-  font: italic 600 2.3rem/1.02 var(--font-display);
-  color: #fff3dc;
+  font: italic 600 2rem/1.05 var(--font-display);
+  color: #1a120a;
 }
 
-.home-card__role {
-  margin: 6px 0 14px;
-  font: 1.25rem/1 var(--font-crt);
-  letter-spacing: 0.06em;
+.cv-sheet__role {
+  margin: 6px 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(60, 40, 20, 0.35);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--amber);
 }
 
-.home-card__phrase {
+.cv-sheet__phrase,
+.cv-sheet__status {
   margin: 0 0 12px;
-  font: italic 400 1.15rem/1.35 var(--font-display);
-  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.45;
 }
 
-.home-card__status {
-  display: flex;
-  gap: 8px;
-  margin: 0 0 14px;
-  font: 1.1rem/1.15 var(--font-crt);
-  color: var(--muted);
-}
-
-.home-card__status i {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-top: 5px;
-  background: #5fd38a;
-  box-shadow: 0 0 8px #5fd38a;
-  animation: hint 2.4s ease-in-out infinite;
-}
-
-.home-card__actions {
+.cv-sheet__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 10px;
-  margin-left: -9px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
 }
 
-.home-card__actions a.ctl {
-  display: inline-flex;
-  align-items: center;
+.cv-sheet__button {
+  padding: 8px 14px;
+  background: #5c0f16;
+  color: #f6ead2;
+  font: 1.2rem/1 var(--font-crt);
+  letter-spacing: 0.08em;
   text-decoration: none;
-  color: var(--amber);
+  text-transform: uppercase;
 }
 
-.home-card__actions .is-disabled {
-  display: inline-flex;
-  align-items: center;
+.cv-sheet__button.is-disabled {
   opacity: 0.5;
-  cursor: default;
+}
+
+.cv-sheet__close {
+  border: 0;
+  background: none;
+  color: #5a4630;
+  font: 1.2rem/1 var(--font-crt);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 @media (max-width: 900px) {
-  .home-card {
-    left: 12px;
-    right: 12px;
-    top: auto;
-    bottom: 96px;
-    width: auto;
-    padding: 16px 16px 12px;
-    transform: translateY(12px);
-  }
-
-  .home-card.is-on {
-    transform: none;
-  }
-
-  .home-card h2 {
-    font-size: 1.85rem;
-  }
-
-  .home-card__phrase {
-    font-size: 1.05rem;
-  }
-
   .magazine-caption {
     bottom: 96px;
   }

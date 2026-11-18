@@ -131,12 +131,12 @@ export const SHOTS: Record<ViewId, Shot> = {
   },
   // Olhando a cidade e o neon com o nome.
   janela: {
-    // encostado no vidro: o outdoor com o nome no alto à direita, o parque e as
-    // avenidas lá embaixo, e espaço à esquerda para o cartão do Início
-    position: [0.75, 1.55, -3.9],
-    target: [4.17, -1.92, -23.3],
-    hfov: 70,
-    portrait: { target: [6.79, -2.2, -22.5], hfov: 62 },
+    // de dentro da sala, a uns 3 m do vidro: a esquadria e as cortinas emolduram
+    // a cidade, como quem para em pé olhando a vista
+    position: [0.75, 1.62, -1.45],
+    target: [1.4, 0.6, -14],
+    hfov: 64,
+    portrait: { position: [0.75, 1.62, -1.9], target: [1.4, 0.4, -14], hfov: 60 },
   },
   // No balcão do bar, olhando o copo sendo servido e a cristaleira atrás.
   bar: {

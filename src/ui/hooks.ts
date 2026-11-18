@@ -33,7 +33,8 @@ export function useEscapeToHome() {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       const s = useScene.getState();
-      if (s.magazine !== null) s.setMagazine(null);
+      if (s.cvOpen) s.setCvOpen(false);
+      else if (s.magazine !== null) s.setMagazine(null);
       else s.setView('home');
     };
     window.addEventListener('keydown', onKey);

@@ -25,7 +25,7 @@ export function art() {
       ),
       sunset: tex(makeCanvas(384, 288, paintSunset), { clamp: true }),
       tiger: tex(makeCanvas(640, 480, paintTigerStorm), { clamp: true, aniso: 8 }),
-      storm: tex(makeCanvas(512, 640, paintStormGalilee), { clamp: true, aniso: 8 }),
+      storm: tex(makeCanvas(1024, 576, paintStormGalilee), { clamp: true, aniso: 8 }),
       nativity: tex(makeCanvas(464, 640, paintNativity), { clamp: true, aniso: 8 }),
     };
   }
