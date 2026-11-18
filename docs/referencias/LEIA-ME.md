@@ -2,6 +2,8 @@
 
 Leia junto com a seção "Direção de arte" da especificação.
 
+> As imagens são de terceiros (prints de jogos e referências da internet) e ficam só na máquina, fora do Git.
+
 | Arquivo | Para que serve |
 | --- | --- |
 | sala-cobertura-anos-80.png | Clima geral da sala: carpete azul, mogno, couro, plantas, vidro do chão ao teto com a cidade |

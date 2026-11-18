@@ -21,3 +21,12 @@ docs/prints/tmp
 
 # vídeos dos projetos: pesados, ficam fora do Git (vão para o bucket junto com o áudio)
 public/videos
+
+# referências visuais de terceiros (prints de jogos, Pinterest): ficam só na máquina
+docs/referencias/**/*.png
+docs/referencias/**/*.jpg
+docs/referencias/**/*.jpeg
+docs/referencias/**/*.webp
+
+# cartazes de filme antigos (os livros usam capas pintadas no código)
+public/textures/films/
