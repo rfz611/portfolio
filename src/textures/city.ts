@@ -10,7 +10,7 @@ type Ctx = CanvasRenderingContext2D;
  */
 export function paintNoirWindows(ctx: Ctx, w: number, h: number, seed: number, lit: number) {
   const r = mulberry32(seed);
-  ctx.fillStyle = '#1a1c28';
+  ctx.fillStyle = '#0f0d11';
   ctx.fillRect(0, 0, w, h);
   const cols = 10;
   const rows = 7;
@@ -52,99 +52,145 @@ export function paintNoirWindows(ctx: Ctx, w: number, h: number, seed: number, l
   for (let i = 0; i <= cols; i += 2) ctx.fillRect(i * cw - 1.5, 0, 3, h);
 }
 
-export type AdKind = 'whisky' | 'casino' | 'jazz' | 'cigars' | 'cinema';
+export type AdKind = 'ristorante' | 'casino' | 'lounge' | 'hotel' | 'cinema';
 
-/** Propagandas inventadas (nenhuma marca real), com cara de cartaz luminoso dos anos 80. */
+/** Letra de neon: tubo claro no meio com o brilho colorido em volta. */
+function neonText(
+  ctx: Ctx,
+  text: string,
+  x: number,
+  y: number,
+  font: string,
+  color: string,
+  core: string,
+) {
+  ctx.font = font;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+  ctx.shadowBlur = 6;
+  ctx.fillText(text, x, y);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = core;
+  ctx.fillText(text, x, y);
+}
+
+/** Moldura art déco: filetes duplos e cantos em degrau, em latão. */
+function decoFrame(ctx: Ctx, w: number, h: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = h * 0.018;
+  const m = h * 0.06;
+  ctx.strokeRect(m, m, w - m * 2, h - m * 2);
+  ctx.lineWidth = h * 0.007;
+  ctx.strokeRect(m * 1.8, m * 1.8, w - m * 3.6, h - m * 3.6);
+  ctx.fillStyle = color;
+  for (const [cx, cy] of [
+    [m, m],
+    [w - m, m],
+    [m, h - m],
+    [w - m, h - m],
+  ]) {
+    ctx.fillRect(cx - m * 0.5, cy - m * 0.5, m, m);
+  }
+}
+
+/**
+ * Letreiros luminosos inventados (nenhuma marca real), em estilo art déco
+ * de neon, como nos desenhos noir antigos: fundo preto, letra trabalhada
+ * e o vermelho puxado para o clima mafioso.
+ */
 export function paintAd(ctx: Ctx, w: number, h: number, kind: AdKind) {
+  ctx.fillStyle = '#060405';
+  ctx.fillRect(0, 0, w, h);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const frame = (color: string) => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = h * 0.03;
-    ctx.strokeRect(h * 0.04, h * 0.04, w - h * 0.08, h - h * 0.08);
-  };
-  if (kind === 'whisky') {
-    const g = ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, '#120a05');
-    g.addColorStop(1, '#030202');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
-    // garrafa âmbar à esquerda, com um copo
-    const bx = w * 0.16;
-    const glow = ctx.createRadialGradient(bx, h * 0.55, 0, bx, h * 0.55, h * 0.6);
-    glow.addColorStop(0, 'rgba(255,150,40,0.45)');
-    glow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, w * 0.4, h);
-    ctx.fillStyle = '#c86a14';
-    ctx.beginPath();
-    ctx.roundRect(bx - h * 0.12, h * 0.32, h * 0.24, h * 0.55, h * 0.03);
-    ctx.fill();
-    ctx.fillRect(bx - h * 0.035, h * 0.14, h * 0.07, h * 0.2);
-    ctx.fillStyle = '#f1dcb0';
-    ctx.fillRect(bx - h * 0.1, h * 0.5, h * 0.2, h * 0.18);
-    ctx.fillStyle = '#e8b464';
-    ctx.font = `italic 700 ${h * 0.3}px "Bodoni Moda", Georgia, serif`;
-    ctx.fillText('Midnight Reserve', w * 0.6, h * 0.42);
-    ctx.fillStyle = '#d9c8a4';
+  if (kind === 'ristorante') {
+    decoFrame(ctx, w, h, '#b8893a');
+    neonText(
+      ctx,
+      'Bella Napoli',
+      w / 2,
+      h * 0.42,
+      `italic 700 ${h * 0.36}px "Bodoni Moda", Georgia, serif`,
+      '#ff2a1a',
+      '#ffd9c8',
+    );
+    ctx.fillStyle = '#d9b45a';
     ctx.font = `600 ${h * 0.085}px "Manrope Variable", sans-serif`;
-    ctx.fillText('B L E N D E D   ·   A G E D   1 8   Y E A R S', w * 0.6, h * 0.72);
-    frame('#8a6428');
+    ctx.fillText('R I S T O R A N T E   ·   S I N C E   1 9 4 7', w / 2, h * 0.74);
   } else if (kind === 'casino') {
-    ctx.fillStyle = '#5a0008';
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#ffd56a';
-    ctx.font = `900 ${h * 0.42}px "Bodoni Moda", Georgia, serif`;
-    ctx.fillText('LUCKY 7', w / 2, h * 0.42);
-    ctx.font = `700 ${h * 0.14}px "Manrope Variable", sans-serif`;
-    ctx.fillStyle = '#fff3d0';
-    ctx.fillText('C A S I N O   ·   O P E N   2 4 H', w / 2, h * 0.78);
-    // lâmpadas em volta
+    decoFrame(ctx, w, h, '#b8893a');
+    neonText(
+      ctx,
+      'LUCKY 7',
+      w / 2,
+      h * 0.42,
+      `900 ${h * 0.38}px "Bodoni Moda", Georgia, serif`,
+      '#ffb020',
+      '#fff2c8',
+    );
+    neonText(
+      ctx,
+      'C A S I N O',
+      w / 2,
+      h * 0.75,
+      `700 ${h * 0.12}px "Manrope Variable", sans-serif`,
+      '#ff2a1a',
+      '#ffd0c0',
+    );
+  } else if (kind === 'lounge') {
+    decoFrame(ctx, w, h, '#7a2a5a');
+    neonText(
+      ctx,
+      'The Velvet Room',
+      w / 2,
+      h * 0.45,
+      `italic 600 ${h * 0.3}px "Bodoni Moda", Georgia, serif`,
+      '#ff3a8a',
+      '#ffd6ea',
+    );
+    ctx.fillStyle = '#c9a0b8';
+    ctx.font = `600 ${h * 0.09}px "Manrope Variable", sans-serif`;
+    ctx.fillText('J A Z Z   ·   C O C K T A I L S', w / 2, h * 0.76);
+  } else if (kind === 'hotel') {
+    // letreiro vertical
+    const letters = 'HOTEL';
+    ctx.strokeStyle = '#b8893a';
+    ctx.lineWidth = w * 0.05;
+    ctx.strokeRect(w * 0.08, w * 0.08, w * 0.84, h - w * 0.16);
+    letters.split('').forEach((ch, i) => {
+      neonText(
+        ctx,
+        ch,
+        w / 2,
+        h * (0.12 + (i * 0.76) / (letters.length - 1)),
+        `900 ${w * 0.6}px "Bodoni Moda", Georgia, serif`,
+        '#ff2a1a',
+        '#ffd9c8',
+      );
+    });
+  } else {
+    // marquise de cinema
+    decoFrame(ctx, w, h, '#b8893a');
     ctx.fillStyle = '#fff2c0';
-    for (let x = h * 0.06; x < w; x += h * 0.09) {
+    for (let x = h * 0.12; x < w - h * 0.08; x += h * 0.08) {
       ctx.beginPath();
-      ctx.arc(x, h * 0.05, h * 0.018, 0, Math.PI * 2);
-      ctx.arc(x, h * 0.95, h * 0.018, 0, Math.PI * 2);
+      ctx.arc(x, h * 0.13, h * 0.02, 0, Math.PI * 2);
+      ctx.arc(x, h * 0.87, h * 0.02, 0, Math.PI * 2);
       ctx.fill();
     }
-  } else if (kind === 'jazz') {
-    const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, '#22052e');
-    g.addColorStop(1, '#090214');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = '#ff5ad2';
-    ctx.lineWidth = h * 0.035;
-    ctx.font = `italic 600 ${h * 0.34}px "Bodoni Moda", Georgia, serif`;
-    ctx.strokeText('Velvet Room', w / 2, h * 0.42);
-    ctx.fillStyle = '#ffd3f2';
-    ctx.fillText('Velvet Room', w / 2, h * 0.42);
-    ctx.fillStyle = '#7fe0ff';
-    ctx.font = `600 ${h * 0.12}px "Manrope Variable", sans-serif`;
-    ctx.fillText('L I V E   J A Z Z   ·   T O N I G H T', w / 2, h * 0.76);
-  } else if (kind === 'cigars') {
-    ctx.fillStyle = '#efe4cc';
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#8e1414';
-    ctx.fillRect(0, h * 0.72, w, h * 0.28);
-    ctx.fillStyle = '#1a1210';
-    ctx.font = `800 ${h * 0.3}px "Bodoni Moda", Georgia, serif`;
-    ctx.fillText('NOVA', w / 2, h * 0.36);
-    ctx.font = `600 ${h * 0.1}px "Manrope Variable", sans-serif`;
-    ctx.fillText('H A N D   R O L L E D   C I G A R S', w / 2, h * 0.58);
-    ctx.fillStyle = '#f6e7c4';
-    ctx.font = `italic ${h * 0.11}px "Bodoni Moda", Georgia, serif`;
-    ctx.fillText('since 1952', w / 2, h * 0.86);
-  } else {
-    // letreiro vertical de cinema
-    ctx.fillStyle = '#0a0606';
-    ctx.fillRect(0, 0, w, h);
-    const letters = 'ORPHEUM';
-    ctx.fillStyle = '#ff3b2a';
-    ctx.font = `900 ${w * 0.62}px "Bodoni Moda", Georgia, serif`;
-    letters.split('').forEach((ch, i) => {
-      ctx.fillText(ch, w / 2, h * (0.09 + (i * 0.82) / (letters.length - 1)));
-    });
-    frame('#ffb35c');
+    neonText(
+      ctx,
+      'ORPHEUM',
+      w / 2,
+      h * 0.46,
+      `900 ${h * 0.34}px "Bodoni Moda", Georgia, serif`,
+      '#ff2a1a',
+      '#ffd9c8',
+    );
+    ctx.fillStyle = '#e8d0a0';
+    ctx.font = `700 ${h * 0.09}px "Manrope Variable", sans-serif`;
+    ctx.fillText('T O N I G H T   ·   D O U B L E   F E A T U R E', w / 2, h * 0.7);
   }
 }
