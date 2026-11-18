@@ -34,5 +34,6 @@ export const projects: Project[] = [
     tech: ['Python', 'FastAPI', 'pdfplumber', 'openpyxl', 'Next.js', 'TypeScript'],
     link: null,
     image: '/textures/projects/frotas.webp',
+    video: '/videos/frotas.webm',
   },
 ];
