@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { playClick } from '../audio/player';
-import { useScene } from '../store/useScene';
-import { paintGiDisplay } from '../textures/gi';
 import * as THREE from 'three';
 import { PIT, ROOM } from '../config/layout';
 import { palette } from '../config/palette';
@@ -243,29 +241,12 @@ function LitPainting({
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const pieces = art();
-  const giMap = useMemo(
-    () => tex(makeCanvas(500, 600, paintGiDisplay), { clamp: true, aniso: 8 }),
-    [],
-  );
   const south = ROOM.z1 - 0.02;
   const west = ROOM.x0 + 0.02;
   return (
     <group name="decor">
       {/* parede do fundo (sul), de frente para quem senta à escrivaninha:
           três quadros de filmes favoritos entre as arandelas e a paisagem à direita */}
-      {/* kimono de jiu-jitsu emoldurado (aberto, com a faixa preta), na parede atrás
-          da poltrona de leitura, com luz de quadro; clicar abre a ficha do jiu-jitsu */}
-      <LitPainting
-        id="kimono"
-        label="objects.kimono"
-        map={giMap}
-        size={[0.85, 1.02]}
-        position={[-3.45, 2.08, south]}
-        rotationY={Math.PI}
-        frame="wood"
-        onClick={() => useScene.getState().setDossier('gi')}
-        light={4.5}
-      />
       {/* Rembrandt largo entre as arandelas, moldura pesada de madeira e luz de quadro */}
       <LitPainting
         id="storm"

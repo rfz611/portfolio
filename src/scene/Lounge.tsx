@@ -6,6 +6,7 @@ import { palette } from '../config/palette';
 import { CarKeys } from '../objects/CarKeys';
 import { LoungeChair, Ottoman, TrayTable } from '../objects/LoungeChair';
 import { FilmBooks } from '../objects/ReadingProps';
+import { GiMannequin } from '../objects/GiMannequin';
 import { SPOTS } from '../camera/spots';
 import { Interactive } from '../objects/Interactive';
 import { useScene } from '../store/useScene';
@@ -429,6 +430,10 @@ export function Lounge() {
         <PitSofa />
       </OptionalModel>
       <PitSteps />
+      {/* kimono de jiu-jitsu vestido num manequim, de pé no canto da poltrona */}
+      <group position={[-2.25, 0, 4.0]} rotation={[0, 2.62, 0]}>
+        <GiMannequin />
+      </group>
       {/* luvas largadas no assento do lado sul, perto da ponta do sofá */}
       <group position={[-0.5, -PIT.depth + 0.47, PIT.z1 - 0.55]} rotation={[0, 0.3, 0]}>
         <LooseGloves />
@@ -468,12 +473,12 @@ export function Lounge() {
         <group position={[0, 0, 0.88]} rotation={[0, Math.PI, 0]}>
           <Ottoman />
         </group>
-        {/* os 3 livros dos filmes espalhados no banquinho, capas para cima */}
-        <group position={[0, 0.432, 0.88]} rotation={[-0.06, Math.PI, 0]}>
-          <FilmBooks />
-        </group>
         <group position={[-0.66, 0, 0.12]}>
           <TrayTable />
+          {/* os 3 livros dos filmes em escadinha na mesinha */}
+          <group position={[-0.02, 0.505, 0.0]} rotation={[0, -0.3, 0]}>
+            <FilmBooks />
+          </group>
         </group>
         <ArcLamp base={[0.12, -0.78]} aim={[0.02, 0.22]} height={1.72} />
         <mesh position={[0, 0.005, 0.3]} rotation={[-HALF_PI, 0, 0]} material={mat.shadow}>

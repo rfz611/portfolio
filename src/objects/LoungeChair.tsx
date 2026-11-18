@@ -314,7 +314,7 @@ export function TrayTable() {
     <group name="tray-table">
       <mesh geometry={geo.legs} material={mat.chrome} />
       <mesh geometry={geo.tray} material={mats.black} />
-      <group position={[-0.1, 0, -0.07]}>
+      <group position={[0.13, 0, -0.12]}>
         <mesh geometry={geo.drink} material={mats.drink} />
         <mesh geometry={geo.glass} material={mats.glass} renderOrder={3} />
       </group>
