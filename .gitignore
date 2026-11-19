@@ -31,5 +31,3 @@ docs/referencias/**/*.webp
 # cartazes de filme antigos (os livros usam capas pintadas no código)
 public/textures/films/
 
-# carro (modelo do Sketchfab, licença Free Standard: não pode ser redistribuído solto)
-public/models/car.glb

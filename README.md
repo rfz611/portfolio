@@ -38,7 +38,7 @@ Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círc
 - **GSAP** para a câmera e as animações, **Zustand** para o estado, **Howler.js** para a música, **i18next** para os idiomas
 - **Vitest**, **ESLint** e **Prettier**
 
-Todos os objetos são modelados no próprio código, em low poly no estilo PS2, com texturas pintadas em canvas. A exceção é o carro da garagem: quando o arquivo `public/models/car.glb` existe, entra o modelo do Lancer Evolution VIII (veja os créditos); sem ele, aparece o carro feito no código.
+Todos os objetos são modelados no próprio código, em low poly no estilo PS2, com texturas pintadas em canvas. A exceção é o carro da garagem, o modelo do Lancer Evolution VIII em `public/models/car.glb` (veja os créditos).
 
 ## O que você precisa
 
@@ -74,7 +74,6 @@ Músicas e vídeos são pesados e têm direitos de terceiros, então ficam fora 
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `public/audio/`         | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)                                                                                                                           | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`)                                                                                                                                         |
 | `public/videos/`        | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV                                                                                                                          | Basta copiar os arquivos com esses nomes                                                                                                                                                                                                               |
-| `public/models/car.glb` | O modelo do carro: [Mitsubishi Lancer Evolution VIII Low Poly](https://sketchfab.com/3d-models/mitsubishi-lancer-evolution-viii-low-poly-274bd757e3554736a39e2ff4862d0ad2), em GLB | Baixe no Sketchfab (conta gratuita) e salve com esse nome. A licença não deixa redistribuir o arquivo solto, por isso ele não vai para o Git. No site publicado, suba o arquivo no mesmo bucket das músicas e ponha o endereço em `VITE_CAR_MODEL_URL` |
 
 Em produção as músicas vêm de um bucket (Cloudflare R2). O endereço fica na variável `VITE_AUDIO_BASE_URL`; copie `.env.example` para `.env.local` e ajuste.
 
@@ -88,7 +87,7 @@ Em produção as músicas vêm de um bucket (Cloudflare R2). O endereço fica na
 | `src/content/tracks.ts`           | Discos e faixas do toca-discos                                      |
 | `src/content/films.ts`            | Filmes dos livros da poltrona (as notas ficam nos JSON, em `films`) |
 | `public/cv/`                      | Currículo em PDF                                                    |
-| `public/textures/foto.png`        | Foto do porta-retrato                                               |
+| `public/textures/foto.webp`        | Foto do porta-retrato                                               |
 
 ## Estrutura
 

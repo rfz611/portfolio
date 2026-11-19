@@ -1,5 +1,5 @@
 import { CAR_LIFT, LAPTOP, SPOT, TV_SCREEN_WORLD } from '../config/layout';
-import { CABIN_SHIFT, HAS_CAR_MODEL } from '../objects/car/modelInfo';
+import { CABIN_SHIFT } from '../objects/car/modelInfo';
 import type { ViewId } from '../store/useScene';
 import { SPOTS } from './spots';
 
@@ -158,7 +158,7 @@ export const SHOTS: Record<ViewId, Shot> = {
   },
   // De cima do capô aberto.
   motor: {
-    target: [carX - (HAS_CAR_MODEL ? 1.6 : 1.3), 0.62, carZ],
+    target: [carX - 1.58, 0.62, carZ],
     dir: [-0.62, 1.05, 0.3],
     frame: [2.3, 1.3],
     fov: 40,

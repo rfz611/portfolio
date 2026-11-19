@@ -15,7 +15,7 @@ import {
   WHEEL,
   type CarBodyGeometry,
 } from './carBody';
-import { CABIN_SHIFT, ENGINE_FIT, HAS_CAR_MODEL } from './modelInfo';
+import { CABIN_SHIFT, HAS_CAR_MODEL } from './modelInfo';
 import { Engine } from './Engine';
 import { Interior } from './Interior';
 import { join, useCarMaterials, type CarMats } from './materials';
@@ -353,19 +353,7 @@ export function Car() {
         ) : (
           procedural
         )}
-        {ENGINE_FIT ? (
-          // o motor do código, comprimido para caber no cofre mais curto do modelo
-          <group
-            position={[ENGINE_FIT.origin + ENGINE_FIT.shift, ENGINE_FIT.floor, 0]}
-            scale={[...ENGINE_FIT.scale]}
-          >
-            <group position={[-ENGINE_FIT.origin, -ENGINE_FIT.floor, 0]}>
-              <Engine m={m} walls={false} />
-            </group>
-          </group>
-        ) : (
-          <Engine m={m} />
-        )}
+        <Engine m={m} />
         <group position={[CABIN_SHIFT, 0, 0]}>
           <Interior m={m} />
         </group>

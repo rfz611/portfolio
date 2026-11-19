@@ -146,7 +146,7 @@ export function Drawer() {
   );
 }
 
-/** Foto de espera enquanto a foto do Raphael (public/textures/foto.png) carrega. */
+/** Foto de espera enquanto a foto do Raphael (public/textures/foto.webp) carrega. */
 function paintPhotoPlaceholder(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, '#6b5a44');
@@ -185,20 +185,22 @@ export function PhotoFrame() {
       map: tex(makeCanvas(128, 168, paintPhotoPlaceholder), { clamp: true }),
       roughness: 0.3,
     });
-    // a foto do Raphael, recortada no rosto e no tronco e em preto e branco
-    // quente, como foto antiga de porta-retrato
-    new THREE.ImageLoader().load('/textures/foto.png', (image) => {
+    // a foto do Raphael (de perfil, embaixo das árvores), recortada no rosto e
+    // nos ombros e em preto e branco quente, como foto antiga de porta-retrato
+    new THREE.ImageLoader().load('/textures/foto.webp', (image) => {
       const canvas = document.createElement('canvas');
       canvas.width = 360;
       canvas.height = 504;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      // recorte: do alto da cabeça até a gola, com o rosto no meio
       const aspect = canvas.width / canvas.height;
-      const sh = image.height;
-      const sw = Math.min(image.width, sh * aspect);
-      const sx = Math.max(0, Math.min(image.width - sw, image.width * 0.03));
-      ctx.filter = 'grayscale(1) sepia(0.32) contrast(1.12) brightness(0.96)';
-      ctx.drawImage(image, sx, 0, sw, sh, 0, 0, canvas.width, canvas.height);
+      const sw = image.width * 0.8;
+      const sh = sw / aspect;
+      const sx = image.width - sw;
+      const sy = image.height * 0.08;
+      ctx.filter = 'grayscale(1) sepia(0.32) contrast(1.12) brightness(1.02)';
+      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
       ctx.filter = 'none';
       const fade = ctx.createRadialGradient(180, 220, 120, 180, 252, 330);
       fade.addColorStop(0, 'rgba(0,0,0,0)');

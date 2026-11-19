@@ -194,10 +194,11 @@ export function useModelCar(): ModelCarGeometry {
       // (mais largos que ±0,62 m na frente e ±0,70 m atrás), e o para-choque e
       // o lábio também (mais baixos e mais à frente)
       const t = (c.x - HOOD_FRONT) / (glassFront - HOOD_FRONT);
+      // (as aletas da saída de ar são faces em pé: entram mesmo sem olhar para cima)
       if (
         part !== 'glass' &&
-        n.y > 0.3 &&
-        c.y > 0.72 &&
+        (n.y > 0.3 || (part === 'trim' && c.y > 0.7)) &&
+        c.y > 0.68 &&
         c.x > HOOD_FRONT &&
         c.x < glassFront - 0.03 &&
         Math.abs(c.z) < 0.62 + 0.08 * Math.max(0, Math.min(1, t))

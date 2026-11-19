@@ -50,7 +50,7 @@ export function useCarMaterials() {
       }),
       // cofre do motor e o lado de dentro da lataria
       paintInner: std({ color: '#2a2a2e', roughness: 0.9, side: THREE.BackSide }),
-      bayPaint: std({ color: '#b98a16', roughness: 0.5, metalness: 0.35, envMapIntensity: 1 }),
+      bayPaint: std({ color: '#6e5210', roughness: 0.65, metalness: 0.25, envMapIntensity: 0.6 }),
       glass: std({
         color: '#0a0f16',
         roughness: 0.03,
@@ -135,7 +135,7 @@ export function useCarMaterials() {
       // motor
       radiator: std({ map: t(128, 128, paintRadiator), roughness: 0.5, metalness: 0.6 }),
       valve: std({ map: t(256, 128, paintValveCover), roughness: 0.55 }),
-      alu: std({ color: '#9aa0a8', roughness: 0.35, metalness: 0.9, envMapIntensity: 1.3 }),
+      alu: std({ color: '#7f858d', roughness: 0.4, metalness: 0.85, envMapIntensity: 1.1 }),
       castIron: std({ color: '#2b2d31', roughness: 0.55, metalness: 0.7, envMapIntensity: 1 }),
       hose: std({ color: '#121214', roughness: 0.7 }),
       blueHose: std({ color: '#1f3fa8', roughness: 0.5 }),
