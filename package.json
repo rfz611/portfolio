@@ -15,7 +15,8 @@
     "test": "vitest run",
     "audio": "node scripts/prepare-audio.mjs",
     "models": "node scripts/compress-models.mjs",
-    "shots": "node scripts/screenshot.mjs"
+    "shots": "node scripts/screenshot.mjs",
+    "deploy": "npm run build && node scripts/vercel-output.mjs && npx --yes vercel@latest deploy --prebuilt --prod"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

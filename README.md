@@ -2,6 +2,8 @@
 
 Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne 2 e dos jogos de PS2. Cada objeto da sala abre uma parte do portfólio: a TV mostra os projetos, o notebook conta quem eu sou, as revistas são os certificados, o toca-discos toca de verdade e, pela janela, a cidade anuncia os meus projetos.
 
+**No ar:** [raphaelpassos.vercel.app](https://raphaelpassos.vercel.app)
+
 ![A sala, vista do sofá](docs/prints/readme/home-desktop-sala.png)
 
 > Em construção: falta o acabamento final. A especificação completa está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
@@ -65,17 +67,28 @@ O site abre em `http://localhost:5173`.
 | `npm run format`                             | Prettier em tudo                                 |
 | `npm run audio`                              | Renomeia e converte as músicas de `public/audio` |
 | `npm run shots -- docs/prints/pasta home tv` | Tira prints em desktop e celular                 |
+| `npm run deploy`                             | Publica na Vercel (veja abaixo)                  |
 
 ## Arquivos que não ficam no Git
 
 Músicas e vídeos são pesados e têm direitos de terceiros, então ficam fora do repositório. Sem eles o site funciona: o disco aparece com o selo "em breve" e a TV mostra o print no lugar do vídeo.
 
-| Pasta                   | O que vai nela                                                                                                                                                                     | Como usar                                                                                                                                                                                                                                              |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `public/audio/`         | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)                                                                                                                           | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`)                                                                                                                                         |
-| `public/videos/`        | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV                                                                                                                          | Basta copiar os arquivos com esses nomes                                                                                                                                                                                                               |
+| Pasta            | O que vai nela                                            | Como usar                                                                                                      |
+| ---------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `public/audio/`  | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)  | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`) |
+| `public/videos/` | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV | Basta copiar os arquivos com esses nomes                                                                       |
 
-Em produção as músicas vêm de um bucket (Cloudflare R2). O endereço fica na variável `VITE_AUDIO_BASE_URL`; copie `.env.example` para `.env.local` e ajuste.
+## Publicar
+
+O site fica na Vercel, mas é publicado a partir deste computador, não do GitHub: o Git não tem as músicas nem os vídeos, então um build feito lá subiria sem eles (por isso o `vercel.json` desliga as publicações automáticas). Com as pastas `public/audio` e `public/videos` no lugar:
+
+```bash
+npm run deploy
+```
+
+Ele confere os tipos, gera o `dist/`, monta o `.vercel/output` com tudo junto e publica em produção. Na primeira vez a Vercel pede login (`npx vercel login`) e para escolher o projeto (`npx vercel link`).
+
+Se um dia as músicas forem para um bucket (Cloudflare R2, por exemplo), o endereço vai na variável `VITE_AUDIO_BASE_URL`; copie `.env.example` para `.env.local` e ajuste.
 
 ## Onde mudar o conteúdo
 
@@ -87,7 +100,7 @@ Em produção as músicas vêm de um bucket (Cloudflare R2). O endereço fica na
 | `src/content/tracks.ts`           | Discos e faixas do toca-discos                                      |
 | `src/content/films.ts`            | Filmes dos livros da poltrona (as notas ficam nos JSON, em `films`) |
 | `public/cv/`                      | Currículo em PDF                                                    |
-| `public/textures/foto.webp`        | Foto do porta-retrato                                               |
+| `public/textures/foto.webp`       | Foto do porta-retrato                                               |
 
 ## Estrutura
 
@@ -123,6 +136,8 @@ An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-e
 
 Everything is modeled in code, low poly with canvas-painted textures, with React Three Fiber, TypeScript and Vite. There is a plain-HTML text menu with the whole portfolio, in Portuguese and English.
 
-**Requirements:** Node.js 20.19+ and npm. **Run:** `npm install` then `npm run dev`. Music (`public/audio`) and project videos (`public/videos`) are kept out of Git; without them the site still works. Texts live in `src/content/pt.json` and `en.json`.
+**Live:** [raphaelpassos.vercel.app](https://raphaelpassos.vercel.app)
+
+**Requirements:** Node.js 20.19+ and npm. **Run:** `npm install` then `npm run dev`. Music (`public/audio`) and project videos (`public/videos`) are kept out of Git; without them the site still works. `npm run deploy` publishes to Vercel from the local machine, with music and videos included. Texts live in `src/content/pt.json` and `en.json`.
 
 Code and scene by Raphael Scharf Passos, all rights reserved. Album covers, songs and film titles belong to their owners.
