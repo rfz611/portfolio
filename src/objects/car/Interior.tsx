@@ -1,5 +1,7 @@
+import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { contactLinks } from '../../content/contact';
@@ -97,6 +99,7 @@ function RadioFace() {
  * banco de trás, forros das portas, pedais e o porta-luvas (currículo).
  */
 export function Interior({ m }: { m: CarMats }) {
+  const { t } = useTranslation();
   const inCar = useScene((s) => s.view === 'interior');
   const cvOpen = useScene((s) => s.cvOpen);
   const lid = useRef<THREE.Group>(null);
@@ -174,6 +177,20 @@ export function Interior({ m }: { m: CarMats }) {
         passenger.bolsters,
         rbox([0.48, 0.14, 1.28], [1.06, 0.44, 0], 0.05),
         rbox([0.12, 0.5, 1.28], [1.28, 0.72, 0], 0.05, [0, 0, -0.25]),
+        // encostos de cabeça do banco de trás
+        rbox([0.09, 0.15, 0.26], [1.36, 1.03, 0.36], 0.035, [0, 0, -0.25]),
+        rbox([0.09, 0.15, 0.26], [1.36, 1.03, -0.36], 0.035, [0, 0, -0.25]),
+      ]),
+      // atrás do banco de trás: parede do porta-malas e o tampão sob o vidro
+      // traseiro (senão, pelos vidros, dá para ver o chão da garagem por dentro)
+      trunk: join([
+        box([0.03, 0.7, 1.34], [1.43, 0.62, 0]),
+        box([0.8, 0.025, 1.36], [1.79, 0.955, 0]),
+        box([0.62, 0.02, 1.4], [0.94, 0.27, 0]),
+      ]),
+      speakers: join([
+        cyl(0.07, 0.07, 0.012, [1.66, 0.972, 0.42], { seg: 16 }),
+        cyl(0.07, 0.07, 0.012, [1.66, 0.972, -0.42], { seg: 16 }),
       ]),
       slots: join([driver.slots, passenger.slots]),
       pedals: join(
@@ -182,9 +199,10 @@ export function Interior({ m }: { m: CarMats }) {
       // forros das portas que não abrem (passageiro e as de trás); o do
       // motorista vai na própria porta (car/Car.tsx)
       cards: join([
-        new THREE.PlaneGeometry(0.92, 0.44).translate(-0.1, 0.68, -0.78),
-        new THREE.PlaneGeometry(0.52, 0.42).rotateY(Math.PI).translate(0.68, 0.7, 0.8),
-        new THREE.PlaneGeometry(0.52, 0.42).translate(0.68, 0.7, -0.8),
+        // (o topo fica abaixo da base dos vidros: senão vira uma faixa preta na janela)
+        new THREE.PlaneGeometry(0.92, 0.3).translate(-0.1, 0.62, -0.78),
+        new THREE.PlaneGeometry(0.52, 0.3).rotateY(Math.PI).translate(0.68, 0.62, 0.8),
+        new THREE.PlaneGeometry(0.52, 0.3).translate(0.68, 0.62, -0.8),
       ]),
       lid: rbox([0.03, 0.14, 0.36], [0, 0.07, 0], 0.01),
     };
@@ -232,6 +250,8 @@ export function Interior({ m }: { m: CarMats }) {
       </group>
       <mesh geometry={geo.seats} material={m.seat} />
       <mesh geometry={geo.bolsters} material={m.leather} />
+      <mesh geometry={geo.trunk} material={m.carpet} />
+      <mesh geometry={geo.speakers} material={m.vent} />
       <mesh geometry={geo.slots} material={m.matte} />
       <mesh geometry={geo.pedals} material={m.alu} />
       <mesh geometry={geo.cards} material={m.doorCard} />
@@ -243,6 +263,14 @@ export function Interior({ m }: { m: CarMats }) {
         enabled={inCar}
         onClick={() => useScene.getState().setCvOpen(true)}
       >
+        {inCar && !cvOpen && (
+          <Html position={[-0.17, 0.7, -0.4]} zIndexRange={[5, 0]}>
+            <div className="deck-tag car-tag">
+              <span className="car-tag__dot" aria-hidden="true" />
+              {t('car.tagGlovebox')}
+            </div>
+          </Html>
+        )}
         <group ref={lid} position={[-0.19, 0.64, -0.4]}>
           <mesh geometry={geo.lid} material={m.dash} />
           <mesh geometry={geo.handle} material={m.alu} />

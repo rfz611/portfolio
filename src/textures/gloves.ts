@@ -85,3 +85,22 @@ export function paintGloveCuff(ctx: Ctx, w: number, h: number) {
   ctx.font = `700 ${lh * 0.12}px "Manrope Variable", sans-serif`;
   ctx.fillText('BOXING', w * 0.5, h * 0.62);
 }
+
+/**
+ * Etiqueta das costas da mão, em fundo transparente: MAXIMUM / BOXING em
+ * preto. Virada no canvas: lida com os dedos para longe de quem olha.
+ */
+export function paintGloveLabel(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(Math.PI);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#121212';
+  ctx.font = `900 ${h * 0.3}px "Bodoni Moda", Georgia, serif`;
+  ctx.fillText('MAXIMUM', 0, -h * 0.08, w * 0.94);
+  ctx.font = `700 ${h * 0.11}px "Manrope Variable", sans-serif`;
+  ctx.fillText('B O X I N G', 0, h * 0.24);
+  ctx.restore();
+}

@@ -11,6 +11,9 @@ const D = 0.032;
 /** Onde a bala atravessa a lateral direita (em fração da largura e da altura). */
 const BULLET_U = 0.93;
 const BULLET_V = 0.46;
+/** x da base da bala (uns 9 mm para fora da lateral) e quanto ela sai pela frente. */
+const BULLET_BASE = W / 2 + 0.009;
+const BULLET_Z = 0.011;
 
 /**
  * Bloco de metal drapeado: frente e verso com dobras verticais que se
@@ -128,8 +131,8 @@ function paintPrimer(ctx: CanvasRenderingContext2D, w: number, h: number) {
 /**
  * Perfume Spectre Ghost (pela foto do Raphael): frasco de metal grafite
  * espelhado e drapeado, com bordas chanfradas, GHOST dourado na vertical,
- * SPECTRE embaixo, a bala dourada atravessando a lateral direita com a
- * ponta para fora e a tampa quadrada drapeada com a base dourada de uma
+ * SPECTRE embaixo, a bala dourada cravada na lateral direita com a
+ * ponta para dentro e a tampa quadrada drapeada com a base dourada de uma
  * bala cravada no canto.
  */
 export function GhostPerfume() {
@@ -138,7 +141,9 @@ export function GhostPerfume() {
       body: drapedBlock(W, H, D, 0.0028, [BULLET_U, BULLET_V]).translate(0, H / 2, 0),
       neck: new THREE.CylinderGeometry(0.009, 0.01, 0.007, 16).translate(0, H + 0.0035, 0),
       cap: drapedBlock(0.034, 0.033, 0.027, 0.0018, [0.25, 0.7]).translate(0, H + 0.0235, 0),
-      // bala deitada: base escondida dentro do frasco, ponta saindo pela direita
+      // bala deitada, cravada no frasco como na foto: a ponta entra no vidro
+      // (para a esquerda, meio afundada na frente) e a base com o aro fica
+      // para fora da lateral direita
       bullet: crease(
         lathe(
           [
@@ -156,11 +161,12 @@ export function GhostPerfume() {
         ),
         35,
       )
-        .rotateZ(-Math.PI / 2)
-        .translate(W * (BULLET_U - 0.5) - 0.012, H * BULLET_V, 0.003),
+        .rotateZ(Math.PI / 2)
+        .translate(BULLET_BASE, H * BULLET_V, BULLET_Z),
+      // canaleta perto da base (a parte que fica para fora)
       bands: new THREE.TorusGeometry(0.008, 0.0007, 6, 20)
         .rotateY(Math.PI / 2)
-        .translate(W * (BULLET_U - 0.5) + 0.012, H * BULLET_V, 0.003),
+        .translate(BULLET_BASE - 0.0045, H * BULLET_V, BULLET_Z),
       primer: new THREE.CylinderGeometry(0.0065, 0.0065, 0.003, 22)
         .rotateX(Math.PI / 2)
         .translate(-0.0075, H + 0.031, 0.0145),

@@ -340,6 +340,11 @@ main:focus {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid rgba(232, 168, 74, 0.28);
+  border-radius: 999px;
+  background: rgba(8, 5, 4, 0.72);
+  backdrop-filter: blur(3px);
 }
 
 .spot-nav__name {
@@ -522,14 +527,29 @@ main:focus {
 }
 
 .tv__foot a {
-  color: var(--amber);
+  padding: 3px 12px 2px;
+  border-radius: 3px;
+  background: var(--amber);
+  color: #1c0f05;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 179, 92, 0.5);
+  text-shadow: none;
+  box-shadow: 0 0 14px rgba(255, 179, 92, 0.55);
   pointer-events: auto;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.tv__foot a:hover,
+.tv__foot a:focus-visible {
+  background: #ffd29a;
+  box-shadow: 0 0 22px rgba(255, 179, 92, 0.85);
 }
 
 .tv__soon {
-  color: rgba(228, 239, 226, 0.6);
+  padding: 2px 10px;
+  border: 1px dashed rgba(255, 179, 92, 0.55);
+  color: rgba(255, 214, 160, 0.85);
   font-size: 15px;
 }
 
@@ -541,13 +561,24 @@ main:focus {
 }
 
 .tv__ch button {
-  border: 1px solid rgba(125, 255, 138, 0.5);
-  background: none;
-  color: #7dff8a;
-  font: 16px/1 var(--font-crt);
-  padding: 2px 7px;
+  border: 1px solid #7dff8a;
+  border-radius: 3px;
+  background: rgba(125, 255, 138, 0.16);
+  color: #b9ffc1;
+  font: 20px/1 var(--font-crt);
+  padding: 3px 10px;
+  box-shadow: 0 0 10px rgba(125, 255, 138, 0.35);
   cursor: pointer;
   pointer-events: auto;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.tv__ch button:hover,
+.tv__ch button:focus-visible {
+  background: rgba(125, 255, 138, 0.34);
+  box-shadow: 0 0 18px rgba(125, 255, 138, 0.7);
 }
 
 /* chiado, linha de ligar e o vidro (scanlines + reflexo + borda escura) */
@@ -607,18 +638,45 @@ main:focus {
     radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.75) 100%);
 }
 
-/* ---------- página de texto ---------- */
+/* ---------- página de texto: a cobertura em versão de leitura ---------- */
+
+/* fundo: noite azul-escura com o brilho âmbar das luminárias e um vinho
+   embaixo, e um granulado de filme leve por cima de tudo */
+body:not(.is-3d) {
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255, 150, 60, 0.12), transparent 70%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(92, 15, 22, 0.45), transparent 70%),
+    linear-gradient(180deg, #0c0708 0%, #120a0b 40%, #0a0710 100%);
+  background-attachment: fixed;
+}
+
+body:not(.is-3d)::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: repeating-radial-gradient(
+    circle at 17% 32%,
+    #fff 0 0.6px,
+    transparent 0.6px 3px
+  );
+  mix-blend-mode: overlay;
+}
 
 .text-page {
-  max-width: 760px;
+  position: relative;
+  z-index: 2;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 64px 24px 110px;
+  padding: 0 24px 110px;
 }
 
 .text-page section {
-  padding: 34px 0;
-  border-top: 1px solid var(--line);
-  scroll-margin-top: 120px;
+  padding: 46px 0 34px;
+  border-top: 1px solid rgba(184, 137, 58, 0.28);
+  scroll-margin-top: 90px;
 }
 
 .text-page section:first-of-type {
@@ -626,20 +684,16 @@ main:focus {
 }
 
 .text-page h2 {
-  margin: 0 0 14px;
+  margin: 0 0 18px;
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
-  font-size: 2rem;
-}
-
-.text-page h2.display {
-  font-size: clamp(2.4rem, 7vw, 3.8rem);
-  line-height: 1.05;
+  font-size: 2.2rem;
+  color: #fff3df;
 }
 
 .text-page h3 {
-  margin: 22px 0 6px;
+  margin: 24px 0 6px;
   font-size: 0.8rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -651,9 +705,61 @@ main:focus {
 }
 
 .text-page__notice {
+  margin: 24px 0 0;
   padding: 12px 16px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--amber);
+}
+
+/* topo: a foto da sala esmaecida atrás do nome em neon */
+.hero {
+  position: relative;
+  min-height: min(88vh, 760px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 120px 0 56px !important;
+}
+
+.hero__photo {
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 7, 8, 0.6) 0%,
+      rgba(12, 7, 8, 0.45) 35%,
+      rgba(12, 7, 8, 0.82) 70%,
+      #120a0b 100%
+    ),
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.7) 100%),
+    url('/textures/hero-sala.webp') center 40% / cover no-repeat;
+}
+
+.hero__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.28em;
+  margin: 6px 0 14px !important;
+  font-size: clamp(2.2rem, 6vw, 3.4rem) !important;
+  line-height: 1;
+}
+
+.hero__first,
+.hero__last {
+  color: rgba(255, 243, 223, 0.86);
+}
+
+/* Scharf: tubo branco-quente com o halo âmbar, como o letreiro */
+.hero__neon {
+  font-size: 1.75em;
+  color: #fff3df;
+  text-shadow:
+    0 0 6px rgba(255, 179, 92, 0.9),
+    0 0 18px rgba(255, 179, 92, 0.65),
+    0 0 42px rgba(255, 140, 50, 0.45);
 }
 
 .eyebrow,
@@ -666,7 +772,8 @@ main:focus {
 }
 
 .lead {
-  font-size: 1.1rem;
+  margin: 0 0 6px;
+  font-size: 1.12rem;
   color: var(--muted);
 }
 
@@ -682,6 +789,7 @@ main:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .button {
@@ -689,36 +797,97 @@ main:focus {
   align-items: center;
   min-height: 42px;
   padding: 8px 18px;
+  border: 1px solid var(--amber);
+  border-radius: 3px;
   background: var(--amber);
-  border-color: var(--amber);
-  color: var(--ink);
+  color: #1c0f05;
+  font: 600 0.95rem var(--font-body);
   text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(255, 179, 92, 0.25);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
 }
 
-.button:hover {
-  background: transparent;
+.button:hover,
+.button:focus-visible {
+  background: #ffd29a;
+  box-shadow: 0 0 26px rgba(255, 179, 92, 0.5);
 }
 
 .button--ghost {
-  background: transparent;
-  border-color: var(--line);
-  color: var(--text);
+  background: rgba(12, 7, 8, 0.5);
+  border-color: rgba(184, 137, 58, 0.6);
+  color: #fff3df;
+  box-shadow: none;
 }
 
+.button--ghost:hover,
+.button--ghost:focus-visible {
+  background: rgba(255, 179, 92, 0.12);
+  color: #fff3df;
+}
+
+/* projetos: cada um numa tela de TV de tubo, como na estante */
 .card {
-  margin: 0 0 18px;
-  padding: 18px 20px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: rgba(11, 16, 48, 0.5);
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 20px;
+  padding: 22px 24px;
+  border: 1px solid rgba(184, 137, 58, 0.35);
+  border-radius: 6px;
+  background: rgba(20, 12, 13, 0.7);
+}
+
+.card--tv {
+  border: 10px solid #1b1214;
+  border-radius: 22px / 18px;
+  background: radial-gradient(ellipse at 50% 40%, #10171a, #040606 80%);
+  box-shadow:
+    0 0 0 1px rgba(184, 137, 58, 0.35),
+    0 18px 40px rgba(0, 0, 0, 0.5);
+  color: #e4efe2;
+}
+
+.card--tv::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 30% 15%, rgba(255, 255, 255, 0.06), transparent 40%);
+}
+
+.card--tv .crt {
+  color: #7dff8a;
+  text-shadow: 0 0 8px rgba(125, 255, 138, 0.5);
 }
 
 .card h3 {
   margin: 2px 0 8px;
-  font: italic 600 1.5rem var(--font-display);
+  font: italic 600 1.7rem var(--font-display);
   letter-spacing: 0;
   text-transform: none;
-  color: var(--text);
+  color: #fff6dc;
+}
+
+.card a {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  margin-top: 6px;
+  padding: 4px 14px 3px;
+  border-radius: 3px;
+  background: var(--amber);
+  color: #1c0f05;
+  font-family: var(--font-crt);
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  box-shadow: 0 0 14px rgba(255, 179, 92, 0.45);
 }
 
 .tags {
@@ -730,23 +899,49 @@ main:focus {
 }
 
 .tags li {
-  padding: 2px 9px;
-  border: 1px solid var(--line);
-  border-radius: 99px;
-  font-size: 0.78rem;
+  padding: 1px 8px;
+  border: 1px solid rgba(255, 179, 92, 0.6);
+  color: var(--amber);
+  font-family: var(--font-crt);
+  font-size: 1rem;
+}
+
+/* sobre mim: o arquivo aberto no notebook */
+.file {
+  border: 1px solid rgba(184, 137, 58, 0.4);
+  border-radius: 4px;
+  background: rgba(18, 10, 12, 0.75);
+  padding: 0 22px 8px;
+}
+
+.file__bar {
+  margin: 0 -22px 14px !important;
+  padding: 6px 14px;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.4);
+  background: rgba(92, 15, 22, 0.55);
+  font-family: var(--font-crt);
+  font-size: 1.1rem;
+  color: var(--amber);
 }
 
 .skills div {
   display: grid;
-  grid-template-columns: 190px 1fr;
+  grid-template-columns: 220px 1fr;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.2);
 }
 
 .skills dt {
   color: var(--amber);
   font-weight: 700;
+}
+
+.skills dt .crt {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .skills dd {
@@ -762,6 +957,25 @@ main:focus {
 .tracks li,
 .contact li {
   padding: 5px 0;
+}
+
+/* contato: as estações do rádio do carro, em vermelho */
+.radio li {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.18);
+}
+
+.radio .crt {
+  min-width: 5.5ch;
+  color: #ff3b2a;
+  text-shadow: 0 0 8px rgba(255, 59, 42, 0.55);
+}
+
+.radio a {
+  color: #fff3df;
 }
 
 /* ---------- celular ---------- */
@@ -791,8 +1005,8 @@ main:focus {
     gap: 2px;
   }
 
-  .text-page {
-    padding-top: 40px;
+  .hero {
+    min-height: 78vh;
   }
 }
 
@@ -1018,6 +1232,7 @@ main:focus {
 
 .os__text {
   margin: 0;
+  white-space: pre-line;
 }
 
 .os__caret {
@@ -1572,6 +1787,34 @@ main:focus {
 
 .deck-tag--platter {
   transform: translate(calc(-100% - 4px), 10px);
+}
+
+.car-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -100%);
+}
+
+.car-tag__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 0 rgba(255, 179, 92, 0.7);
+  animation: car-tag-pulse 1.6s ease-out infinite;
+}
+
+@keyframes car-tag-pulse {
+  to {
+    box-shadow: 0 0 0 9px rgba(255, 179, 92, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .car-tag__dot {
+    animation: none;
+  }
 }
 
 @keyframes deck-tag-in {

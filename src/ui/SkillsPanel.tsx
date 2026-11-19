@@ -38,6 +38,11 @@ export function SkillsPanel() {
             type="button"
             className={g.id === skill ? 'is-on' : undefined}
             onClick={() => setSkill(g.id)}
+            // passar o mouse no botão acende a peça no motor
+            onPointerEnter={() =>
+              useScene.getState().setHovered({ id: `engine-${g.part}`, label: g.partKey })
+            }
+            onPointerLeave={() => useScene.getState().setHovered(null)}
           >
             {t(g.partKey)}
           </button>

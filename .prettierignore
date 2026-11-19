@@ -3,3 +3,4 @@ node_modules
 public
 docs
 package-lock.json
+.vercel

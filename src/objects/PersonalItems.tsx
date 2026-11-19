@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
 import { box, crease, cyl, merge } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
 import { lib } from '../textures/library';
-import { paintGloveBody, paintGloveCuff } from '../textures/gloves';
+import { paintGloveCuff, paintGloveLabel } from '../textures/gloves';
 import { Interactive } from './Interactive';
 
 const HALF_PI = Math.PI / 2;
@@ -14,44 +15,70 @@ const HALF_PI = Math.PI / 2;
  * o texto depois não mexe no resto.
  */
 
-const smooth = (a: number, b: number, v: number) => {
-  const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
+/** Meia aresta do cubo onde a luva é "modelada" (m). */
+const GLOVE_HALF = 0.15;
 
 /**
- * Corpo da luva de boxe: um ovo deitado ao longo do comprimento (os polos
- * ficam na ponta e no pulso, para o nome nas costas da mão não deformar),
- * moldado vértice a vértice: frente cheia (o punho fechado), rolo dos dedos
- * em cima, dobra dos dedos embaixo e afinando até o pulso. Aponta para +z.
+ * Corpo da luva de boxe com formato de mão fechada, modelado como massa:
+ * bolhas que se fundem (metaballs) no punho, nas costas da mão, nos nós
+ * dos dedos, na frente fechada, nos dedos dobrados por baixo e no polegar
+ * colado na lateral. Pulso em -z, dedos em +z, costas da mão em +y;
+ * side = 1 ou -1 põe o polegar de um lado ou do outro (luva esquerda/direita).
  */
-function gloveBody() {
-  const g = new THREE.SphereGeometry(1, 44, 30).rotateX(Math.PI / 2);
-  const p = g.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < p.count; i++) {
-    let x = p.getX(i);
-    let y = p.getY(i);
-    const z = p.getZ(i);
-    const taper = 1 - 0.3 * smooth(0, -1, z);
-    x *= taper;
-    y *= taper;
-    if (y > 0) y += 0.16 * smooth(0.2, 0.75, z) * (1 - Math.abs(x) * 0.6);
-    if (y < 0) y += 0.14 * Math.exp(-((z - 0.55) ** 2) / 0.02);
-    // lado do polegar um pouco mais reto, como luva de verdade
-    x *= 1 - 0.06 * smooth(0.2, 1, Math.abs(x));
-    p.setXYZ(i, x * 0.064, y * 0.057, z * 0.1);
-  }
-  g.computeVertexNormals();
+function gloveBody(side: number) {
+  const mc = new MarchingCubes(44, new THREE.MeshBasicMaterial(), false, false, 40000);
+  mc.reset();
+  const k = 1 / (2 * GLOVE_HALF);
+  // raio da superfície de cada bolha sozinha (m): força = (r/cubo)² x (isolamento + 12)
+  // queda curta (subtract alto): cada bolha mantém a forma e só se funde na borda
+  const S = 48;
+  const ball = (x: number, y: number, z: number, r: number) =>
+    mc.addBall(0.5 + x * k, 0.5 + y * k, 0.5 + z * k, (r * k) ** 2 * (mc.isolation + S), S);
+  ball(0, -0.002, -0.07, 0.046); // pulso (entra no punho)
+  ball(0, -0.002, -0.1, 0.044);
+  ball(0, 0.012, -0.028, 0.044); // costas da mão
+  ball(0.02, 0.022, 0.016, 0.042); // nós dos dedos (o alto da luva)
+  ball(-0.02, 0.022, 0.016, 0.042);
+  ball(0, 0.004, 0.052, 0.047); // frente fechada
+  ball(0, -0.032, 0.05, 0.036); // dedos dobrados por baixo
+  ball(0, -0.022, -0.01, 0.036); // palma
+  // polegar: três bolhas ao longo da lateral, de trás para a frente e para baixo
+  ball(side * 0.043, -0.012, -0.022, 0.022);
+  ball(side * 0.054, -0.02, 0.008, 0.021);
+  ball(side * 0.05, -0.03, 0.036, 0.019);
+  mc.update();
+  const n = mc.count;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(mc.positionArray.slice(0, n * 3), 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(mc.normalArray.slice(0, n * 3), 3));
+  g.scale(GLOVE_HALF, GLOVE_HALF, GLOVE_HALF);
+  mc.geometry.dispose();
   return g;
 }
 
-/** Polegar colado na lateral do punho, apontando para a frente. */
-function gloveThumb(side: number) {
-  const g = new THREE.CapsuleGeometry(0.02, 0.065, 8, 14);
-  g.rotateX(Math.PI / 2);
-  g.rotateY(side * 0.28);
-  g.rotateZ(side * 0.45);
-  g.translate(side * 0.052, -0.006, 0.03);
+/** Altura das costas da mão no meio da luva (para assentar a etiqueta do nome). */
+function backTop(g: THREE.BufferGeometry, z: number) {
+  const p = g.attributes.position as THREE.BufferAttribute;
+  let top = 0;
+  for (let i = 0; i < p.count; i++) {
+    if (Math.abs(p.getX(i)) < 0.008 && Math.abs(p.getZ(i) - z) < 0.008)
+      top = Math.max(top, p.getY(i));
+  }
+  return top;
+}
+
+/** Etiqueta MAXIMUM / BOXING curvada por cima das costas da mão. */
+function gloveLabel(top: number, z: number) {
+  const g = new THREE.PlaneGeometry(0.07, 0.05, 12, 6).rotateX(-Math.PI / 2);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    const dz = p.getZ(i);
+    // acompanha a curva da luva nos dois sentidos
+    p.setY(i, top + 0.0015 - 9 * x * x - 4 * dz * dz);
+    p.setZ(i, z + dz);
+  }
+  g.computeVertexNormals();
   return g;
 }
 
@@ -72,10 +99,13 @@ export function LooseGloves() {
       .translate(0, -0.004, -0.135);
     const strapEdge = new THREE.TorusGeometry(0.0565, 0.0025, 6, 28).translate(0, -0.004, 0);
     const liner = new THREE.CircleGeometry(0.048, 24).rotateY(Math.PI).translate(0, -0.004, -0.2);
+    const left = gloveBody(1);
+    const right = gloveBody(-1);
+    const labelZ = 0.0;
     return {
-      body: gloveBody(),
-      thumbL: gloveThumb(1),
-      thumbR: gloveThumb(-1),
+      left,
+      right,
+      label: gloveLabel(backTop(left, labelZ), labelZ),
       cuff,
       strap,
       edges: merge([
@@ -98,8 +128,14 @@ export function LooseGloves() {
         emissiveIntensity: 0.55,
       });
     return {
-      body: leather(tex(makeCanvas(1024, 512, paintGloveBody), { aniso: 8 })),
       plain: leather(),
+      label: new THREE.MeshStandardMaterial({
+        map: tex(makeCanvas(512, 384, paintGloveLabel), { clamp: true, aniso: 8 }),
+        transparent: true,
+        roughness: 0.4,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+      }),
       strap: new THREE.MeshStandardMaterial({
         map: tex(makeCanvas(512, 128, paintGloveCuff), { aniso: 8 }),
         emissive: '#6e6052',
@@ -121,8 +157,8 @@ export function LooseGloves() {
   }, []);
   const glove = (side: 1 | -1) => (
     <>
-      <mesh geometry={geo.body} material={mats.body} />
-      <mesh geometry={side === 1 ? geo.thumbL : geo.thumbR} material={mats.plain} />
+      <mesh geometry={side === 1 ? geo.left : geo.right} material={mats.plain} />
+      <mesh geometry={geo.label} material={mats.label} />
       <mesh geometry={geo.cuff} material={mats.cuff} />
       <mesh geometry={geo.strap} material={mats.strap} />
       <mesh geometry={geo.edges} material={mats.cuff} />

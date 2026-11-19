@@ -35,6 +35,7 @@ function rbox(size: P, pos: P, radius = 0.015) {
 export function Engine({ m }: { m: CarMats }) {
   const atEngine = useScene((s) => s.view === 'motor');
   const setSkill = useScene((s) => s.setSkill);
+  const skill = useScene((s) => s.skill);
 
   const geo = useMemo(() => {
     // Layout do cofre (x do para-choque, -2,05, até a parede de fogo, -1,15;
@@ -231,6 +232,7 @@ export function Engine({ m }: { m: CarMats }) {
       id={`engine-${key}`}
       label={groups[key].partKey}
       enabled={atEngine}
+      active={skill === groups[key].id}
       onClick={() => setSkill(groups[key].id)}
     >
       <group>{node}</group>

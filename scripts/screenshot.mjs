@@ -7,7 +7,8 @@
  *            SHOT_QUALITY=high|medium|low, SHOT_WAIT (ms depois da transição),
  *            SHOT_CLICK="x,y;x,y" (cliques antes do print), SHOT_AFTER (ms depois
  *            dos cliques), SHOT_CLIP="x,y,l,a" (recorte), SHOT_SUFFIX (nome),
- *            SHOT_EVAL (expressão JS para imprimir), SHOT_HOVER="x,y".
+ *            SHOT_EVAL (expressão JS para imprimir), SHOT_HOVER="x,y",
+ *            SHOT_SIZE="1873x882" (tamanho da tela do desktop).
  */
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -41,8 +42,8 @@ const wait = Number(process.env.SHOT_WAIT ?? 2600);
 const devices = [
   {
     name: 'desktop',
-    width: 1440,
-    height: 810,
+    width: Number(process.env.SHOT_SIZE?.split('x')[0] ?? 1440),
+    height: Number(process.env.SHOT_SIZE?.split('x')[1] ?? 810),
     deviceScaleFactor: Number(process.env.SHOT_DPR ?? 1),
     isMobile: false,
   },

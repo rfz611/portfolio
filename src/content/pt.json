@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Raphael Scharf Passos — Portfólio 3D",
+    "title": "Raphael Scharf — Portfólio 3D",
     "description": "Portfólio 3D de Raphael Scharf Passos, estudante de Engenharia de Software em Curitiba: back-ends em C# e Python, projetos, skills e contato dentro de uma cobertura dos anos 80."
   },
   "nav": {
@@ -24,7 +24,7 @@
     "lang": "Mudar idioma para inglês",
     "textVersion": "Texto",
     "view3d": "3D",
-    "hint": "Arraste para olhar em volta · clique nos círculos do chão para andar · clique nos objetos",
+    "hint": "Mouse na borda ou arraste para olhar · círculos do chão para andar · clique nos objetos",
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
     "room": "Sala",
     "soundOn": "Som",
@@ -40,7 +40,7 @@
     "name": "Raphael Scharf Passos",
     "role": "Estudante de Engenharia de Software",
     "place": "Curitiba, PR",
-    "phrase": "Construo back-ends em C# e Python e gosto de transformar trabalho manual em sistema.",
+    "phrase": "Back-ends em C# e Python e automação de processos.",
     "status": "Procurando estágio em TI, à tarde, presencial ou híbrido em Curitiba, ou remoto.",
     "downloadCv": "Baixar currículo",
     "seeProjects": "Ver projetos",
@@ -68,7 +68,7 @@
   "about": {
     "title": "Sobre mim",
     "aboutFile": "sobre_mim.txt",
-    "aboutText": "Moro em Curitiba e estudo de manhã. Gosto de entender como uma operação funciona por dentro e de cortar o trabalho repetitivo dela.",
+    "aboutText": "Moro em Curitiba, estudo Engenharia de Software de manhã e procuro estágio para a tarde. Gosto de entender como uma operação funciona por dentro e de construir o sistema que tira dela o trabalho repetitivo, como fiz na Automação de Frotas, feita para uma corretora de seguros de verdade.\n\nMuito do que sei aprendi por vontade própria, fora da sala de aula. Este portfólio é um exemplo: ninguém pediu, fiz pelo desejo de aprender 3D e de criar algo diferente. Quase tudo nesta sala foi modelado em código, com React Three Fiber e TypeScript.\n\nGosto de projeto com começo, meio e fim: entender o problema, escrever o back-end, testar e entregar algo que alguém usa no dia a dia.",
     "education": "Formação",
     "educationUni": "Engenharia de Software, Universidade Positivo, 2º ano, formatura prevista em 2028.",
     "educationTech": "Técnico em Análise e Desenvolvimento de Sistemas, SENAI, 2024.",
@@ -182,7 +182,7 @@
     "tv": "projetos",
     "pc": "sobre mim",
     "magazines": "certificados",
-    "keys": "contato",
+    "keys": "garagem",
     "car": "garagem",
     "window": "início",
     "bar": "bar",
@@ -240,6 +240,14 @@
     "stations": "estações"
   },
   "car": {
-    "hint": "Clique no capô, na porta ou nos faróis"
+    "hint": "Clique no capô, na porta ou nos faróis",
+    "tagHood": "capô · skills",
+    "tagDoor": "porta · contato",
+    "tagLights": "faróis",
+    "tagGlovebox": "porta-luvas · currículo"
+  },
+  "textPage": {
+    "kicker": "Portfólio · Curitiba, PR",
+    "enter3d": "Entrar na cobertura (3D)"
   }
 }

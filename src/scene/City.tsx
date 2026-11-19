@@ -396,6 +396,9 @@ export function City() {
         new THREE.MeshBasicMaterial({
           map: tex(makeCanvas(64, 200, paintRoad), { aniso: 8, repeat: [1, repeat] }),
           color: hdr('#ffffff', 1.5),
+          // o chão e as ruas ficam a centímetros um do outro, a 95 m de
+          // distância: sem gravar profundidade e desenhados em ordem, não piscam
+          depthWrite: false,
         }),
       lamp: new THREE.MeshBasicMaterial({ color: hdr('#ffb062', 2.2), toneMapped: false }),
       roof: new THREE.MeshBasicMaterial({ color: '#171418' }),
@@ -422,7 +425,7 @@ export function City() {
         depthWrite: false,
       }),
       tail: new THREE.MeshBasicMaterial({ color: hdr('#ff2a1a', 2.2), toneMapped: false }),
-      ground: new THREE.MeshBasicMaterial({ color: '#0b090c' }),
+      ground: new THREE.MeshBasicMaterial({ color: '#0b090c', depthWrite: false }),
       beam: new THREE.MeshBasicMaterial({
         color: '#ffe2c0',
         transparent: true,
@@ -475,11 +478,13 @@ export function City() {
         position={[CENTER_X, GROUND_Y, -600]}
         rotation={[-Math.PI / 2, 0, 0]}
         material={mats.ground}
+        renderOrder={-6}
       >
         <planeGeometry args={[3000, 3000]} />
       </mesh>
-      <mesh geometry={geo.roadsNS} material={roadNS} />
-      <mesh geometry={geo.roadsEW} material={roadEW} />
+      {/* chão, depois as ruas leste-oeste e por cima as norte-sul (cruzamentos) */}
+      <mesh geometry={geo.roadsEW} material={roadEW} renderOrder={-5} />
+      <mesh geometry={geo.roadsNS} material={roadNS} renderOrder={-4} />
       <mesh geometry={geo.lamps} material={mats.lamp} />
       <group ref={carsRef}>
         <mesh geometry={geo.comingBody} material={mats.carBody} />

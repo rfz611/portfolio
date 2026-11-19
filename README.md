@@ -22,7 +22,7 @@ Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne
 | Bar        | Garrafas                        | Um drink servido no balcão (whisky, martini ou negroni)                                                                                  |
 | Janela     | A cidade                        | Anúncios do UniCar e da Automação de Frotas que levam ao canal certo da TV, cinema, clube de jazz, cassino, hotel e coberturas com festa |
 | Garagem    | Carro (capô)                    | As skills: cada peça do motor é um grupo de tecnologias                                                                                  |
-| Garagem    | Carro (porta ou chaves na mesa) | Entra no carro: o rádio tem os contatos nas estações (e-mail, LinkedIn, GitHub, currículo) e o porta-luvas guarda o currículo            |
+| Garagem    | Carro (chaves na mesa levam até ele; a porta abre) | Entra no carro: o rádio tem os contatos nas estações (e-mail, LinkedIn, GitHub, currículo) e o porta-luvas guarda o currículo            |
 | Garagem    | Faróis                          | Ligam e desligam; acesos, iluminam o chão até a sala                                                                                     |
 
 Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círculos do chão e trocar de lugar pelas setas da legenda. Quem prefere ler tem o **menu de texto**, com o portfólio inteiro em HTML, e tudo existe em português e inglês.

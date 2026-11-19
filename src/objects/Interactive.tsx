@@ -17,6 +17,8 @@ interface Props {
   hit?: ReactNode;
   /** false = sem contorno amarelo (o objeto mostra o destaque do seu jeito). */
   outline?: boolean;
+  /** Contorno aceso mesmo sem o mouse em cima (ex.: peça escolhida no painel). */
+  active?: boolean;
 }
 
 /** O evento veio do próprio canvas 3D (e não de uma tela HTML por cima dele)? */
@@ -61,6 +63,7 @@ export function Interactive({
   children,
   hit,
   outline = true,
+  active = false,
 }: Props) {
   const hovered = useScene((s) => s.hovered?.id === id);
   const root = useRef<THREE.Group>(null);
@@ -86,7 +89,7 @@ export function Interactive({
       onPointerOut={enabled ? out : undefined}
       onClick={enabled && onClick ? click : undefined}
     >
-      <Select enabled={outline && enabled && hovered}>{children}</Select>
+      <Select enabled={outline && enabled && (hovered || active)}>{children}</Select>
       {enabled && hit}
     </group>
   );

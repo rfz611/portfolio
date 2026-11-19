@@ -4,21 +4,39 @@ import { contactLinks, cvFiles } from '../content/contact';
 import { projects } from '../content/projects';
 import { skillGroups } from '../content/skills';
 import { tracks } from '../content/tracks';
+import { useScene } from '../store/useScene';
+
+/** Nome com o sobrenome do meio (Scharf) em neon, como o letreiro da sala. */
+function NeonName({ name }: { name: string }) {
+  const [first, middle, ...rest] = name.split(' ');
+  if (!middle) return <>{name}</>;
+  return (
+    <>
+      <span className="hero__first">{first}</span>
+      <span className="hero__neon">{middle}</span>
+      <span className="hero__last">{rest.join(' ')}</span>
+    </>
+  );
+}
 
 /**
  * Página de texto completa: aparece quando não há WebGL ou quando a pessoa
- * prefere não explorar o 3D. Tem todo o conteúdo do portfólio.
+ * prefere não explorar o 3D. Tem todo o conteúdo do portfólio, com o clima
+ * da cobertura: mogno e vinho, o nome em neon, os projetos em telas de TV
+ * de tubo, o sobre mim como o arquivo do notebook e o contato no dial do rádio.
  */
 export function TextPage({ webgl }: { webgl: boolean }) {
   const { t } = useTranslation();
+  const setMode = useScene((s) => s.setMode);
   return (
     <div className="text-page">
       {!webgl && <p className="text-page__notice">{t('ui.noWebgl')}</p>}
 
-      <section id="inicio" aria-labelledby="t-inicio">
-        <p className="eyebrow">{t('nav.home')}</p>
-        <h2 id="t-inicio" className="display">
-          {t('home.name')}
+      <section id="inicio" className="hero" aria-labelledby="t-inicio">
+        <div className="hero__photo" aria-hidden="true" />
+        <p className="eyebrow">{t('textPage.kicker')}</p>
+        <h2 id="t-inicio" className="display hero__name">
+          <NeonName name={t('home.name')} />
         </h2>
         <p className="lead">
           {t('home.role')} · {t('home.place')}
@@ -32,13 +50,25 @@ export function TextPage({ webgl }: { webgl: boolean }) {
           <a className="button button--ghost" href="#projetos">
             {t('home.seeProjects')}
           </a>
+          {webgl && (
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => {
+                window.scrollTo(0, 0);
+                setMode('3d');
+              }}
+            >
+              {t('textPage.enter3d')}
+            </button>
+          )}
         </p>
       </section>
 
       <section id="projetos" aria-labelledby="t-projetos">
         <h2 id="t-projetos">{t('projects.title')}</h2>
         {projects.map((project) => (
-          <article key={project.id} className="card">
+          <article key={project.id} className="card card--tv">
             <p className="crt">
               {t('projects.channel')} {project.channel}
             </p>
@@ -62,7 +92,14 @@ export function TextPage({ webgl }: { webgl: boolean }) {
 
       <section id="sobre" aria-labelledby="t-sobre">
         <h2 id="t-sobre">{t('about.title')}</h2>
-        <p>{t('about.aboutText')}</p>
+        <div className="file">
+          <p className="file__bar">{t('about.aboutFile')}</p>
+          {t('about.aboutText')
+            .split(/\n\n/)
+            .map((paragraph) => (
+              <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+            ))}
+        </div>
         <h3>{t('about.education')}</h3>
         <ul>
           <li>{t('about.educationUni')}</li>
@@ -84,7 +121,10 @@ export function TextPage({ webgl }: { webgl: boolean }) {
         <dl className="skills">
           {skillGroups.map((group) => (
             <div key={group.id}>
-              <dt>{t(`skills.${group.id}`)}</dt>
+              <dt>
+                {t(`skills.${group.id}`)}
+                <span className="crt">{t(group.partKey)}</span>
+              </dt>
               <dd>{group.items.join(' · ')}</dd>
             </div>
           ))}
@@ -116,7 +156,7 @@ export function TextPage({ webgl }: { webgl: boolean }) {
 
       <section id="contato" aria-labelledby="t-contato">
         <h2 id="t-contato">{t('contact.title')}</h2>
-        <ul className="contact">
+        <ul className="contact radio">
           {contactLinks.map((link) => (
             <li key={link.id}>
               <span className="crt">{link.frequency}</span>{' '}

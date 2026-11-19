@@ -2,21 +2,30 @@ import { useFrame, useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useScene } from '../store/useScene';
+import { useScene, type ViewId } from '../store/useScene';
 import { prefersReducedMotion } from '../ui/hooks';
 import { cut } from '../ui/cut';
 import { homeShot, resolveShot } from './shots';
 
-const MAX_PARALLAX = (3 * Math.PI) / 180;
+const MAX_PARALLAX = (5 * Math.PI) / 180;
+/** Faixa da borda da tela (em fração da metade) onde o mouse parado gira a câmera. */
+const EDGE = 0.78;
+/** Velocidade do giro com o mouse encostado na borda (rad/s). */
+const EDGE_SPEED = 1.5;
 const UP = new THREE.Vector3(0, 1, 0);
-const PITCH_LIMIT = { min: -0.55, max: 0.45 };
+/** Até onde o olhar sobe e desce (inclinação em relação ao horizonte, em radianos). */
+const ELEVATION = { min: -1.1, max: 0.75 };
+/** Planos em que dá para arrastar e olhar em volta. */
+const LOOK_VIEWS = new Set<ViewId>(['home', 'janela']);
+const canLook = () => LOOK_VIEWS.has(useScene.getState().view);
 
 /**
  * Troca de plano com um corte de cinema: a tela escurece, a câmera muda de
  * lugar e a imagem reabre com uma aproximação leve.
- * No plano inicial (sentado no sofá) dá para olhar em volta: arrastando
- * com o mouse ou o dedo, ou com as setas ← → ↑ ↓. O mouse parado também
- * mexe a vista de leve (até 3 graus).
+ * Nos lugares da sala e na janela dá para olhar em volta: arrastando com o
+ * mouse ou o dedo, ou com as setas ← → ↑ ↓ (para os lados sem limite; para
+ * cima e para baixo até ELEVATION). O mouse parado também mexe a vista de
+ * leve (até 3 graus) nos lugares da sala.
  */
 export function CameraRig() {
   const view = useScene((s) => s.view);
@@ -34,7 +43,7 @@ export function CameraRig() {
     view,
     spot,
   });
-  const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
+  const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0, over: false });
   const look = useRef({ yaw: 0, pitch: 0, sYaw: 0, sPitch: 0, drag: false, lastX: 0, lastY: 0 });
   const tmp = useRef({
     dir: new THREE.Vector3(),
@@ -64,9 +73,16 @@ export function CameraRig() {
     [],
   );
 
-  // olhar em volta arrastando (só no plano inicial)
+  // olhar em volta arrastando (nos lugares da sala e na janela)
   useEffect(() => {
     const l = look.current;
+    /** Limita a inclinação somando a do plano: o limite vale para o olhar final. */
+    const clampPitch = (pitch: number) => {
+      const r = rig.current;
+      const d = tmp.current.dir.copy(r.target).sub(r.position);
+      const base = Math.atan2(d.y, Math.hypot(d.x, d.z));
+      return Math.min(ELEVATION.max - base, Math.max(ELEVATION.min - base, pitch));
+    };
     const down = (event: PointerEvent) => {
       l.drag = true;
       l.lastX = event.clientX;
@@ -76,25 +92,29 @@ export function CameraRig() {
       if (event.pointerType !== 'touch') {
         pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
+        // só gira pela borda com o mouse em cima da cena (não nos botões)
+        pointer.current.over = event.target === dom;
       }
-      if (!l.drag || useScene.getState().view !== 'home') return;
+      if (!l.drag || !canLook()) return;
       const scale = (rig.current.fov / 60) * 0.0055;
       l.yaw += (event.clientX - l.lastX) * scale;
-      l.pitch += (event.clientY - l.lastY) * scale * 0.8;
-      l.pitch = Math.min(PITCH_LIMIT.max, Math.max(PITCH_LIMIT.min, l.pitch));
+      l.pitch = clampPitch(l.pitch + (event.clientY - l.lastY) * scale * 0.8);
       l.lastX = event.clientX;
       l.lastY = event.clientY;
     };
     const up = () => {
       l.drag = false;
     };
+    const leave = () => {
+      pointer.current.over = false;
+    };
     const key = (event: KeyboardEvent) => {
-      if (useScene.getState().view !== 'home') return;
+      if (!canLook()) return;
       const step = 0.22;
       if (event.key === 'ArrowLeft') l.yaw += step;
       else if (event.key === 'ArrowRight') l.yaw -= step;
-      else if (event.key === 'ArrowUp') l.pitch = Math.min(PITCH_LIMIT.max, l.pitch + step / 2);
-      else if (event.key === 'ArrowDown') l.pitch = Math.max(PITCH_LIMIT.min, l.pitch - step / 2);
+      else if (event.key === 'ArrowUp') l.pitch = clampPitch(l.pitch + step / 2);
+      else if (event.key === 'ArrowDown') l.pitch = clampPitch(l.pitch - step / 2);
       else return;
       event.preventDefault();
     };
@@ -103,7 +123,11 @@ export function CameraRig() {
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
     window.addEventListener('keydown', key);
+    document.documentElement.addEventListener('mouseleave', leave);
+    window.addEventListener('blur', leave);
     return () => {
+      document.documentElement.removeEventListener('mouseleave', leave);
+      window.removeEventListener('blur', leave);
       dom.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
@@ -176,7 +200,13 @@ export function CameraRig() {
     const l = look.current;
     const t = tmp.current;
     const k = 1 - Math.exp(-delta * 3);
-    const active = r.view === 'home' && !prefersReducedMotion() && !l.drag ? 1 : 0;
+    const looking = LOOK_VIEWS.has(r.view);
+    const active = looking && !prefersReducedMotion() && !l.drag ? 1 : 0;
+    // mouse encostado na borda esquerda ou direita: a câmera vai girando para lá
+    const edge = Math.abs(p.x) - EDGE;
+    if (looking && p.over && !l.drag && edge > 0) {
+      l.yaw -= Math.sign(p.x) * Math.min(1, edge / (1 - EDGE)) * EDGE_SPEED * delta;
+    }
     p.sx += (p.x * active - p.sx) * k;
     p.sy += (p.y * active - p.sy) * k;
     const kl = 1 - Math.exp(-delta * 8);

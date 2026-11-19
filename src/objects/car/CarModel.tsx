@@ -45,7 +45,8 @@ export interface ModelCarGeometry {
   doorGlass: THREE.BufferGeometry;
   hoodHinge: THREE.Vector3;
   doorHinge: THREE.Vector3;
-  wheels: { geo: THREE.BufferGeometry; map: THREE.Texture | null }[];
+  /** Cada roda separada em aro (cinza na faixa de cores) e pneu (quase preto). */
+  wheels: { rim: THREE.BufferGeometry; tire: THREE.BufferGeometry }[];
   /** Medidas úteis do modelo já no lugar (m). */
   box: THREE.Box3;
   /** Altura de cima da lataria (capô, teto) num ponto (x, z), sem o rebaixamento. */
@@ -246,7 +247,11 @@ export function useModelCar(): ModelCarGeometry {
       doorGlass: at(take('doorGlass'), doorHinge),
       hoodHinge,
       doorHinge,
-      wheels: parts.slice(1),
+      wheels: parts.slice(1).map((w) => {
+        const shade = w.map ? palette(w.map.image as HTMLCanvasElement) : null;
+        const take = split(w.geo, ({ u }) => (shade && shade(u)[0] < 0x40 ? 'tire' : 'rim'));
+        return { rim: take('rim'), tire: take('tire') };
+      }),
       box: finalBox,
       surfaceY,
     };

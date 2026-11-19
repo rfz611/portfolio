@@ -6,9 +6,9 @@ import { lib } from '../textures/library';
 import { Interactive } from './Interactive';
 
 /**
- * Chaves do carro na mesa (seção Contato). Sem logo nem emblema.
- * Clicando, a câmera atravessa o vidro até o carro, a porta abre e a vista
- * entra no banco do motorista, de frente para o rádio com os contatos.
+ * Chaves do carro na mesa. Sem logo nem emblema. Clicando, a câmera
+ * atravessa o vidro até a garagem, de frente para o carro (dali se abre o
+ * capô, a porta e o porta-luvas).
  */
 export function CarKeys() {
   const { mat } = lib();
@@ -35,7 +35,7 @@ export function CarKeys() {
       id="keys"
       label="objects.keys"
       enabled={home}
-      onClick={() => useScene.getState().setView('interior')}
+      onClick={() => useScene.getState().setView('carro')}
       hit={
         // as chaves são pequenas: uma área de clique invisível um pouco maior
         <mesh position={[-0.46, 0.437, -0.32]} rotation={[0, 2.3, 0]}>

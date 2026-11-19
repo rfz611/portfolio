@@ -78,7 +78,7 @@ export const HOME_OPTIONS: Shot[] = [
   },
   {
     position: [2.5, 0.82, 0.62],
-    target: [-5.6, 0.82, 0.85],
+    target: [-5.6, 0.2, 0.85],
     hfov: 80,
     portrait: { position: [2.55, 0.95, 0.62], target: [-5.6, 0.05, 0.85], hfov: 66 },
   },
@@ -151,7 +151,8 @@ export const SHOTS: Record<ViewId, Shot> = {
   carro: {
     target: [carX - 0.2, 0.62, carZ],
     dir: [-0.55, 0.3, 0.78],
-    frame: [6.2, 3.0],
+    // com folga em volta: o carro inteiro e um pouco da garagem
+    frame: [7.6, 3.7],
     fov: 40,
     duration: 1.6,
     portrait: { frame: [3.4, 4.2] },
@@ -169,9 +170,9 @@ export const SHOTS: Record<ViewId, Shot> = {
   // nos olhos de quem senta no banco do motorista (posição fixa: a câmera
   // nunca recua para dentro do encosto em tela estreita), olhando o painel e o rádio
   interior: {
-    position: [carX + 0.6 + CABIN_SHIFT, 1.17 + CAR_LIFT, carZ + 0.38],
-    target: [carX - 0.6 + CABIN_SHIFT, 0.86 + CAR_LIFT, carZ + 0.08],
-    hfov: 74,
+    position: [carX + 0.64 + CABIN_SHIFT, 1.19 + CAR_LIFT, carZ + 0.38],
+    target: [carX - 0.6 + CABIN_SHIFT, 0.8 + CAR_LIFT, carZ + 0.02],
+    hfov: 88,
     duration: 1.6,
     portrait: { hfov: 72 },
   },
@@ -185,6 +186,8 @@ export interface CameraPose {
 }
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
+/** Proporção de tela a partir da qual a lente deixa de fechar na vertical. */
+const WIDE = 16 / 9;
 const deg = (r: number) => (r * 180) / Math.PI;
 
 /** Resolve um plano: onde a câmera fica e a abertura da lente para esta tela. */
@@ -194,7 +197,9 @@ export function resolveShot(view: ViewId, aspect: number, base: Shot = SHOTS[vie
 
   if (shot.position) {
     const hfov = shot.hfov ?? 70;
-    const vfov = deg(2 * Math.atan(Math.tan(rad(hfov) / 2) / aspect));
+    // em tela mais larga que 16:9 a altura do quadro fica a mesma do 16:9
+    // (senão o plano parece com zoom e corta em cima e embaixo): ganha-se dos lados
+    const vfov = deg(2 * Math.atan(Math.tan(rad(hfov) / 2) / Math.min(aspect, WIDE)));
     return {
       position: [...shot.position],
       target: [...shot.target],

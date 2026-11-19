@@ -1,5 +1,7 @@
+import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { useScene } from '../../store/useScene';
 import { Interactive } from '../Interactive';
@@ -34,7 +36,12 @@ export function ModelExterior({ m }: { m: CarMats }) {
           car.surfaceY(x, 0),
           car.surfaceY(x, 0.5),
         ]),
-        roof: [0, 0.4, 0.8].map((x) => [x, car.surfaceY(x, 0)]),
+        roof: [0, 0.4, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0].map((x) => [
+          x,
+          car.surfaceY(x, 0),
+          car.surfaceY(x, 0.55),
+        ]),
+        surfaceY: car.surfaceY,
       },
     });
   }
@@ -78,26 +85,34 @@ export function ModelExterior({ m }: { m: CarMats }) {
         metalness: 1,
         side: THREE.DoubleSide,
       }),
-      wheels: car.wheels.map(
-        (w) =>
-          new THREE.MeshStandardMaterial({
-            map: w.map,
-            roughness: 0.45,
-            metalness: 0.35,
-            side: THREE.DoubleSide,
-            envMapIntensity: 1.4,
-          }),
-      ),
+      // aro prata claro, quase branco, e pneu de borracha
+      rim: new THREE.MeshStandardMaterial({
+        color: '#e4e8ee',
+        roughness: 0.26,
+        metalness: 0.85,
+        side: THREE.DoubleSide,
+        envMapIntensity: 1.6,
+      }),
+      tire: new THREE.MeshStandardMaterial({
+        color: '#161618',
+        roughness: 0.92,
+        metalness: 0,
+        side: THREE.DoubleSide,
+      }),
     };
-  }, [m, car]);
+  }, [m]);
 
   // rodas: cada uma gira em volta do próprio centro (cambagem)
   // forro da porta: logo para dentro da chapa mais interna da porta (e abaixo do vidro)
   const card = useMemo(() => {
     car.door.computeBoundingBox();
+    car.doorGlass.computeBoundingBox();
     const b = car.door.boundingBox!;
     const length = b.max.x - b.min.x;
-    const top = Math.min(b.max.y, 0.38);
+    // o forro para logo abaixo da base do vidro (senão aparece pela janela
+    // como uma faixa preta)
+    const sill = car.doorGlass.boundingBox!.isEmpty() ? 0.3 : car.doorGlass.boundingBox!.min.y;
+    const top = Math.min(b.max.y, 0.38, sill - 0.05);
     const bottom = Math.max(b.min.y, -0.12);
     return {
       position: [b.min.x + length / 2, (top + bottom) / 2, b.min.z - 0.03] as const,
@@ -108,11 +123,15 @@ export function ModelExterior({ m }: { m: CarMats }) {
   const wheels = useMemo(
     () =>
       car.wheels.map((w) => {
-        const g = w.geo.clone();
-        g.computeBoundingBox();
-        const c = g.boundingBox!.getCenter(new THREE.Vector3());
-        g.translate(-c.x, -c.y, -c.z);
-        return { geo: g, center: c, side: Math.sign(c.z) };
+        const box = new THREE.Box3();
+        for (const g of [w.rim, w.tire]) {
+          g.computeBoundingBox();
+          if (!g.boundingBox!.isEmpty()) box.union(g.boundingBox!);
+        }
+        const c = box.getCenter(new THREE.Vector3());
+        const rim = w.rim.clone().translate(-c.x, -c.y, -c.z);
+        const tire = w.tire.clone().translate(-c.x, -c.y, -c.z);
+        return { rim, tire, center: c, side: Math.sign(c.z) };
       }),
     [car],
   );
@@ -176,15 +195,39 @@ export function ModelExterior({ m }: { m: CarMats }) {
           </group>
         </Interactive>
       </group>
+      {atCar && <CarTags car={car} />}
       {wheels.map((w, i) => (
-        <mesh
-          key={i}
-          geometry={w.geo}
-          material={mats.wheels[i]}
-          position={w.center.toArray()}
-          rotation={[-CAMBER * w.side, 0, 0]}
-        />
+        <group key={i} position={w.center.toArray()} rotation={[-CAMBER * w.side, 0, 0]}>
+          <mesh geometry={w.rim} material={mats.rim} />
+          <mesh geometry={w.tire} material={mats.tire} />
+        </group>
       ))}
     </group>
+  );
+}
+
+/**
+ * Etiquetas no carro, na vista da garagem: mostram que o capô, a porta e
+ * os faróis abrem alguma coisa (quem chega não sabe que dá para clicar).
+ */
+function CarTags({ car }: { car: ReturnType<typeof useModelCar> }) {
+  const { t } = useTranslation();
+  const side = car.box.max.z + 0.06;
+  const tags: { key: string; at: [number, number, number] }[] = [
+    { key: 'car.tagHood', at: [-1.55, car.surfaceY(-1.55, 0) + 0.06, 0.1] },
+    { key: 'car.tagDoor', at: [car.doorHinge.x + 0.95, 0.78, side] },
+    { key: 'car.tagLights', at: [car.box.min.x + 0.12, 0.62, 0.62] },
+  ];
+  return (
+    <>
+      {tags.map((tag) => (
+        <Html key={tag.key} position={tag.at} zIndexRange={[5, 0]}>
+          <div className="deck-tag car-tag">
+            <span className="car-tag__dot" aria-hidden="true" />
+            {t(tag.key)}
+          </div>
+        </Html>
+      ))}
+    </>
   );
 }

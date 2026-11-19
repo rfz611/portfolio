@@ -29,7 +29,8 @@ export const SPOTS: Spot[] = [
     id: 'sofa',
     label: 'spots.sofa',
     position: [2.5, 0.82, 0.62],
-    target: [-5.6, 0.82, 0.85],
+    // levemente para baixo: a mesa de centro inteira acima do seletor de lugar
+    target: [-5.6, 0.2, 0.85],
     hfov: 80,
     portrait: { position: [2.55, 0.95, 0.62], target: [-5.6, 0.05, 0.85], hfov: 66 },
     marker: [2.02, -0.44, 0.62],

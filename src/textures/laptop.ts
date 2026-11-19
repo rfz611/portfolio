@@ -129,7 +129,7 @@ export function paintLaptopScreen(ctx: CanvasRenderingContext2D, w: number, h: n
   ctx.fillStyle = 'rgba(255,179,92,0.9)';
   ctx.font = `${h * 0.12}px "VT323", monospace`;
   ctx.textAlign = 'center';
-  ctx.fillText('RAPHAEL', w / 2, h * 0.48);
+  ctx.fillText('RAPHAEL SCHARF', w / 2, h * 0.48);
   ctx.fillStyle = 'rgba(239,230,218,0.6)';
   ctx.font = `${h * 0.07}px "VT323", monospace`;
   ctx.fillText('sobre_mim.txt  ·  formação  ·  experiência', w / 2, h * 0.62);

@@ -8,6 +8,7 @@ import { useScene } from '../store/useScene';
 import { makeCanvas, tex } from '../textures/canvas';
 import { paintUnderglow } from '../textures/car';
 import { lib } from '../textures/library';
+import { GarageProps } from './GarageProps';
 import { box, cyl, merge } from './geo';
 
 // a luz retangular das calhas precisa das tabelas de iluminação do three
@@ -180,6 +181,7 @@ export function Garage() {
         <Car />
       </group>
       <HeadlightBeams />
+      <GarageProps />
     </group>
   );
 }

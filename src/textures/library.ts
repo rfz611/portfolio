@@ -200,7 +200,7 @@ const painters = {
     ),
   neonName: () =>
     tex(
-      canvas(1024, 384, (c, w, h) => paintNeon(c, w, h, 'Raphael', 'SCHARF PASSOS')),
+      canvas(1024, 384, (c, w, h) => paintNeon(c, w, h, 'Scharf', 'RAPHAEL')),
       { clamp: true },
     ),
   rugPit: () =>
