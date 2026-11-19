@@ -2,7 +2,7 @@
 
 Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne 2 e dos jogos de PS2. Cada objeto da sala abre uma parte do portfólio: a TV mostra os projetos, o notebook conta quem eu sou, as revistas são os certificados, o toca-discos toca de verdade e, pela janela, a cidade anuncia os meus projetos.
 
-**No ar:** [raphaelpassos.vercel.app](https://raphaelpassos.vercel.app)
+**No ar:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
 ![A sala, vista do sofá](docs/prints/readme/home-desktop-sala.png)
 
@@ -136,7 +136,7 @@ An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-e
 
 Everything is modeled in code, low poly with canvas-painted textures, with React Three Fiber, TypeScript and Vite. There is a plain-HTML text menu with the whole portfolio, in Portuguese and English.
 
-**Live:** [raphaelpassos.vercel.app](https://raphaelpassos.vercel.app)
+**Live:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
 **Requirements:** Node.js 20.19+ and npm. **Run:** `npm install` then `npm run dev`. Music (`public/audio`) and project videos (`public/videos`) are kept out of Git; without them the site still works. `npm run deploy` publishes to Vercel from the local machine, with music and videos included. Texts live in `src/content/pt.json` and `en.json`.
 
