@@ -38,7 +38,7 @@ Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círc
 - **GSAP** para a câmera e as animações, **Zustand** para o estado, **Howler.js** para a música, **i18next** para os idiomas
 - **Vitest**, **ESLint** e **Prettier**
 
-Todos os objetos são modelados no próprio código, em low poly no estilo PS2, com texturas pintadas em canvas. Não há modelos 3D baixados.
+Todos os objetos são modelados no próprio código, em low poly no estilo PS2, com texturas pintadas em canvas. A exceção é o carro da garagem: quando o arquivo `public/models/car.glb` existe, entra o modelo do Lancer Evolution VIII (veja os créditos); sem ele, aparece o carro feito no código.
 
 ## O que você precisa
 
@@ -70,10 +70,11 @@ O site abre em `http://localhost:5173`.
 
 Músicas e vídeos são pesados e têm direitos de terceiros, então ficam fora do repositório. Sem eles o site funciona: o disco aparece com o selo "em breve" e a TV mostra o print no lugar do vídeo.
 
-| Pasta            | O que vai nela                                            | Como usar                                                                                                      |
-| ---------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `public/audio/`  | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)  | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`) |
-| `public/videos/` | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV | Basta copiar os arquivos com esses nomes                                                                       |
+| Pasta                   | O que vai nela                                                                                                                                                                     | Como usar                                                                                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/audio/`         | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)                                                                                                                           | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`)                               |
+| `public/videos/`        | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV                                                                                                                          | Basta copiar os arquivos com esses nomes                                                                                                     |
+| `public/models/car.glb` | O modelo do carro: [Mitsubishi Lancer Evolution VIII Low Poly](https://sketchfab.com/3d-models/mitsubishi-lancer-evolution-viii-low-poly-274bd757e3554736a39e2ff4862d0ad2), em GLB | Baixe no Sketchfab (conta gratuita) e salve com esse nome. A licença não deixa redistribuir o arquivo solto, por isso ele não vai para o Git |
 
 Em produção as músicas vêm de um bucket (Cloudflare R2). O endereço fica na variável `VITE_AUDIO_BASE_URL`; copie `.env.example` para `.env.local` e ajuste.
 
@@ -110,6 +111,8 @@ Em desenvolvimento, `window.__scene` (estado) e `window.__three` (cena e câmera
 ## Créditos e direitos
 
 Código e cena: Raphael Scharf Passos. Todos os direitos reservados.
+
+Modelo do carro: "Mitsubishi Lancer Evolution VIII Low Poly", de [1313feodal](https://sketchfab.com/1313feodal), no Sketchfab (licença Free Standard). No site ele ganha pintura amarela, vidros, luzes, cambagem e o capô e a porta recortados para abrir.
 
 As capas de discos, as músicas e os títulos de filmes pertencem aos seus donos e aparecem só como referência pessoal. Nomes de lugares e anúncios da cidade (Bella Napoli, Lucky 7, The Velvet Room, Orpheum) são inventados. As marcas de bebida e objetos citados aparecem em rótulos simples, sem logotipos.
 

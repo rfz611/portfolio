@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { box, crease, cyl } from '../../scene/geo';
@@ -15,9 +15,11 @@ import {
   WHEEL,
   type CarBodyGeometry,
 } from './carBody';
+import { CABIN_SHIFT, ENGINE_FIT, HAS_CAR_MODEL } from './modelInfo';
 import { Engine } from './Engine';
 import { Interior } from './Interior';
 import { join, useCarMaterials, type CarMats } from './materials';
+import { ModelExterior } from './ModelExterior';
 
 const HALF_PI = Math.PI / 2;
 type P = [number, number, number];
@@ -271,6 +273,71 @@ export function Car() {
     m.taillight.emissiveIntensity += ((headlights ? 1.3 : 0.4) - m.taillight.emissiveIntensity) * k;
   });
 
+  // carro feito no código (fica no lugar enquanto o modelo carrega, ou se ele não existir)
+  const procedural = (
+    <>
+      <mesh geometry={geo.body} material={m.paint} />
+      <mesh geometry={geo.body} material={m.paintInner} />
+      <mesh geometry={geo.trim} material={m.trim} />
+      <mesh geometry={geo.glass} material={m.glass} renderOrder={2} />
+      <mesh geometry={geo.under} material={m.matte} />
+      <mesh geometry={geo.wells} material={m.matte} />
+      <mesh geometry={geo.shield} material={m.grille} />
+      <mesh geometry={geo.mouthMesh} material={m.intercooler} />
+      <mesh geometry={geo.mouthFrame} material={m.trim} />
+      <mesh geometry={geo.fogHousings} material={m.matte} />
+      <mesh geometry={geo.lip} material={m.matte} />
+      <mesh geometry={geo.fogs} material={m.fog} />
+      <mesh geometry={geo.tails} material={m.taillight} />
+      <mesh geometry={geo.plate} material={m.matte} />
+      <mesh geometry={geo.diffuser} material={m.matte} />
+      <mesh geometry={geo.exhaust} material={m.chrome} />
+      <mesh geometry={geo.exhaustIn} material={m.matte} />
+      <mesh geometry={geo.wing} material={m.alu} />
+      <mesh geometry={geo.wingStands} material={m.carbon} />
+      <mesh geometry={geo.mirrors} material={m.paint} />
+      <mesh geometry={geo.handles} material={m.trim} />
+      {[AXLE.front, AXLE.rear].flatMap((x) =>
+        ([1, -1] as const).map((side) => <Wheel key={`${x}${side}`} x={x} side={side} m={m} />),
+      )}
+      <Interactive
+        id="headlights"
+        label="objects.headlights"
+        enabled={atCar}
+        onClick={() => useScene.getState().toggleHeadlights()}
+      >
+        <group>
+          <mesh geometry={geo.headL} material={m.headlight} />
+          <mesh geometry={geo.headR} material={m.headlight} />
+        </group>
+      </Interactive>
+      <Interactive id="hood" label="objects.hood" enabled={atCar} onClick={() => setView('motor')}>
+        <group ref={hood} position={HOOD_HINGE.toArray()}>
+          <mesh geometry={geo.hood} material={m.paint} />
+          <mesh geometry={geo.hood} material={m.paintInner} />
+          <mesh geometry={geo.scoop} material={m.paint} />
+          <mesh geometry={geo.scoopMouth} material={m.mesh} />
+          <mesh geometry={geo.vents} material={m.louvers} />
+        </group>
+      </Interactive>
+      <Interactive
+        id="door"
+        label="objects.door"
+        enabled={atCar}
+        onClick={() => setView('interior')}
+      >
+        <group ref={door} position={DOOR_HINGE.toArray()}>
+          <mesh geometry={geo.door} material={m.paint} />
+          <mesh geometry={geo.door} material={m.paintInner} />
+          <mesh geometry={geo.doorGlass} material={m.glass} renderOrder={2} />
+          <mesh geometry={geo.doorTrim} material={m.trim} />
+          <mesh geometry={geo.doorHandle} material={m.trim} />
+          <mesh geometry={geo.doorCard} material={m.doorCard} />
+        </group>
+      </Interactive>
+    </>
+  );
+
   return (
     <Interactive
       id="car"
@@ -279,72 +346,29 @@ export function Car() {
       onClick={() => setView('carro')}
     >
       <group name="car">
-        <mesh geometry={geo.body} material={m.paint} />
-        <mesh geometry={geo.body} material={m.paintInner} />
-        <mesh geometry={geo.trim} material={m.trim} />
-        <mesh geometry={geo.glass} material={m.glass} renderOrder={2} />
-        <mesh geometry={geo.under} material={m.matte} />
-        <mesh geometry={geo.wells} material={m.matte} />
-        <mesh geometry={geo.shield} material={m.grille} />
-        <mesh geometry={geo.mouthMesh} material={m.intercooler} />
-        <mesh geometry={geo.mouthFrame} material={m.trim} />
-        <mesh geometry={geo.fogHousings} material={m.matte} />
-        <mesh geometry={geo.lip} material={m.matte} />
-        <mesh geometry={geo.fogs} material={m.fog} />
-        <mesh geometry={geo.tails} material={m.taillight} />
-        <mesh geometry={geo.plate} material={m.matte} />
-        <mesh geometry={geo.diffuser} material={m.matte} />
-        <mesh geometry={geo.exhaust} material={m.chrome} />
-        <mesh geometry={geo.exhaustIn} material={m.matte} />
-        <mesh geometry={geo.wing} material={m.alu} />
-        <mesh geometry={geo.wingStands} material={m.carbon} />
-        <mesh geometry={geo.mirrors} material={m.paint} />
-        <mesh geometry={geo.handles} material={m.trim} />
-        {[AXLE.front, AXLE.rear].flatMap((x) =>
-          ([1, -1] as const).map((side) => <Wheel key={`${x}${side}`} x={x} side={side} m={m} />),
+        {HAS_CAR_MODEL ? (
+          <Suspense fallback={procedural}>
+            <ModelExterior m={m} />
+          </Suspense>
+        ) : (
+          procedural
         )}
-        <Interactive
-          id="headlights"
-          label="objects.headlights"
-          enabled={atCar}
-          onClick={() => useScene.getState().toggleHeadlights()}
-        >
-          <group>
-            <mesh geometry={geo.headL} material={m.headlight} />
-            <mesh geometry={geo.headR} material={m.headlight} />
+        {ENGINE_FIT ? (
+          // o motor do código, comprimido para caber no cofre mais curto do modelo
+          <group
+            position={[ENGINE_FIT.origin + ENGINE_FIT.shift, ENGINE_FIT.floor, 0]}
+            scale={[...ENGINE_FIT.scale]}
+          >
+            <group position={[-ENGINE_FIT.origin, -ENGINE_FIT.floor, 0]}>
+              <Engine m={m} walls={false} />
+            </group>
           </group>
-        </Interactive>
-        <Interactive
-          id="hood"
-          label="objects.hood"
-          enabled={atCar}
-          onClick={() => setView('motor')}
-        >
-          <group ref={hood} position={HOOD_HINGE.toArray()}>
-            <mesh geometry={geo.hood} material={m.paint} />
-            <mesh geometry={geo.hood} material={m.paintInner} />
-            <mesh geometry={geo.scoop} material={m.paint} />
-            <mesh geometry={geo.scoopMouth} material={m.mesh} />
-            <mesh geometry={geo.vents} material={m.louvers} />
-          </group>
-        </Interactive>
-        <Interactive
-          id="door"
-          label="objects.door"
-          enabled={atCar}
-          onClick={() => setView('interior')}
-        >
-          <group ref={door} position={DOOR_HINGE.toArray()}>
-            <mesh geometry={geo.door} material={m.paint} />
-            <mesh geometry={geo.door} material={m.paintInner} />
-            <mesh geometry={geo.doorGlass} material={m.glass} renderOrder={2} />
-            <mesh geometry={geo.doorTrim} material={m.trim} />
-            <mesh geometry={geo.doorHandle} material={m.trim} />
-            <mesh geometry={geo.doorCard} material={m.doorCard} />
-          </group>
-        </Interactive>
-        <Engine m={m} />
-        <Interior m={m} />
+        ) : (
+          <Engine m={m} />
+        )}
+        <group position={[CABIN_SHIFT, 0, 0]}>
+          <Interior m={m} />
+        </group>
       </group>
     </Interactive>
   );

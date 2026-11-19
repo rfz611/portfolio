@@ -32,7 +32,7 @@ function rbox(size: P, pos: P, radius = 0.015) {
  * as bobinas. Cada conjunto é um grupo de skills: passar o mouse acende o
  * conjunto inteiro, clicar mostra as tecnologias.
  */
-export function Engine({ m }: { m: CarMats }) {
+export function Engine({ m, walls = true }: { m: CarMats; walls?: boolean }) {
   const atEngine = useScene((s) => s.view === 'motor');
   const setSkill = useScene((s) => s.setSkill);
 
@@ -45,6 +45,8 @@ export function Engine({ m }: { m: CarMats }) {
         box([1.3, 0.26, 0.04], [-1.33, 0.6, 0.64]),
         box([1.3, 0.26, 0.04], [-1.33, 0.6, -0.64]),
         box([0.07, 0.06, 1.3], [-1.99, 0.77, 0]),
+      ]),
+      towers: join([
         cyl(0.085, 0.1, 0.3, [-1.33, 0.63, 0.55], { seg: 14 }),
         cyl(0.085, 0.1, 0.3, [-1.33, 0.63, -0.55], { seg: 14 }),
       ]),
@@ -231,7 +233,9 @@ export function Engine({ m }: { m: CarMats }) {
 
   return (
     <group name="engine">
-      <mesh geometry={geo.bay} material={m.bayPaint} />
+      {/* paredes do cofre: com o modelo do carro, a própria lataria faz esse papel */}
+      {walls && <mesh geometry={geo.bay} material={m.bayPaint} />}
+      <mesh geometry={geo.towers} material={m.bayPaint} />
       <mesh geometry={geo.bayFloor} material={m.matte} />
       <mesh geometry={geo.strutTops} material={m.castIron} />
       <mesh geometry={geo.brake} material={m.fluid} />
