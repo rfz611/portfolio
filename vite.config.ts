@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
 
@@ -22,8 +22,25 @@ function modelsManifest(): Plugin {
   };
 }
 
+/**
+ * Depois do build, tira de dist/ o que é só de trabalho na pasta de músicas
+ * (os arquivos originais, as capas brutas e o recado): o site usa só os
+ * .ogg e .mp3 já convertidos.
+ */
+function trimAudio(): Plugin {
+  return {
+    name: 'trim-audio',
+    apply: 'build',
+    closeBundle() {
+      for (const path of ['dist/audio/originais', 'dist/audio/capas', 'dist/audio/LEIA-ME.txt']) {
+        rmSync(path, { recursive: true, force: true });
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), modelsManifest()],
+  plugins: [react(), modelsManifest(), trimAudio()],
   build: { chunkSizeWarningLimit: 1600 },
   test: {
     environment: 'jsdom',
