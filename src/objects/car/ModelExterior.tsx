@@ -144,6 +144,7 @@ export function ModelExterior({ m }: { m: CarMats }) {
         >
           <group ref={hood} position={car.hoodHinge.toArray()}>
             <mesh geometry={car.hood} material={mats.paint} />
+            <mesh geometry={car.hoodTrim} material={mats.trim} />
           </group>
         </Interactive>
         <Interactive
@@ -155,6 +156,10 @@ export function ModelExterior({ m }: { m: CarMats }) {
           <group ref={door} position={car.doorHinge.toArray()}>
             <mesh geometry={car.door} material={mats.paint} />
             <mesh geometry={car.doorGlass} material={m.glass} renderOrder={2} />
+            {/* forro de dentro da porta, com o puxador e os botões do vidro */}
+            <mesh position={[0.56, 0.2, -0.07]} rotation={[0, Math.PI, 0]} material={m.doorCard}>
+              <planeGeometry args={[0.98, 0.42]} />
+            </mesh>
           </group>
         </Interactive>
       </group>

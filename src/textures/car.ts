@@ -179,40 +179,118 @@ export function paintValveCover(ctx: Ctx, w: number, h: number) {
 
 /** Painel: dois mostradores redondos (velocímetro e conta-giros), luz vermelha baixa. */
 export function paintGauges(ctx: Ctx, w: number, h: number) {
-  ctx.fillStyle = '#060607';
+  ctx.fillStyle = '#050506';
   ctx.fillRect(0, 0, w, h);
-  for (const [cx, label] of [
-    [w * 0.27, 260],
-    [w * 0.73, 9],
-  ] as const) {
-    const r = h * 0.42;
-    ctx.strokeStyle = '#3a3c40';
-    ctx.lineWidth = 3;
+  const dial = (
+    cx: number,
+    r: number,
+    max: number,
+    step: number,
+    needle: number,
+    label: string,
+  ) => {
+    const cy = h / 2;
+    // fundo do mostrador com o brilho da luz de fundo
+    const g = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r);
+    g.addColorStop(0, '#1d1a1c');
+    g.addColorStop(1, '#0b0a0b');
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(cx, h / 2, r, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.strokeStyle = '#ff3b2a';
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#8a8f96';
     ctx.lineWidth = 2;
-    for (let k = 0; k <= 10; k++) {
-      const a = Math.PI * 0.75 + (k / 10) * Math.PI * 1.5;
+    ctx.stroke();
+    for (let k = 0; k <= max; k += step / 2) {
+      const a = Math.PI * 0.75 + (k / max) * Math.PI * 1.5;
+      const big = k % step === 0;
+      ctx.strokeStyle = k > max * 0.78 ? '#ff3b2a' : '#f2efe8';
+      ctx.lineWidth = big ? 2.5 : 1.2;
       ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(a) * r * 0.78, h / 2 + Math.sin(a) * r * 0.78);
-      ctx.lineTo(cx + Math.cos(a) * r * 0.92, h / 2 + Math.sin(a) * r * 0.92);
+      ctx.moveTo(
+        cx + Math.cos(a) * r * (big ? 0.74 : 0.82),
+        cy + Math.sin(a) * r * (big ? 0.74 : 0.82),
+      );
+      ctx.lineTo(cx + Math.cos(a) * r * 0.9, cy + Math.sin(a) * r * 0.9);
       ctx.stroke();
+      if (big) {
+        ctx.fillStyle = '#f2efe8';
+        ctx.font = `${r * 0.2}px "Manrope Variable", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(k), cx + Math.cos(a) * r * 0.56, cy + Math.sin(a) * r * 0.56);
+      }
     }
-    ctx.fillStyle = '#ff5a40';
-    ctx.font = `${h * 0.1}px "VT323", monospace`;
-    ctx.textAlign = 'center';
-    ctx.fillText(String(label), cx, h / 2 + r * 0.55);
-    ctx.strokeStyle = '#ff8a5a';
+    ctx.fillStyle = '#c9c4ba';
+    ctx.font = `${r * 0.14}px "Manrope Variable", sans-serif`;
+    ctx.fillText(label, cx, cy + r * 0.42);
+    // ponteiro vermelho
+    const na = Math.PI * 0.75 + needle * Math.PI * 1.5;
+    ctx.strokeStyle = '#ff2a1a';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(cx, h / 2);
-    ctx.lineTo(
-      cx + Math.cos(Math.PI * 0.85) * r * 0.75,
-      h / 2 + Math.sin(Math.PI * 0.85) * r * 0.75,
-    );
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(na) * r * 0.8, cy + Math.sin(na) * r * 0.8);
     ctx.stroke();
+    ctx.fillStyle = '#2b2b2f';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.09, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  dial(w * 0.26, h * 0.45, 260, 40, 0.0, 'km/h');
+  dial(w * 0.74, h * 0.45, 9, 1, 0.09, 'x1000 rpm');
+  // visor do meio: marcha e combustível
+  ctx.fillStyle = '#120404';
+  ctx.fillRect(w * 0.44, h * 0.3, w * 0.12, h * 0.4);
+  ctx.fillStyle = '#ff3b2a';
+  ctx.font = `${h * 0.3}px "VT323", monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('N', w * 0.5, h * 0.5);
+}
+
+/** Saída de ar do painel: moldura escura com as aletas horizontais. */
+export function paintVent(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#08080a';
+  ctx.fillRect(0, 0, w, h);
+  for (let y = h * 0.14; y < h * 0.9; y += h * 0.16) {
+    const g = ctx.createLinearGradient(0, y, 0, y + h * 0.08);
+    g.addColorStop(0, '#3a3b40');
+    g.addColorStop(1, '#121215');
+    ctx.fillStyle = g;
+    ctx.fillRect(w * 0.08, y, w * 0.84, h * 0.08);
+  }
+  ctx.strokeStyle = '#5c5f66';
+  ctx.lineWidth = Math.max(2, h * 0.06);
+  ctx.strokeRect(1, 1, w - 2, h - 2);
+}
+
+/** Botões do console (ar-condicionado, desembaçador e o pisca-alerta vermelho). */
+export function paintConsoleButtons(ctx: Ctx, w: number, h: number) {
+  ctx.fillStyle = '#0c0c0e';
+  ctx.fillRect(0, 0, w, h);
+  const n = 5;
+  for (let k = 0; k < n; k++) {
+    const x = (k + 0.5) * (w / n);
+    const red = k === 2;
+    ctx.fillStyle = red ? '#7a0c0c' : '#1d1d21';
+    ctx.fillRect(x - w * 0.07, h * 0.2, w * 0.14, h * 0.6);
+    ctx.strokeStyle = '#3a3a40';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - w * 0.07, h * 0.2, w * 0.14, h * 0.6);
+    if (red) {
+      ctx.strokeStyle = '#ffd0c8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, h * 0.32);
+      ctx.lineTo(x + w * 0.04, h * 0.66);
+      ctx.lineTo(x - w * 0.04, h * 0.66);
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = k % 2 ? '#ffb35c' : '#9fd4ff';
+      ctx.fillRect(x - w * 0.02, h * 0.3, w * 0.04, h * 0.08);
+    }
   }
 }
 

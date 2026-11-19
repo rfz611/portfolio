@@ -7,6 +7,7 @@ import {
   paintDashPlastic,
   paintDoorCard,
   paintEvoHeadlight,
+  paintConsoleButtons,
   paintGauges,
   paintGrille,
   paintIntercooler,
@@ -18,6 +19,7 @@ import {
   paintTaillight,
   paintTireSide,
   paintValveCover,
+  paintVent,
 } from '../../textures/car';
 
 /** Cor da lataria: amarelo metálico do sedã da referência. Trocar aqui muda o carro inteiro. */
@@ -120,7 +122,16 @@ export function useCarMaterials() {
       doorCard: std({ map: t(256, 128, paintDoorCard), roughness: 0.75, side: THREE.DoubleSide }),
       carpet: std({ color: '#0c0b0d', roughness: 1 }),
       leather: std({ color: '#131214', roughness: 0.55, envMapIntensity: 0.5 }),
-      gauges: new THREE.MeshBasicMaterial({ map: t(256, 96, paintGauges), toneMapped: false }),
+      gauges: new THREE.MeshBasicMaterial({ map: t(512, 192, paintGauges), toneMapped: false }),
+      vent: std({ map: t(128, 64, paintVent), roughness: 0.6 }),
+      buttons: new THREE.MeshStandardMaterial({
+        map: t(256, 64, paintConsoleButtons),
+        emissive: '#ffffff',
+        emissiveMap: t(256, 64, paintConsoleButtons),
+        emissiveIntensity: 0.25,
+        roughness: 0.5,
+      }),
+      mirrorGlass: std({ color: '#9aa3ad', roughness: 0.04, metalness: 1, envMapIntensity: 2 }),
       // motor
       radiator: std({ map: t(128, 128, paintRadiator), roughness: 0.5, metalness: 0.6 }),
       valve: std({ map: t(256, 128, paintValveCover), roughness: 0.55 }),

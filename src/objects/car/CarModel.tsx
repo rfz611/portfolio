@@ -27,6 +27,9 @@ const COLOR_PART: Record<string, Part> = {
 };
 type Part = 'paint' | 'glass' | 'trim' | 'headlight' | 'taillight' | 'signal' | 'mirror';
 
+/** Borda da frente do capô do modelo (logo atrás do para-choque), em x. */
+const HOOD_FRONT = -2.03;
+
 export interface ModelCarGeometry {
   paint: THREE.BufferGeometry;
   trim: THREE.BufferGeometry;
@@ -37,6 +40,8 @@ export interface ModelCarGeometry {
   mirror: THREE.BufferGeometry;
   /** Capô e porta do motorista recortados da lataria, já com a origem na dobradiça. */
   hood: THREE.BufferGeometry;
+  /** Saída de ar do capô (abre junto). */
+  hoodTrim: THREE.BufferGeometry;
   door: THREE.BufferGeometry;
   doorGlass: THREE.BufferGeometry;
   hoodHinge: THREE.Vector3;
@@ -185,16 +190,21 @@ export function useModelCar(): ModelCarGeometry {
     let doorFront = Infinity;
     const take = split(body, ({ c, n, u }) => {
       const part = COLOR_PART[hex(colorAt(u))] ?? 'trim';
-      // capô: a tampa de cima, da frente até a base do para-brisa
+      // capô: só a tampa de cima (com a saída de ar preta), da borda logo atrás
+      // do para-choque até a base do para-brisa; os para-lamas ficam de fora
+      // (mais largos que ±0,62 m na frente e ±0,70 m atrás), e o para-choque e
+      // o lábio também (mais baixos e mais à frente)
+      const t = (c.x - HOOD_FRONT) / (glassFront - HOOD_FRONT);
       if (
-        part === 'paint' &&
-        n.y > 0.45 &&
+        part !== 'glass' &&
+        n.y > 0.3 &&
+        c.y > 0.72 &&
+        c.x > HOOD_FRONT &&
         c.x < glassFront - 0.03 &&
-        c.x > finalBox.min.x + 0.22 &&
-        Math.abs(c.z) < width * 0.86
+        Math.abs(c.z) < 0.62 + 0.08 * Math.max(0, Math.min(1, t))
       ) {
         hoodTop = Math.max(hoodTop, c.y);
-        return 'hood';
+        return part === 'paint' ? 'hood' : 'hoodTrim';
       }
       // porta do motorista (lado +z), entre o para-brisa e a coluna do meio
       if (
@@ -231,6 +241,7 @@ export function useModelCar(): ModelCarGeometry {
       signal: take('signal'),
       mirror: take('mirror'),
       hood: at(take('hood'), hoodHinge),
+      hoodTrim: at(take('hoodTrim'), hoodHinge),
       door: at(take('door'), doorHinge),
       doorGlass: at(take('doorGlass'), doorHinge),
       hoodHinge,
