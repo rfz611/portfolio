@@ -1,6 +1,8 @@
+import { Html } from '@react-three/drei';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import gsap from 'gsap';
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { needleDown, progress, togglePlay } from '../audio/player';
 import { box, crease, cyl, merge } from '../scene/geo';
@@ -30,6 +32,7 @@ export function Turntable() {
   const requested = useScene((s) => s.requestedTrackId);
   const playing = useScene((s) => s.deck === 'playing');
   const focused = view === 'discos';
+  const { t } = useTranslation();
 
   const platter = useRef<THREE.Group>(null!);
   const yaw = useRef<THREE.Group>(null!);
@@ -234,6 +237,23 @@ export function Turntable() {
           )}
         </group>
       </Interactive>
+
+      {/* etiquetas no próprio aparelho: o que gira e onde pausar (só no plano dos discos) */}
+      {focused && (
+        <>
+          <Html position={[0.165, 0.0, 0.2]} zIndexRange={[5, 0]}>
+            <div className="deck-tag deck-tag--knob">
+              <span aria-hidden="true">↻</span> {t('records.knobTag')}
+            </div>
+          </Html>
+          <Html position={[geo.platterPos[0], 0.0, 0.2]} zIndexRange={[5, 0]}>
+            <div className="deck-tag deck-tag--platter">
+              <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>{' '}
+              {t(playing ? 'records.pauseTag' : 'records.playTag')}
+            </div>
+          </Html>
+        </>
+      )}
 
       <group position={[0, 0.084, -0.172]} rotation={[-1.18, 0, 0]}>
         <mesh geometry={geo.lid} material={mat.smokedGlass} renderOrder={4} />

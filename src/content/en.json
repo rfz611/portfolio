@@ -140,7 +140,10 @@
     "volume": "Volume",
     "pick": "Pick a record",
     "note": "Music only starts when you click a record.",
-    "hint": "Click a cover to play · turn the brass knob for volume · click the platter to pause"
+    "hint": "Click a cover to play · turn the brass knob for volume · click the platter to pause",
+    "knobTag": "turn · volume",
+    "pauseTag": "click · pause",
+    "playTag": "click · play"
   },
   "decor": {
     "posterSlot": "favorite film",

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { box, crease, cyl, merge } from '../scene/geo';
 import { lib } from '../textures/library';
 import { CREDENZA, CREDENZA_POS, LEDGES, SPEAKERS_X } from './recordLayout';
+import { SmallPlant, TrailingIvy } from './SmallPlants';
 
 const HALF_PI = Math.PI / 2;
 
@@ -106,9 +107,13 @@ export function MediaWall() {
           <planeGeometry args={[3.6, 1.1]} />
         </mesh>
       </group>
-      {SPEAKERS_X.map((x) => (
+      {SPEAKERS_X.map((x, i) => (
         <group key={x} position={[x, CREDENZA.h, 0.2]}>
           <Speaker />
+          {/* em cima das caixas: uma jiboia caindo pela frente e uma espada-de-são-jorge */}
+          <group position={[0, 0.42, 0]} rotation={[0, i ? 0.4 : -0.2, 0]}>
+            {i ? <SmallPlant /> : <TrailingIvy />}
+          </group>
         </group>
       ))}
       <Ledge y={LEDGES.classics} />

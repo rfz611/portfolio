@@ -140,7 +140,10 @@
     "volume": "Volume",
     "pick": "Escolha um disco",
     "note": "A música só começa quando você clica num disco.",
-    "hint": "Clique numa capa para tocar · gire o botão de latão para o volume · clique no prato para pausar"
+    "hint": "Clique numa capa para tocar · gire o botão de latão para o volume · clique no prato para pausar",
+    "knobTag": "gire · volume",
+    "pauseTag": "clique · pausar",
+    "playTag": "clique · tocar"
   },
   "decor": {
     "posterSlot": "filme favorito",
