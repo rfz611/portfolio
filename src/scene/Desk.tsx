@@ -426,7 +426,7 @@ export function DeskArea() {
       <group position={[1.08, 0, -1.08]}>
         <FloorLamp />
       </group>
-      {/* relógio digital ao lado do notebook, com os números virados para a sala */}
+      {/* relógio de mesa ao lado do notebook, com o mostrador virado para a sala */}
       <group position={[0.5, TOP, 0.3]} rotation={[0, -0.25, 0]}>
         <Clock />
       </group>
