@@ -92,6 +92,19 @@ export function ModelExterior({ m }: { m: CarMats }) {
   }, [m, car]);
 
   // rodas: cada uma gira em volta do próprio centro (cambagem)
+  // forro da porta: logo para dentro da chapa mais interna da porta (e abaixo do vidro)
+  const card = useMemo(() => {
+    car.door.computeBoundingBox();
+    const b = car.door.boundingBox!;
+    const length = b.max.x - b.min.x;
+    const top = Math.min(b.max.y, 0.38);
+    const bottom = Math.max(b.min.y, -0.12);
+    return {
+      position: [b.min.x + length / 2, (top + bottom) / 2, b.min.z - 0.03] as const,
+      size: [length * 0.9, top - bottom] as const,
+    };
+  }, [car]);
+
   const wheels = useMemo(
     () =>
       car.wheels.map((w) => {
@@ -157,8 +170,8 @@ export function ModelExterior({ m }: { m: CarMats }) {
             <mesh geometry={car.door} material={mats.paint} />
             <mesh geometry={car.doorGlass} material={m.glass} renderOrder={2} />
             {/* forro de dentro da porta, com o puxador e os botões do vidro */}
-            <mesh position={[0.56, 0.2, -0.07]} rotation={[0, Math.PI, 0]} material={m.doorCard}>
-              <planeGeometry args={[0.98, 0.42]} />
+            <mesh position={[...card.position]} rotation={[0, Math.PI, 0]} material={m.doorCard}>
+              <planeGeometry args={[...card.size]} />
             </mesh>
           </group>
         </Interactive>

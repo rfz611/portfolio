@@ -2,6 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_AUDIO_BASE_URL?: string;
+  /** Endereço do modelo do carro no site publicado (o arquivo fica fora do Git). */
+  readonly VITE_CAR_MODEL_URL?: string;
 }
 
 interface ImportMeta {

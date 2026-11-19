@@ -3,14 +3,13 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { FRONT_X, REAR_X } from './carBody';
-import { HAS_CAR_MODEL as HAS_MODEL } from './modelInfo';
+import { CAR_MODEL_URL, HAS_CAR_MODEL as HAS_MODEL } from './modelInfo';
 
 /**
  * Carro a partir do modelo "Mitsubishi Lancer Evolution VIII Low Poly", de
  * 1313feodal (Sketchfab, licença Free Standard). O arquivo fica fora do Git
  * (public/models/car.glb): sem ele, entra o carro feito no código.
  */
-export const CAR_MODEL_URL = '/models/car.glb';
 
 type RGB = [number, number, number];
 const hex = (c: RGB) => '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('');
