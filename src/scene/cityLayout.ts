@@ -34,3 +34,11 @@ export const ROOFTOPS: Rooftop[] = [
   { kind: 'bar', at: [CENTER_X - 62, -142], size: [26, 30], top: -48, yaw: 0 },
   { kind: 'party', at: [CENTER_X + 72, -226], size: [36, 34], top: -40, yaw: 0 },
 ];
+
+/**
+ * Folks Pub Sertanejo, no chão: esquina da rua da esquerda (x = -36,5) com a
+ * rua que cruza a vista em z = -352, de frente para a janela. Centro do pátio
+ * (x, z), tamanho do lote (largura em x, fundo em z, antes da escala), escala
+ * (maior que o real, para aparecer da janela) e giro.
+ */
+export const FOLKS = { at: [CENTER_X - 64.5, -380], size: [28, 30], scale: 1.5, yaw: 0 } as const;

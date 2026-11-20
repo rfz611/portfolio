@@ -9,7 +9,8 @@ import { makeCanvas, retile, tex } from '../textures/canvas';
 import { paintAd, paintNoirWindows, paintRoad, type AdKind, type AdWords } from '../textures/city';
 import { hdr, lib } from '../textures/library';
 import { mulberry32 } from '../textures/random';
-import { BLOCK, CENTER_X, FACADE_UV, GROUND_Y, PITCH, ROOFTOPS } from './cityLayout';
+import { BLOCK, CENTER_X, FACADE_UV, FOLKS, GROUND_Y, PITCH, ROOFTOPS } from './cityLayout';
+import { Folks } from './Folks';
 import { box, merge } from './geo';
 import { Rooftops } from './Rooftops';
 
@@ -83,6 +84,38 @@ function reserved(x: number, z: number) {
     }
   }
   return false;
+}
+
+/** Da janela até o Folks (letreiro e fonte): os prédios nessa linha ficam baixos. */
+const WINDOW_EYE: [number, number, number] = [-1, 1.6, -1.7];
+const FOLKS_SIGHTS: [number, number, number][] = [
+  [1.5, 7, -7],
+  [3, 1, 5],
+  [-9, 1, 9],
+].map(([x, y, z]) => [
+  FOLKS.at[0] + x * FOLKS.scale,
+  GROUND_Y + y * FOLKS.scale,
+  FOLKS.at[1] + z * FOLKS.scale,
+]);
+
+/**
+ * Altura máxima de um prédio (base w x d em x, z) para não tampar o Folks
+ * visto da janela; null = não está no caminho.
+ */
+function sightCap(x: number, z: number, w: number, d: number) {
+  const m = 5;
+  let cap: number | null = null;
+  for (const target of FOLKS_SIGHTS) {
+    for (let i = 1; i < 200; i++) {
+      const t = i / 200;
+      const px = WINDOW_EYE[0] + (target[0] - WINDOW_EYE[0]) * t;
+      const pz = WINDOW_EYE[2] + (target[2] - WINDOW_EYE[2]) * t;
+      if (Math.abs(px - x) > w / 2 + m || Math.abs(pz - z) > d / 2 + m) continue;
+      const py = WINDOW_EYE[1] + (target[1] - WINDOW_EYE[1]) * t;
+      cap = cap === null ? py - 4 : Math.min(cap, py - 4);
+    }
+  }
+  return cap;
 }
 
 function buildCity() {
@@ -164,7 +197,27 @@ function buildCity() {
         const w = lotW - 4 - r() * 6;
         const d = BLOCK - 6 - r() * 14;
         const brightness = Math.max(0.35, 1.05 - dist / 1300);
+        // no lote do Folks o prédio é sorteado (para a cidade não mudar de
+        // lugar) e depois jogado fora: ali fica o bar baixo com o pátio
+        const folks =
+          Math.abs(x - FOLKS.at[0]) < (FOLKS.size[0] * FOLKS.scale) / 2 + 8 &&
+          Math.abs(z - FOLKS.at[1]) < (FOLKS.size[1] * FOLKS.scale) / 2 + 8;
+        const lists = [...groups, litTops, roofs, spires, beacons];
+        const before = lists.map((l) => l.length);
         tower(x, z, w, d, top, brightness);
+        // prédio na frente do Folks: sorteado igual (a cidade não muda) e
+        // trocado por um bloco mais baixo, abaixo da linha de visão
+        const cap = folks ? null : sightCap(x, z, w, d);
+        if (folks || (cap !== null && top > cap)) {
+          lists.forEach((l, i) => (l.length = before[i]));
+        }
+        if (!folks && cap !== null && top > cap) {
+          const h = Math.max(12, cap - GROUND_Y);
+          groups[0].push(
+            tint(box([w, h, d], [x, GROUND_Y + h / 2, z], { uv: FACADE_UV }), brightness),
+          );
+          roofs.push(box([w + 0.8, 0.9, d + 0.8], [x, GROUND_Y + h + 0.2, z]));
+        }
       }
     }
   }
@@ -517,6 +570,7 @@ export function City() {
         <AdBoard key={ad.kind} ad={ad} />
       ))}
       <Rooftops />
+      <Folks />
       {/* o prédio abaixo da cobertura */}
       <mesh position={[CENTER_X, -33.1, ROOM.z1 + 0.02]} material={mats.facade}>
         <planeGeometry args={[GARAGE.x1 - ROOM.x0 + 0.2, 64]} />
