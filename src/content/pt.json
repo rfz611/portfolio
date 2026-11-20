@@ -24,7 +24,7 @@
     "lang": "Mudar idioma para inglês",
     "textVersion": "Texto",
     "view3d": "3D",
-    "hint": "Mouse na borda ou arraste para olhar · círculos do chão para andar · clique nos objetos",
+    "hint": "Clique e arraste para olhar em volta · círculos do chão para andar · clique nos objetos",
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
     "room": "Sala",
     "soundOn": "Som",

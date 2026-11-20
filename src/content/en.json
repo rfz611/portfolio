@@ -24,7 +24,7 @@
     "lang": "Switch language to Portuguese",
     "textVersion": "Text",
     "view3d": "3D",
-    "hint": "Mouse at the edge or drag to look · floor circles to move · click the objects",
+    "hint": "Click and drag to look around · floor circles to move · click the objects",
     "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
     "room": "Room",
     "soundOn": "Sound",

@@ -7,11 +7,8 @@ import { prefersReducedMotion } from '../ui/hooks';
 import { cut } from '../ui/cut';
 import { homeShot, resolveShot } from './shots';
 
-const MAX_PARALLAX = (5 * Math.PI) / 180;
-/** Faixa da borda da tela (em fração da metade) onde o mouse parado gira a câmera. */
-const EDGE = 0.78;
-/** Velocidade do giro com o mouse encostado na borda (rad/s). */
-const EDGE_SPEED = 1.5;
+/** O mouse parado mexe a vista só de leve (não atrapalha os cliques). */
+const MAX_PARALLAX = (3 * Math.PI) / 180;
 const UP = new THREE.Vector3(0, 1, 0);
 /** Até onde o olhar sobe e desce (inclinação em relação ao horizonte, em radianos). */
 const ELEVATION = { min: -1.1, max: 0.75 };
@@ -22,10 +19,10 @@ const canLook = () => LOOK_VIEWS.has(useScene.getState().view);
 /**
  * Troca de plano com um corte de cinema: a tela escurece, a câmera muda de
  * lugar e a imagem reabre com uma aproximação leve.
- * Nos lugares da sala e na janela dá para olhar em volta: arrastando com o
- * mouse ou o dedo, ou com as setas ← → ↑ ↓ (para os lados sem limite; para
- * cima e para baixo até ELEVATION). O mouse parado também mexe a vista de
- * leve (até 3 graus) nos lugares da sala.
+ * Nos lugares da sala e na janela dá para olhar em volta clicando e
+ * arrastando (mouse ou dedo) ou com as setas ← → ↑ ↓: para os lados sem
+ * limite, para cima e para baixo até ELEVATION. O mouse parado só mexe a
+ * vista de leve (até 3 graus).
  */
 export function CameraRig() {
   const view = useScene((s) => s.view);
@@ -43,7 +40,7 @@ export function CameraRig() {
     view,
     spot,
   });
-  const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0, over: false });
+  const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
   const look = useRef({ yaw: 0, pitch: 0, sYaw: 0, sPitch: 0, drag: false, lastX: 0, lastY: 0 });
   const tmp = useRef({
     dir: new THREE.Vector3(),
@@ -89,11 +86,9 @@ export function CameraRig() {
       l.lastY = event.clientY;
     };
     const move = (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') {
+      if (event.pointerType === 'mouse') {
         pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
-        // só gira pela borda com o mouse em cima da cena (não nos botões)
-        pointer.current.over = event.target === dom;
       }
       if (!l.drag || !canLook()) return;
       const scale = (rig.current.fov / 60) * 0.0055;
@@ -104,9 +99,6 @@ export function CameraRig() {
     };
     const up = () => {
       l.drag = false;
-    };
-    const leave = () => {
-      pointer.current.over = false;
     };
     const key = (event: KeyboardEvent) => {
       if (!canLook()) return;
@@ -123,11 +115,7 @@ export function CameraRig() {
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
     window.addEventListener('keydown', key);
-    document.documentElement.addEventListener('mouseleave', leave);
-    window.addEventListener('blur', leave);
     return () => {
-      document.documentElement.removeEventListener('mouseleave', leave);
-      window.removeEventListener('blur', leave);
       dom.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
@@ -200,23 +188,20 @@ export function CameraRig() {
     const l = look.current;
     const t = tmp.current;
     const k = 1 - Math.exp(-delta * 3);
-    const looking = LOOK_VIEWS.has(r.view);
-    const active = looking && !prefersReducedMotion() && !l.drag ? 1 : 0;
-    // mouse encostado na borda esquerda ou direita: a câmera vai girando para lá
-    const edge = Math.abs(p.x) - EDGE;
-    if (looking && p.over && !l.drag && edge > 0) {
-      l.yaw -= Math.sign(p.x) * Math.min(1, edge / (1 - EDGE)) * EDGE_SPEED * delta;
-    }
-    p.sx += (p.x * active - p.sx) * k;
-    p.sy += (p.y * active - p.sy) * k;
+    const active = LOOK_VIEWS.has(r.view) && !prefersReducedMotion() && !l.drag ? 1 : 0;
+    p.sx += (-p.x * MAX_PARALLAX * active - p.sx) * k;
+    p.sy += (-p.y * MAX_PARALLAX * 0.6 * active - p.sy) * k;
     const kl = 1 - Math.exp(-delta * 8);
     l.sYaw += (l.yaw - l.sYaw) * kl;
     l.sPitch += (l.pitch - l.sPitch) * kl;
 
     t.dir.copy(r.target).sub(r.position);
-    t.dir.applyAxisAngle(UP, l.sYaw - p.sx * MAX_PARALLAX);
+    // a inclinação final (plano + mouse + teclado) fica dentro de ELEVATION
+    const base = Math.atan2(t.dir.y, Math.hypot(t.dir.x, t.dir.z));
+    const tilt = Math.min(ELEVATION.max - base, Math.max(ELEVATION.min - base, l.sPitch + p.sy));
+    t.dir.applyAxisAngle(UP, l.sYaw + p.sx);
     t.right.crossVectors(t.dir, UP).normalize();
-    t.dir.applyAxisAngle(t.right, l.sPitch - p.sy * MAX_PARALLAX * 0.6);
+    t.dir.applyAxisAngle(t.right, tilt);
     camera.position.copy(r.position);
     camera.lookAt(t.at.copy(r.position).add(t.dir));
     if (Math.abs(camera.fov - r.fov) > 0.01) {

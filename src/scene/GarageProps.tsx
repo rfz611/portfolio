@@ -214,26 +214,13 @@ export function GarageProps() {
       <mesh geometry={geo.posterFrame} material={mat.darkMetal} />
       <mesh geometry={geo.lines} material={mats.line} />
 
-      {/* luzes quentes: a bancada e o canto da academia aparecem no escuro */}
+      {/* uma luz quente só, no meio da parede do fundo: bancada, pôster e
+          academia aparecem no escuro (cada luz a mais pesa na cena inteira) */}
       <pointLight
-        position={[E - 0.9, 2.5, 2.4]}
+        position={[E - 1.3, 2.6, -0.4]}
         color="#ffcf9e"
-        intensity={4}
-        distance={4}
-        decay={2}
-      />
-      <pointLight
-        position={[E - 1.4, 2.6, -3.0]}
-        color="#ffcf9e"
-        intensity={5}
-        distance={4.5}
-        decay={2}
-      />
-      <pointLight
-        position={[E - 1.2, 2.3, -0.45]}
-        color="#ffd9b8"
-        intensity={2.5}
-        distance={3}
+        intensity={9}
+        distance={7}
         decay={2}
       />
     </group>

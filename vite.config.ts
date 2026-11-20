@@ -41,6 +41,9 @@ function trimAudio(): Plugin {
 
 export default defineConfig({
   plugins: [react(), modelsManifest(), trimAudio()],
+  // a pasta do build da Vercel tem cópias das músicas e do site: fora do vigia e da busca
+  server: { watch: { ignored: ['**/.vercel/**'] } },
+  optimizeDeps: { entries: ['index.html'] },
   build: { chunkSizeWarningLimit: 1600 },
   test: {
     environment: 'jsdom',
