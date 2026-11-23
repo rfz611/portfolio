@@ -148,14 +148,15 @@ export const SHOTS: Record<ViewId, Shot> = {
     portrait: { frame: [1.1, 1.6] },
   },
   // Diagonal frontal, capô em destaque.
+  // posição fixa dentro da garagem, perto da parede de trás e abaixo do
+  // tubo de neon vermelho (y = 2,6): em tela estreita a câmera não sai pela
+  // parede nem passa por trás do neon
   carro: {
-    target: [carX - 0.2, 0.62, carZ],
-    dir: [-0.55, 0.3, 0.78],
-    // com folga em volta: o carro inteiro e um pouco da garagem
-    frame: [7.6, 3.7],
-    fov: 40,
+    position: [carX - 3.1, 1.72, carZ + 3.35],
+    target: [carX + 0.1, 0.5, carZ - 0.1],
+    hfov: 76,
     duration: 1.6,
-    portrait: { frame: [3.4, 4.2] },
+    portrait: { position: [carX - 3.3, 1.9, carZ + 3.4], hfov: 84 },
   },
   // De cima do capô aberto.
   motor: {

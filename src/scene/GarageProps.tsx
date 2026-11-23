@@ -219,7 +219,7 @@ export function GarageProps() {
       <pointLight
         position={[E - 1.3, 2.6, -0.4]}
         color="#ffcf9e"
-        intensity={9}
+        intensity={7}
         distance={7}
         decay={2}
       />

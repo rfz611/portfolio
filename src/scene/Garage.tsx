@@ -17,10 +17,57 @@ RectAreaLightUniformsLib.init();
 const [carX, , carZ] = SPOT.car;
 const LIFT = CAR_LIFT;
 
-/** Fachos dos faróis: acesos, entram na sala pelo vidro. */
+/** Mancha de luz dos faróis no chão: dois fachos ovais que somem nas bordas. */
+function paintBeamFloor(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  for (const cy of [0.36, 0.64]) {
+    ctx.save();
+    ctx.translate(w, h * cy);
+    ctx.scale(1, 0.24);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.95);
+    g.addColorStop(0, 'rgba(255,240,215,0.9)');
+    g.addColorStop(0.5, 'rgba(255,232,200,0.35)');
+    g.addColorStop(1, 'rgba(255,232,200,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-w * 2, -h * 4, w * 4, h * 8);
+    ctx.restore();
+  }
+  // apaga as bordas (nada de quina reta no chão)
+  ctx.globalCompositeOperation = 'destination-in';
+  const v = ctx.createLinearGradient(0, 0, 0, h);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(0.25, 'rgba(0,0,0,1)');
+  v.addColorStop(0.75, 'rgba(0,0,0,1)');
+  v.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, w, h);
+  const u = ctx.createLinearGradient(0, 0, w, 0);
+  u.addColorStop(0, 'rgba(0,0,0,0)');
+  u.addColorStop(0.4, 'rgba(0,0,0,1)');
+  ctx.fillStyle = u;
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/**
+ * Fachos dos faróis: acesos, clareiam o chão na frente do carro e entram
+ * na sala pelo vidro (a garagem fica mais escura para eles aparecerem).
+ */
 function HeadlightBeams() {
   const on = useScene((s) => s.headlights);
   const lights = useRef<(THREE.SpotLight | null)[]>([]);
+  const floor = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        map: tex(makeCanvas(256, 128, paintBeamFloor), { clamp: true }),
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        toneMapped: false,
+      }),
+    [],
+  );
   const targets = useMemo(() => [new THREE.Object3D(), new THREE.Object3D()], []);
   useEffect(() => {
     lights.current.forEach((light, i) => {
@@ -33,8 +80,9 @@ function HeadlightBeams() {
   useFrame((_, delta) => {
     const k = 1 - Math.exp(-delta * 6);
     for (const light of lights.current) {
-      if (light) light.intensity += ((on ? 60 : 0) - light.intensity) * k;
+      if (light) light.intensity += ((on ? 90 : 0) - light.intensity) * k;
     }
+    floor.opacity += ((on ? 0.6 : 0) - floor.opacity) * k;
   });
   return (
     <>
@@ -48,14 +96,22 @@ function HeadlightBeams() {
           color="#fff1dc"
           intensity={0}
           distance={16}
-          angle={0.42}
-          penumbra={0.65}
+          angle={0.45}
+          penumbra={0.75}
           decay={1.6}
         />
       ))}
       {targets.map((t, i) => (
         <primitive key={i} object={t} />
       ))}
+      <mesh
+        position={[carX - 4.7, 0.012, carZ]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        material={floor}
+        renderOrder={2}
+      >
+        <planeGeometry args={[5, 3]} />
+      </mesh>
     </>
   );
 }
@@ -133,7 +189,7 @@ export function Garage() {
       <pointLight
         position={[carX + 3.3, 1.0, carZ - 0.4]}
         color="#ffd6c0"
-        intensity={3}
+        intensity={2.2}
         distance={4.5}
         decay={2}
       />
@@ -141,7 +197,7 @@ export function Garage() {
       <pointLight
         position={[carX - 3.6, 1.0, carZ + 0.6]}
         color="#ffe2c4"
-        intensity={4}
+        intensity={2}
         distance={5}
         decay={2}
       />
@@ -149,7 +205,7 @@ export function Garage() {
       <pointLight
         position={[carX, 1.1, carZ + 3.2]}
         color="#ffd2b0"
-        intensity={5}
+        intensity={3.6}
         distance={5}
         decay={2}
       />
@@ -159,13 +215,13 @@ export function Garage() {
         rotation={[-Math.PI / 2, 0, 0]}
         width={3.2}
         height={1.6}
-        intensity={16}
+        intensity={11}
         color="#dfe6ff"
       />
       <pointLight
         position={[carX - 1.2, 2.6, carZ + 2.2]}
         color="#ffd9b8"
-        intensity={6}
+        intensity={4.2}
         distance={6}
         decay={2}
       />
