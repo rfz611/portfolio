@@ -1,143 +1,63 @@
-# Portfólio 3D — Raphael Scharf Passos
+# Raphael Scharf — Portfólio 3D
 
-Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne 2 e dos jogos de PS2. Cada objeto da sala abre uma parte do portfólio: a TV mostra os projetos, o notebook conta quem eu sou, as revistas são os certificados, o toca-discos toca de verdade e, pela janela, a cidade anuncia os meus projetos.
+**Acesse:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
-**No ar:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
+Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne 2 e dos jogos de PS2. Em vez de uma página com seções, o portfólio é um lugar: cada objeto da sala abre uma parte dele.
 
 ![A sala, vista do sofá](docs/prints/readme/home-desktop-sala.png)
 
-> Em construção: falta o acabamento final. A especificação completa está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
-
 ## O que tem em cada canto
 
-| Lugar      | Objeto                                             | O que abre                                                                                                                               |
-| ---------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Sala       | TV de tubo                                         | Os projetos, um por canal, com vídeo, tecnologias e link                                                                                 |
-| Sala       | Toca-discos e estante                              | As músicas que eu gosto, tocando de verdade (capa, faixa, volume)                                                                        |
-| Sala       | Revistas na mesa de centro                         | Os certificados, cada um como capa de revista                                                                                            |
-| Escritório | Notebook                                           | Sobre mim, formação e experiência                                                                                                        |
-| Escritório | Papéis na mesa                                     | O currículo em PDF, para ler ou baixar                                                                                                   |
-| Escritório | Gaveta do meio (sentado)                           | Um segredo riscado no fundo                                                                                                              |
-| Poltrona   | Livros na mesinha                                  | Meus filmes favoritos, com o que eu acho de cada um                                                                                      |
-| Bar        | Garrafas                                           | Um drink servido no balcão (whisky, martini ou negroni)                                                                                  |
-| Janela     | A cidade                                           | Anúncios do UniCar e da Automação de Frotas que levam ao canal certo da TV, cinema, clube de jazz, cassino, hotel e coberturas com festa |
-| Garagem    | Carro (capô)                                       | As skills: cada peça do motor é um grupo de tecnologias                                                                                  |
-| Garagem    | Carro (chaves na mesa levam até ele; a porta abre) | Entra no carro: o rádio tem os contatos nas estações (e-mail, LinkedIn, GitHub, currículo) e o porta-luvas guarda o currículo            |
-| Garagem    | Faróis                                             | Ligam e desligam; acesos, iluminam o chão até a sala                                                                                     |
+| Onde       | Objeto                     | O que mostra                                                           |
+| ---------- | -------------------------- | ---------------------------------------------------------------------- |
+| Sala       | TV de tubo                 | Os projetos, um por canal, com vídeo, tecnologias e repositório        |
+| Sala       | Toca-discos                | As músicas que eu gosto, tocando de verdade                            |
+| Sala       | Revistas na mesa de centro | Os certificados, cada um como capa de revista                          |
+| Escritório | Notebook                   | Sobre mim, formação, experiência e idiomas                             |
+| Escritório | Papéis na mesa             | O currículo em PDF                                                     |
+| Poltrona   | Livros                     | Meus filmes favoritos e o que eu acho de cada um                       |
+| Janela     | A cidade                   | Anúncios dos meus projetos, que levam ao canal certo da TV             |
+| Garagem    | Capô do carro              | As skills: cada peça do motor é um grupo de tecnologias                |
+| Garagem    | Porta do carro             | O contato: cada estação do rádio é um canal (e-mail, LinkedIn, GitHub) |
 
-Dá para olhar em volta arrastando o mouse (ou o dedo), andar clicando nos círculos do chão e trocar de lugar pelas setas da legenda. Quem prefere ler tem o **menu de texto**, com o portfólio inteiro em HTML, e tudo existe em português e inglês.
+Quem prefere ler tem a **versão em texto** (botão "Texto"), com o portfólio inteiro em HTML. Tudo existe em português e inglês.
 
-|                                                                    |                                                                    |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| ![Escritório](docs/prints/readme/home-desktop-escritorio.png)      | ![Canto da poltrona](docs/prints/readme/home-desktop-poltrona.png) |
-| ![Bar](docs/prints/readme/home-desktop-bar.png)                    | ![A cidade pela janela](docs/prints/readme/janela-desktop.png)     |
-| ![O carro na garagem](docs/prints/readme/home-desktop-garagem.png) | ![Skills no motor](docs/prints/readme/motor-desktop-skills.png)    |
+|                                                                    |                                                                 |
+| ------------------------------------------------------------------ | --------------------------------------------------------------- |
+| ![Escritório](docs/prints/readme/home-desktop-escritorio.png)      | ![A cidade pela janela](docs/prints/readme/janela-desktop.png)  |
+| ![O carro na garagem](docs/prints/readme/home-desktop-garagem.png) | ![Skills no motor](docs/prints/readme/motor-desktop-skills.png) |
 
-## Tecnologias
+## Como foi feito
 
-- **React 18 + TypeScript + Vite**
-- **three.js** com **React Three Fiber** e **drei**; pós-processamento com bloom, vinheta, contraste e granulado
-- **GSAP** para a câmera e as animações, **Zustand** para o estado, **Howler.js** para a música, **i18next** para os idiomas
-- **Vitest**, **ESLint** e **Prettier**
+Fiz este portfólio por vontade própria, para aprender 3D e criar algo diferente de um site comum.
 
-Todos os objetos são modelados no próprio código, em low poly no estilo PS2, com texturas pintadas em canvas. A exceção é o carro da garagem, o modelo do Lancer Evolution VIII em `public/models/car.glb` (veja os créditos).
+- **Quase tudo modelado em código.** Móveis, objetos e a cidade são geometria escrita à mão com React Three Fiber, em estilo low poly. As texturas (madeira, couro, capas, letreiros) são pintadas em canvas quando o site abre, sem baixar imagens.
+- **Cidade gerada.** Os prédios, as ruas, os carros andando e as janelas acesas saem de um gerador com semente fixa: a cidade é sempre a mesma. Ela é leve porque usa brilho pintado em vez de luzes de verdade.
+- **Câmera de cinema.** As trocas de vista são cortes com fade, enquadradas pelo que precisa caber na tela, para funcionar de monitor largo a celular.
+- **Áudio de verdade.** O toca-discos toca as faixas com fade e chiado de vinil. A chuva e os efeitos são sintetizados no navegador.
+- **Acessível.** Tem uma versão em texto completa, navegação por teclado, endereço próprio para cada seção (#projetos, #skills…) e respeito a "reduzir movimento".
+- **Testado e publicado.** TypeScript estrito, ESLint, Prettier e testes com Vitest. O site fica na Vercel.
 
-## O que você precisa
+**Tecnologias:** React, TypeScript, Three.js, React Three Fiber, drei, Zustand, GSAP, Howler.js, i18next, Vite, Vitest.
 
-- **Node.js 20.19 ou mais novo** (o projeto usa Vite 8) e npm
-- Um navegador com WebGL 2 (Chrome, Edge, Firefox ou Safari recentes)
-- Opcional, para os prints automáticos: Google Chrome ou Microsoft Edge instalado
-
-## Como rodar
-
-```bash
-npm install
-npm run dev
-```
-
-O site abre em `http://localhost:5173`.
-
-| Comando                                      | O que faz                                        |
-| -------------------------------------------- | ------------------------------------------------ |
-| `npm run dev`                                | Servidor de desenvolvimento                      |
-| `npm run build`                              | Confere os tipos e gera o site em `dist/`        |
-| `npm run preview`                            | Serve o `dist/` para conferir o build            |
-| `npm run test`                               | Testes (estado, câmera, revistas, player)        |
-| `npm run lint`                               | ESLint sem avisos                                |
-| `npm run format`                             | Prettier em tudo                                 |
-| `npm run audio`                              | Renomeia e converte as músicas de `public/audio` |
-| `npm run shots -- docs/prints/pasta home tv` | Tira prints em desktop e celular                 |
-| `npm run deploy`                             | Publica na Vercel (veja abaixo)                  |
-
-## Arquivos que não ficam no Git
-
-Músicas e vídeos são pesados e têm direitos de terceiros, então ficam fora do repositório. Sem eles o site funciona: o disco aparece com o selo "em breve" e a TV mostra o print no lugar do vídeo.
-
-| Pasta            | O que vai nela                                            | Como usar                                                                                                      |
-| ---------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `public/audio/`  | As faixas dos discos (`.mp3`, `.ogg`, `.wav` ou `.flac`)  | Rode `npm run audio`: ele renomeia e converte para o nome que o site espera (lista em `src/content/tracks.ts`) |
-| `public/videos/` | `unicar.webm` e `frotas.webm`, os vídeos que passam na TV | Basta copiar os arquivos com esses nomes                                                                       |
-
-## Publicar
-
-O site fica na Vercel, mas é publicado a partir deste computador, não do GitHub: o Git não tem as músicas nem os vídeos, então um build feito lá subiria sem eles (por isso o `vercel.json` desliga as publicações automáticas). Com as pastas `public/audio` e `public/videos` no lugar:
-
-```bash
-npm run deploy
-```
-
-Ele confere os tipos, gera o `dist/`, monta o `.vercel/output` com tudo junto e publica em produção. Na primeira vez a Vercel pede login (`npx vercel login`) e para escolher o projeto (`npx vercel link`).
-
-Se um dia as músicas forem para um bucket (Cloudflare R2, por exemplo), o endereço vai na variável `VITE_AUDIO_BASE_URL`; copie `.env.example` para `.env.local` e ajuste.
-
-## Onde mudar o conteúdo
-
-| Arquivo                           | Conteúdo                                                            |
-| --------------------------------- | ------------------------------------------------------------------- |
-| `src/content/pt.json` e `en.json` | Todos os textos do site, nos dois idiomas                           |
-| `src/content/projects.ts`         | Projetos da TV (canal, tecnologias, link, print, vídeo)             |
-| `src/content/certificates.ts`     | Certificados das revistas                                           |
-| `src/content/tracks.ts`           | Discos e faixas do toca-discos                                      |
-| `src/content/films.ts`            | Filmes dos livros da poltrona (as notas ficam nos JSON, em `films`) |
-| `public/cv/`                      | Currículo em PDF                                                    |
-| `public/textures/foto.webp`       | Foto do porta-retrato                                               |
-
-## Estrutura
-
-```
-src/
-  scene/      sala, escritório, bar, poltrona, janela, cidade, coberturas, chuva, luzes e efeitos
-  objects/    TV, toca-discos, discos, revistas, notebook, gaveta, livros, drinks...
-  textures/   texturas pintadas em canvas e materiais
-  camera/     pontos de vista e planos de câmera
-  ui/         menu de texto, ficha dos filmes, currículo, carregamento, idioma, volume
-  content/    textos (pt.json, en.json) e dados
-  audio/      player (Howler)
-  store/      estado (Zustand)
-scripts/      prints automáticos, preparo das músicas, compressão de modelos
-docs/         especificação, planta e prints de cada etapa
-```
-
-Em desenvolvimento, `window.__scene` (estado) e `window.__three` (cena e câmera) ficam expostos no console, e o `scripts/screenshot.mjs` aceita variáveis como `SHOT_PRE`, `SHOT_CLICK` e `SHOT_EVAL` (veja o começo do arquivo).
-
-## Créditos e direitos
+## Créditos
 
 Código e cena: Raphael Scharf Passos. Todos os direitos reservados.
 
-Modelo do carro: "Mitsubishi Lancer Evolution VIII Low Poly", de [1313feodal](https://sketchfab.com/1313feodal), no Sketchfab (licença Free Standard). No site ele ganha pintura amarela, vidros, luzes, cambagem e o capô e a porta recortados para abrir.
+Modelo do carro: "Mitsubishi Lancer Evolution VIII Low Poly", de [1313feodal](https://sketchfab.com/1313feodal), no Sketchfab (licença Free Standard), com pintura, luzes e capô e porta recortados para abrir.
 
-As capas de discos, as músicas e os títulos de filmes pertencem aos seus donos e aparecem só como referência pessoal. Nomes de lugares e anúncios da cidade (Bella Napoli, Lucky 7, The Velvet Room, Orpheum) são inventados. As marcas de bebida e objetos citados aparecem em rótulos simples, sem logotipos.
+Capas de discos, músicas e títulos de filmes pertencem aos seus donos e aparecem só como referência pessoal. Os lugares e anúncios da cidade são inventados, exceto o Folks Pub Sertanejo, uma homenagem a um bar de Curitiba.
 
 ---
 
-# 3D Portfolio — Raphael Scharf Passos
+# Raphael Scharf — 3D Portfolio
 
-An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-era games. Every object opens a part of the portfolio: the CRT TV shows the projects (one per channel), the laptop tells who I am, the magazines are my certificates, the turntable really plays, the books by the armchair hold notes on my favorite films, and through the window the city advertises my projects (click a billboard to jump to its TV channel). In the garage, the car holds the skills under the hood and the contacts on the radio.
+**Visit:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
-Everything is modeled in code, low poly with canvas-painted textures, with React Three Fiber, TypeScript and Vite. There is a plain-HTML text menu with the whole portfolio, in Portuguese and English.
+An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-era games. Instead of a page with sections, the portfolio is a place: every object opens a part of it. The CRT TV shows the projects, the laptop tells who I am, the turntable really plays, the car's engine holds the skills and its radio holds the contacts. There is also a full text version, in Portuguese and English.
 
-**Live:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
+I built it on my own, to learn 3D and make something different. Almost everything is modeled in code with React Three Fiber and TypeScript, with canvas-painted textures and a procedurally generated city.
 
-**Requirements:** Node.js 20.19+ and npm. **Run:** `npm install` then `npm run dev`. Music (`public/audio`) and project videos (`public/videos`) are kept out of Git; without them the site still works. `npm run deploy` publishes to Vercel from the local machine, with music and videos included. Texts live in `src/content/pt.json` and `en.json`.
+Code and scene by Raphael Scharf Passos, all rights reserved. Car model by 1313feodal (Sketchfab, Free Standard license).
 
-Code and scene by Raphael Scharf Passos, all rights reserved. Album covers, songs and film titles belong to their owners.
+<sub>Publicar: `npm run deploy` (com public/audio e public/videos no lugar).</sub>
