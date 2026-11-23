@@ -14,7 +14,6 @@ import { Loader } from './ui/Loader';
 import { SkillsPanel } from './ui/SkillsPanel';
 import { SpotNav } from './ui/SpotNav';
 import { TextPage } from './ui/TextPage';
-import { Tour } from './ui/Tour';
 
 // A cena 3D é carregada à parte: os controles e o menu aparecem antes dela.
 const Experience = lazy(() => import('./scene/Experience'));
@@ -83,7 +82,6 @@ export default function App() {
           {ready && <Dossier />}
           {ready && <SkillsPanel />}
           {ready && <CarRadio />}
-          <Tour />
           {ready && HINTS[view] && !magazineOpen && (
             <p className={`hint hint--top${view === 'home' ? ' hint--soft' : ''}`}>
               {t(touch && i18n.exists(`${HINTS[view]}Touch`) ? `${HINTS[view]}Touch` : HINTS[view])}

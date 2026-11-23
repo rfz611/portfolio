@@ -1822,33 +1822,3 @@ body:not(.is-3d)::after {
     opacity: 0;
   }
 }
-
-/* ---------- tour automático (?tour), para gravar vídeo ---------- */
-
-.tour-start {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  background: rgba(8, 5, 4, 0.45);
-}
-
-.tour-start .button {
-  font-size: 1.1rem;
-  padding: 12px 26px;
-}
-
-/* durante o tour só a cena aparece */
-body.is-tour .hint,
-body.is-tour .controls,
-body.is-tour .spot-nav,
-body.is-tour .back,
-body.is-tour .hover-label,
-body.is-tour .car-tag {
-  display: none !important;
-}
-
-body.is-tour canvas {
-  cursor: none;
-}
