@@ -32,7 +32,7 @@ export const projects: Project[] = [
     id: 'frotas',
     channel: '02',
     tech: ['Python', 'FastAPI', 'pdfplumber', 'openpyxl', 'Next.js', 'TypeScript'],
-    link: null,
+    link: 'https://github.com/rfz611/automacaofrotas',
     image: '/textures/projects/frotas.webp',
     video: '/videos/frotas.webm',
   },
