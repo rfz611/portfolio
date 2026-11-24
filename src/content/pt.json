@@ -44,7 +44,8 @@
     "status": "Procurando estágio em TI, à tarde, presencial ou híbrido em Curitiba, ou remoto.",
     "downloadCv": "Baixar currículo",
     "seeProjects": "Ver projetos",
-    "cvSoon": "Currículo em breve"
+    "cvSoon": "Currículo em breve",
+    "letter": "Oi! Que bom que você chegou até a mesa.\nSou o Raphael, tenho os pés em Curitiba e a cabeça em código. Estudo Engenharia de Software na Universidade Positivo e antes fiz o técnico em Análise e Desenvolvimento de Sistemas no SENAI.\nO que eu mais gosto é pegar um trabalho repetitivo e transformar num sistema: foi assim com a Automação de Frotas, que lê apólices em PDF e entrega a planilha pronta. No UniCar montei a API inteira de um app de caronas, com chat e localização em tempo real.\nAntes disso cuidei dos computadores e dos usuários do Biobanco, então sei o que é atender gente com pressa e resolver problema de verdade.\nFora do código: filmes de máfia, PS2, carro, boxe, música boa e um bom perfume. Quase tudo isso está espalhado por esta cobertura.\nEstou procurando estágio em TI à tarde, presencial ou híbrido em Curitiba, ou remoto. Se curtiu, o PDF está aqui embaixo e o rádio do carro tem meus contatos."
   },
   "projects": {
     "title": "Projetos",
@@ -103,7 +104,7 @@
     "title": "Skills",
     "languages": "Linguagens",
     "backend": "Back-end",
-    "frontend": "Front-end e mobile",
+    "frontend": "Front-end, 3D e mobile",
     "databases": "Bancos de dados",
     "tools": "Ferramentas",
     "partBlock": "Bloco do motor",

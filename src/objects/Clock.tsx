@@ -6,7 +6,6 @@ import { box } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
 import { paintDeskClockDial } from '../textures/clock';
 import { lib } from '../textures/library';
-import { Interactive } from './Interactive';
 
 /** Medidas do relógio (m): caixa de 0,16 × 0,17 com 0,055 de fundo, mostrador de 0,12. */
 const W = 0.16;
@@ -73,7 +72,7 @@ export function Clock() {
   );
 
   return (
-    <Interactive id="clock" label="objects.clock">
+    <>
       <group name="clock" rotation={[0, -0.12, 0]}>
         <group position={[0, BASE + H / 2, 0]}>
           <mesh geometry={geo.case} material={mat.mahogany} />
@@ -83,6 +82,6 @@ export function Clock() {
           <mesh geometry={geo.glass} material={mats.glass} renderOrder={3} />
         </group>
       </group>
-    </Interactive>
+    </>
   );
 }

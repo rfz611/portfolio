@@ -24,7 +24,16 @@ export const skillGroups: SkillGroup[] = [
     id: 'frontend',
     part: 'radiator',
     partKey: 'skills.partRadiator',
-    items: ['React Native (Expo)', 'Next.js', 'React', 'Tailwind CSS'],
+    items: [
+      'React',
+      'React Native (Expo)',
+      'Next.js',
+      'Three.js',
+      'React Three Fiber',
+      'Zustand',
+      'Tailwind CSS',
+      'Vite',
+    ],
   },
   {
     id: 'databases',
@@ -36,6 +45,6 @@ export const skillGroups: SkillGroup[] = [
     id: 'tools',
     part: 'fuses',
     partKey: 'skills.partFuses',
-    items: ['Git', 'GitHub', 'xUnit', 'Visual Studio', 'VS Code'],
+    items: ['Git', 'GitHub', 'xUnit', 'Vitest', 'ESLint', 'Vercel', 'Visual Studio', 'VS Code'],
   },
 ];

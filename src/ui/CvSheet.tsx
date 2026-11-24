@@ -41,8 +41,13 @@ export function CvSheet() {
         <p className="cv-sheet__place">{t('home.place')}</p>
         <h2 id="cv-sheet-name">{t('home.name')}</h2>
         <p className="cv-sheet__role">{t('home.role')}</p>
-        <p className="cv-sheet__phrase">{t('home.phrase')}</p>
-        <p className="cv-sheet__status">{t('home.status')}</p>
+        <div className="cv-sheet__letter">
+          {t('home.letter')
+            .split('\n')
+            .map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+        </div>
         <div className="cv-sheet__actions">
           {cv ? (
             <a className="cv-sheet__button" href={href} download>

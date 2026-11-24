@@ -215,7 +215,7 @@ export function PhotoFrame() {
     return m;
   }, []);
   return (
-    <Interactive id="photo" label="objects.photo">
+    <>
       <group rotation={[0.18, 0, 0]} name="photo-frame">
         <mesh geometry={geo.frame} material={lacquer} />
         <mesh geometry={geo.leg} material={lacquer} />
@@ -224,7 +224,7 @@ export function PhotoFrame() {
           <planeGeometry args={[0.125, 0.175]} />
         </mesh>
       </group>
-    </Interactive>
+    </>
   );
 }
 

@@ -44,7 +44,8 @@
     "status": "Looking for an IT internship: afternoons, on-site or hybrid in Curitiba, or remote.",
     "downloadCv": "Download résumé",
     "seeProjects": "See projects",
-    "cvSoon": "Résumé coming soon"
+    "cvSoon": "Résumé coming soon",
+    "letter": "Hi! Glad you made it to the desk.\nI'm Raphael, feet in Curitiba and head in code. I study Software Engineering at Universidade Positivo, and before that I took a technical course in Systems Analysis and Development at SENAI.\nWhat I like most is taking repetitive work and turning it into a system: that is how Fleet Automation came about, reading insurance policies in PDF and handing back a ready spreadsheet. For UniCar I built the whole API of a carpool app, with real-time chat and location.\nBefore that I looked after the computers and the people at Biobanco, so I know what it is like to help someone in a hurry and actually fix the problem.\nOutside code: mob films, the PS2, cars, boxing, good music and a good perfume. Most of it is scattered around this penthouse.\nI'm looking for an IT internship in the afternoons, on-site or hybrid in Curitiba, or remote. If you liked it, the PDF is right below and the car radio has my contacts."
   },
   "projects": {
     "title": "Projects",
@@ -103,7 +104,7 @@
     "title": "Skills",
     "languages": "Languages",
     "backend": "Back-end",
-    "frontend": "Front-end and mobile",
+    "frontend": "Front-end, 3D and mobile",
     "databases": "Databases",
     "tools": "Tools",
     "partBlock": "Engine block",

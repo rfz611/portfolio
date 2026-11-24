@@ -82,6 +82,30 @@ const PROFILE = {
   ],
 } as const;
 
+/** Tampa das pontas do U: fecha o perfil do sofá (senão dá pra ver o oco por dentro). */
+function sofaEndCaps() {
+  const pts = [
+    ...PROFILE.top,
+    ...PROFILE.back.slice(1),
+    ...PROFILE.seat.slice(1),
+    ...PROFILE.skirt.slice(1),
+    [PIT_SEAT, 0],
+    [-0.08, 0],
+  ] as [number, number][];
+  const shape = new THREE.Shape(pts.map(([d, h]) => new THREE.Vector2(d, h)));
+  const end = (z: number, dir: 1 | -1) => {
+    const g = new THREE.ShapeGeometry(shape);
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const d = p.getX(i);
+      p.setXYZ(i, PIT_SOFA_X0, p.getY(i), z + d * dir);
+    }
+    g.computeVertexNormals();
+    return g;
+  };
+  return merge([end(PIT.z0, 1), end(PIT.z1, -1)]);
+}
+
 /**
  * Sofá embutido de couro vinho, em U, seguindo o contorno do rebaixo:
  * o encosto capitonê fica contra a parede do degrau e o rolo de cima
@@ -108,6 +132,7 @@ function PitSofa() {
       skirt: sweep(path, PROFILE.skirt, { uScale: 1.6, vRepeat: 0.3 }),
       plinth: sweep(path, PROFILE.plinth, { uScale: 1.6, vRepeat: 0.1 }),
       arm,
+      caps: sofaEndCaps(),
       pillow: pillowGeometry(0.44, 0.42, 0.15),
     };
   }, []);
@@ -127,6 +152,7 @@ function PitSofa() {
       <mesh geometry={geo.seat} material={seat} />
       <mesh geometry={geo.skirt} material={plain} />
       <mesh geometry={geo.plinth} material={mat.mahoganyDark} />
+      <mesh geometry={geo.caps} material={plain} />
       {armZ.map((z) => (
         <mesh
           key={z}
