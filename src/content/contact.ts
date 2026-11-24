@@ -13,8 +13,8 @@ export const contactLinks: ContactLink[] = [
   {
     id: 'linkedin',
     frequency: '91.5',
-    value: 'linkedin.com/in/raphael-scharf-passos-70902227b',
-    href: 'https://www.linkedin.com/in/raphael-scharf-passos-70902227b',
+    value: 'linkedin.com/in/raphaelscharf',
+    href: 'https://www.linkedin.com/in/raphaelscharf',
   },
   {
     id: 'github',

@@ -210,7 +210,7 @@ Prints dos projetos: `public/textures/projects/` (o Raphael fornece; os do Frota
 
 **Skills (motor).** Linguagens: C#, Python, TypeScript, SQL, C. Back-end: ASP.NET Core, Entity Framework Core, FastAPI, APIs REST, SignalR, JWT. Front-end e mobile: React Native (Expo), Next.js, React, Tailwind CSS. Bancos de dados: PostgreSQL, MySQL, SQLite. Ferramentas: Git, GitHub, xUnit, Visual Studio, VS Code.
 
-**Contato (rádio).** E-mail raphaspassos@gmail.com · LinkedIn linkedin.com/in/raphael-scharf-passos-70902227b · GitHub github.com/rfz611 · Currículo em PDF (`public/cv/`, versões PT e EN). Telefone não aparece no site.
+**Contato (rádio).** E-mail raphaspassos@gmail.com · LinkedIn linkedin.com/in/raphaelscharf/ · GitHub github.com/rfz611 · Currículo em PDF (`public/cv/`, versões PT e EN). Telefone não aparece no site.
 
 ## Modelos .glb
 
