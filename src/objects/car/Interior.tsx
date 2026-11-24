@@ -31,8 +31,14 @@ function dashboard() {
   s.lineTo(-0.5, 0.56);
   s.lineTo(-0.64, 0.58);
   s.closePath();
-  const g = new THREE.ExtrudeGeometry(s, { depth: 1.5, bevelEnabled: false, curveSegments: 8 });
-  g.translate(0, 0, -0.75);
+  const g = new THREE.ExtrudeGeometry(s, { depth: 1.34, bevelEnabled: false, curveSegments: 8 });
+  g.translate(0, 0, -0.67);
+  // a frente do painel afina junto com a carroceria (senão vaza na coluna A)
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    if (x < -0.3) p.setZ(i, p.getZ(i) * (1 - ((-0.3 - x) / 0.34) * 0.3));
+  }
   return crease(g, 40);
 }
 
@@ -142,8 +148,8 @@ export function Interior({ m }: { m: CarMats }) {
       vents: join([
         new THREE.PlaneGeometry(0.1, 0.05).rotateY(HALF_PI).translate(-0.158, 0.875, 0.07),
         new THREE.PlaneGeometry(0.1, 0.05).rotateY(HALF_PI).translate(-0.158, 0.875, -0.07),
-        new THREE.PlaneGeometry(0.11, 0.055).rotateY(HALF_PI).translate(-0.158, 0.875, 0.66),
-        new THREE.PlaneGeometry(0.11, 0.055).rotateY(HALF_PI).translate(-0.158, 0.875, -0.66),
+        new THREE.PlaneGeometry(0.11, 0.055).rotateY(HALF_PI).translate(-0.158, 0.875, 0.58),
+        new THREE.PlaneGeometry(0.11, 0.055).rotateY(HALF_PI).translate(-0.158, 0.875, -0.58),
       ]),
       buttons: new THREE.PlaneGeometry(0.2, 0.04).rotateY(HALF_PI).translate(-0.158, 0.72, 0),
       // porta-copos no túnel, atrás do câmbio
