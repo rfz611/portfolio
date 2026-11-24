@@ -28,7 +28,8 @@
     "noWebgl": "Seu navegador não conseguiu abrir a cena 3D. Aqui está o portfólio completo em texto.",
     "room": "Sala",
     "soundOn": "Som",
-    "soundOff": "Mudo"
+    "soundOff": "Mudo",
+    "soundHint": "clique em qualquer lugar para ligar o som"
   },
   "loader": {
     "title": "Subindo para a cobertura",

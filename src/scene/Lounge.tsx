@@ -457,7 +457,10 @@ export function Lounge() {
       <PitSteps />
       {/* luvas largadas no assento do lado sul, perto da ponta do sofá */}
       <group position={[-0.5, -PIT.depth + 0.47, PIT.z1 - 0.55]} rotation={[0, 0.3, 0]}>
-        <LooseGloves />
+        {/* luvas do Sketchfab, se o arquivo estiver em public/models */}
+        <OptionalModel file="gloves.glb" fit={0.34}>
+          <LooseGloves />
+        </OptionalModel>
       </group>
       <mesh
         position={[tx - 0.05, ty + 0.004, tz]}

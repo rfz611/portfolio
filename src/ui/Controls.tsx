@@ -20,7 +20,25 @@ export function Controls({ webgl }: { webgl: boolean }) {
   const setView = useScene((s) => s.setView);
   const is3d = mode === '3d' && webgl;
   const [open, setOpen] = useState(false);
+  const [silent, setSilent] = useState(true);
   const root = useRef<HTMLDivElement>(null);
+
+  // o navegador só deixa tocar som depois de um clique ou tecla do visitante:
+  // o primeiro gesto (até no elevador) já liga a chuva, e até lá o aviso fica aceso
+  useEffect(() => {
+    const unlock = () => {
+      setSilent(false);
+      void import('../audio/player').then((m) => m.unlockAudio());
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+  }, []);
 
   // fecha o menu ao clicar fora ou apertar Esc
   useEffect(() => {
@@ -61,6 +79,11 @@ export function Controls({ webgl }: { webgl: boolean }) {
         >
           {muted ? t('ui.soundOff') : t('ui.soundOn')}
         </button>
+      )}
+      {is3d && silent && !muted && (
+        <span className="ctl-hint" aria-hidden="true">
+          {t('ui.soundHint')}
+        </span>
       )}
       {webgl && (
         <button

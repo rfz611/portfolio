@@ -1830,3 +1830,28 @@ body:not(.is-3d)::after {
   font-size: 0.93rem;
   line-height: 1.5;
 }
+
+.ctl-hint {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  white-space: nowrap;
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: #ffb070;
+  text-shadow: 0 0 8px rgba(255, 120, 40, 0.6);
+  pointer-events: none;
+  animation: ctl-hint-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ctl-hint-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctl-hint {
+    animation: none;
+  }
+}

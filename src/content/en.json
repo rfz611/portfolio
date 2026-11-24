@@ -28,7 +28,8 @@
     "noWebgl": "Your browser could not open the 3D scene. Here is the full portfolio as text.",
     "room": "Room",
     "soundOn": "Sound",
-    "soundOff": "Muted"
+    "soundOff": "Muted",
+    "soundHint": "click anywhere to turn the sound on"
   },
   "loader": {
     "title": "Going up to the penthouse",
