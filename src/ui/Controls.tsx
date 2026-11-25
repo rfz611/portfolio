@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HASH_TO_VIEW, NAV_ITEMS } from '../store/routes';
+import { tracks } from '../content/tracks';
 import { useScene } from '../store/useScene';
 
 /**
@@ -28,7 +29,17 @@ export function Controls({ webgl }: { webgl: boolean }) {
   useEffect(() => {
     const unlock = () => {
       setSilent(false);
-      void import('../audio/player').then((m) => m.unlockAudio());
+      void import('../audio/player').then((m) => {
+        m.unlockAudio();
+        // entra com música: o disco que já está no prato começa a tocar
+        // (se a pessoa já escolheu outro ou está no mudo, nada muda)
+        const s = useScene.getState();
+        if (!s.muted && s.deck === 'idle' && !s.requestedTrackId) {
+          const ok = (id: string) => s.availability[id] !== 'missing';
+          const id = ok(s.trackId) ? s.trackId : tracks.find((t) => ok(t.id))?.id;
+          if (id) m.chooseTrack(id);
+        }
+      });
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('keydown', unlock);
     };
