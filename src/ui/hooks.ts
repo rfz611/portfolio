@@ -74,15 +74,22 @@ export function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-export const prefersReducedMotion = (): boolean =>
-  typeof window !== 'undefined' &&
-  !!window.matchMedia &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let reducedMotion: MediaQueryList | null = null;
+
+/** Lido a cada quadro pela câmera: a consulta é criada uma vez só. */
+export const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  reducedMotion ??= window.matchMedia('(prefers-reduced-motion: reduce)');
+  return reducedMotion.matches;
+};
 
 export function hasWebGL(): boolean {
   try {
     const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
+    const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+    // só um teste: devolve o contexto na hora, o da cena é outro
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    return !!gl;
   } catch {
     return false;
   }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { isHandheld } from '../config/quality';
 import { DEFAULT_TRACK } from '../content/tracks';
 
 /** Planos de câmera: cada um mostra um objeto da cobertura. */
@@ -109,9 +110,7 @@ export function detectLang(): Lang {
 }
 
 function detectQuality(): Quality {
-  if (typeof window === 'undefined' || !window.matchMedia) return 'medium';
-  const coarse = window.matchMedia('(pointer: coarse)').matches;
-  return coarse || window.innerWidth < 760 ? 'low' : 'medium';
+  return isHandheld() ? 'low' : 'medium';
 }
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));

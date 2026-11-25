@@ -7,7 +7,8 @@ function rotated(ctx: Ctx, w: number, h: number, draw: (c: Ctx, w: number, h: nu
   ctx.save();
   ctx.translate(w, 0);
   ctx.rotate(Math.PI / 2);
-  ctx.drawImage(tmp, 0, 0);
+  // no tamanho lógico: no celular o canvas temporário sai em escala menor
+  ctx.drawImage(tmp, 0, 0, h, w);
   ctx.restore();
 }
 

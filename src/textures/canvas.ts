@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { isHandheld } from '../config/quality';
 import { mulberry32 } from './random';
 
 export { mulberry32, type Rand } from './random';
@@ -9,17 +10,38 @@ export { mulberry32, type Rand } from './random';
  */
 export type Ctx = CanvasRenderingContext2D;
 
+let paintScale: number | null = null;
+
+/**
+ * No celular as texturas grandes (512 px ou mais) saem com metade da
+ * resolução: a tela é pequena e desenhada a 1x, então os pixels a mais não
+ * apareceriam, e pintar e enviar cada uma à placa de vídeo custa quatro
+ * vezes menos.
+ */
+function scaleFor(w: number, h: number) {
+  paintScale ??= isHandheld() ? 0.5 : 1;
+  return Math.max(w, h) >= 512 ? paintScale : 1;
+}
+
+/**
+ * Pinta um canvas de w x h. A pintura sempre trabalha em w x h; quando o
+ * canvas sai menor (celular), a escala fica no contexto só durante o desenho.
+ */
 export function makeCanvas(
   w: number,
   h: number,
   draw: (ctx: Ctx, w: number, h: number) => void,
 ): HTMLCanvasElement {
+  const s = scaleFor(w, h);
   const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = Math.round(w * s);
+  canvas.height = Math.round(h * s);
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('canvas 2d indisponível');
+  if (s !== 1) ctx.scale(s, s);
   draw(ctx, w, h);
+  // quem redesenhar depois usa o tamanho real do canvas, sem escala
+  if (s !== 1) ctx.setTransform(1, 0, 0, 1, 0, 0);
   return canvas;
 }
 
@@ -82,17 +104,27 @@ export function valueNoise(seed: number, period: number) {
   const r = mulberry32(seed);
   const grid = new Float32Array(period * period);
   for (let i = 0; i < grid.length; i++) grid[i] = r();
-  const at = (x: number, y: number) =>
-    grid[(((y % period) + period) % period) * period + (((x % period) + period) % period)];
+  // chamado milhões de vezes ao pintar: lê os quatro cantos uma vez só
   return (x: number, y: number) => {
-    const xi = Math.floor(x);
-    const yi = Math.floor(y);
-    const fx = x - xi;
-    const fy = y - yi;
+    const fxi = Math.floor(x);
+    const fyi = Math.floor(y);
+    const fx = x - fxi;
+    const fy = y - fyi;
+    let xi = fxi % period;
+    if (xi < 0) xi += period;
+    let yi = fyi % period;
+    if (yi < 0) yi += period;
+    const x1 = xi + 1 === period ? 0 : xi + 1;
+    const row0 = yi * period;
+    const row1 = (yi + 1 === period ? 0 : yi + 1) * period;
+    const a = grid[row0 + xi];
+    const b = grid[row0 + x1];
+    const c = grid[row1 + xi];
+    const d = grid[row1 + x1];
     const sx = fx * fx * (3 - 2 * fx);
     const sy = fy * fy * (3 - 2 * fy);
-    const top = at(xi, yi) + (at(xi + 1, yi) - at(xi, yi)) * sx;
-    const bottom = at(xi, yi + 1) + (at(xi + 1, yi + 1) - at(xi, yi + 1)) * sx;
+    const top = a + (b - a) * sx;
+    const bottom = c + (d - c) * sx;
     return top + (bottom - top) * sy;
   };
 }
@@ -106,24 +138,56 @@ export interface GrainOpts {
   cells?: number;
 }
 
-/** Soma ruído de luminosidade à pintura inteira. */
-export function grain(ctx: Ctx, w: number, h: number, o: GrainOpts) {
+/**
+ * Soma ruído de luminosidade à pintura inteira. Trabalha nos pixels de
+ * verdade do canvas, que podem ser menos que w x h quando a textura é
+ * pintada em escala reduzida (celular).
+ */
+export function grain(ctx: Ctx, _w: number, _h: number, o: GrainOpts) {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   const image = ctx.getImageData(0, 0, w, h);
   const d = image.data;
   const r = mulberry32(o.seed);
   const fine = (o.fine ?? 0.04) * 255;
   const low = (o.low ?? 0) * 255 * 2;
   const cells = o.cells ?? 6;
-  const n1 = valueNoise(o.seed + 7, cells);
-  const n2 = valueNoise(o.seed + 13, cells * 4);
+  // As manchas largas mudam devagar: são calculadas numa grade a cada STEP
+  // pixels e interpoladas no meio (bem mais rápido, e o olho não vê diferença).
+  const STEP = 4;
+  const gw = Math.ceil(w / STEP) + 1;
+  const gh = Math.ceil(h / STEP) + 1;
+  let lowGrid: Float32Array | null = null;
+  if (low > 0) {
+    const n1 = valueNoise(o.seed + 7, cells);
+    const n2 = valueNoise(o.seed + 13, cells * 4);
+    lowGrid = new Float32Array(gw * gh);
+    for (let gy = 0; gy < gh; gy++) {
+      const v = ((gy * STEP) / h) * cells;
+      for (let gx = 0; gx < gw; gx++) {
+        const u = ((gx * STEP) / w) * cells;
+        lowGrid[gy * gw + gx] = ((n1(u, v) - 0.5) * 0.7 + (n2(u * 4, v * 4) - 0.5) * 0.3) * low;
+      }
+    }
+  }
+  const row = new Float32Array(gw);
   let i = 0;
   for (let y = 0; y < h; y++) {
+    if (lowGrid) {
+      const gy = (y / STEP) | 0;
+      const ty = (y - gy * STEP) / STEP;
+      const top = gy * gw;
+      const bottom = top + gw;
+      for (let gx = 0; gx < gw; gx++) {
+        row[gx] = lowGrid[top + gx] + (lowGrid[bottom + gx] - lowGrid[top + gx]) * ty;
+      }
+    }
     for (let x = 0; x < w; x++) {
       let n = (r() - 0.5) * fine;
-      if (low > 0) {
-        const u = (x / w) * cells;
-        const v = (y / h) * cells;
-        n += ((n1(u, v) - 0.5) * 0.7 + (n2(u * 4, v * 4) - 0.5) * 0.3) * low;
+      if (lowGrid) {
+        const gx = (x / STEP) | 0;
+        const a = row[gx];
+        n += a + (row[gx + 1] - a) * ((x - gx * STEP) / STEP);
       }
       d[i] += n;
       d[i + 1] += n;

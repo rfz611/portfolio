@@ -126,8 +126,12 @@ export function paintMagazine(ctx: Ctx, w: number, h: number, o: MagazineOpts) {
   ctx.textBaseline = 'alphabetic';
   let size = w * 0.26;
   ctx.font = `italic 600 ${size}px ${DISPLAY}`;
-  while (ctx.measureText(o.title).width > w * 0.88 && size > 12) {
-    size -= 2;
+  // a largura do texto cresce junto com a fonte: uma medida só basta (trocar
+  // de fonte e medir dezenas de vezes custava caro)
+  const titleWidth = ctx.measureText(o.title).width;
+  if (titleWidth > w * 0.88) {
+    const fits = (size * w * 0.88) / titleWidth;
+    size = Math.max(size - Math.ceil((size - fits) / 2) * 2, Math.min(size, 12));
     ctx.font = `italic 600 ${size}px ${DISPLAY}`;
   }
   ctx.fillText(o.title, w / 2, h * 0.2);
