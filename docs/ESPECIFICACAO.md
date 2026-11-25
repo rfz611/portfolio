@@ -6,7 +6,7 @@ Este documento é a fonte única para o Fable construir o portfólio 3D do Rapha
 
 ## Decisões fechadas
 
-O site é uma cobertura de mafioso dos anos 80 em 3D, onde cada objeto abre uma parte do portfólio e o conteúdo aparece no próprio objeto.
+O site é uma cobertura dos anos 80 em clima neo-noir, em 3D, onde cada objeto abre uma parte do portfólio e o conteúdo aparece no próprio objeto.
 
 | Tema | Decisão |
 | --- | --- |
@@ -62,7 +62,7 @@ portfolio/
 
 ## Direção de arte
 
-Cobertura de mafioso nos anos 80, à noite e com chuva, no visual de um jogo de PS2: modelos low poly com texturas pintadas e luz "assada" na textura, apresentados com luz e pós-processamento modernos (as regras estão em Low poly no estilo PS2, logo abaixo). Referência principal do ambiente: Max Payne 2 (interior noir escuro, luz amarela de abajur, móveis simples com textura boa). Referência principal do carro e da garagem: Need for Speed Underground 2 (lataria com reflexo, neon, noite). Apoio: Mafia, Scarface, Miami Vice, Hitman: Blood Money, Drive.
+Cobertura dos anos 80 em clima neo-noir, à noite e com chuva, no visual de um jogo de PS2: modelos low poly com texturas pintadas e luz "assada" na textura, apresentados com luz e pós-processamento modernos (as regras estão em Low poly no estilo PS2, logo abaixo). Referência principal do ambiente: Max Payne 2 (interior noir escuro, luz amarela de abajur, móveis simples com textura boa). Referência principal do carro e da garagem: Need for Speed Underground 2 (lataria com reflexo, neon, noite). Apoio: Mafia, Scarface, Miami Vice, Hitman: Blood Money, Drive.
 
 | Papel | Cor |
 | --- | --- |

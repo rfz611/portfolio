@@ -2,7 +2,7 @@
 
 **Acesse:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
-Uma cobertura de mafioso dos anos 80, numa noite de chuva, no clima de Max Payne 2 e dos jogos de PS2. Em vez de uma página com seções, o portfólio é um lugar: cada objeto da sala abre uma parte dele.
+Uma cobertura dos anos 80 numa noite de chuva, em clima neo-noir, com Max Payne 2 e os jogos de PS2 como base. Em vez de uma página com seções, o portfólio é um lugar: cada objeto da sala abre uma parte dele.
 
 ![A sala, vista do sofá](docs/prints/readme/home-desktop-sala.png)
 
@@ -54,7 +54,7 @@ Capas de discos, músicas e títulos de filmes pertencem aos seus donos e aparec
 
 **Visit:** [raphaelscharf.vercel.app](https://raphaelscharf.vercel.app)
 
-An 80s mob-boss penthouse on a rainy night, in the mood of Max Payne 2 and PS2-era games. Instead of a page with sections, the portfolio is a place: every object opens a part of it. The CRT TV shows the projects, the laptop tells who I am, the turntable really plays, the car's engine holds the skills and its radio holds the contacts. There is also a full text version, in Portuguese and English.
+An 80s penthouse on a rainy night, in a neo-noir mood, built on Max Payne 2 and PS2-era games. Instead of a page with sections, the portfolio is a place: every object opens a part of it. The CRT TV shows the projects, the laptop tells who I am, the turntable really plays, the car's engine holds the skills and its radio holds the contacts. There is also a full text version, in Portuguese and English.
 
 I built it on my own, to learn 3D and make something different. Almost everything is modeled in code with React Three Fiber and TypeScript, with canvas-painted textures and a procedurally generated city.
 
