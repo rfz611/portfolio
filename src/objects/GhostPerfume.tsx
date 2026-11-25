@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { crease, lathe } from '../scene/geo';
 import { makeCanvas, tex } from '../textures/canvas';
-import { Interactive } from './Interactive';
 
 /** Medidas do frasco (m), como na foto: mais alto que largo. */
 const W = 0.074;
@@ -208,7 +207,7 @@ export function GhostPerfume() {
     };
   }, []);
   return (
-    <Interactive id="perfume" label="objects.perfume">
+    <>
       <group name="perfume">
         <mesh geometry={geo.body} material={mats.body} />
         <mesh geometry={geo.neck} material={mats.metal} />
@@ -217,6 +216,6 @@ export function GhostPerfume() {
         <mesh geometry={geo.bands} material={mats.gold} />
         <mesh geometry={geo.primer} material={mats.primer} />
       </group>
-    </Interactive>
+    </>
   );
 }

@@ -358,7 +358,8 @@ function DeskClutter() {
   const folder = useMemo(() => new THREE.MeshLambertMaterial({ color: '#b8925a' }), []);
   return (
     <group position={[0, TOP, 0]}>
-      <group position={[0.8, 0.002, 0.16]} rotation={[0, 2.75, 0]}>
+      {/* teclado virado para quem senta na cadeira */}
+      <group position={[0.8, 0.002, 0.16]} rotation={[0, -0.39, 0]}>
         <DeskPhone />
       </group>
       <Interactive

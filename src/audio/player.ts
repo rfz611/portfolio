@@ -99,10 +99,8 @@ export function playClick() {
   ambience?.click.play();
 }
 
-/** Gelo do copo tilintando baixinho (quando o mouse passa pelo bar). */
-export function playIce() {
-  if (ambience && !ambience.ice.playing()) ambience.ice.play();
-}
+/** Gelo do copo: desligado a pedido (o tilintar incomodava). */
+export function playIce() {}
 
 /** Chiado curto da TV (ao ligar e ao trocar de canal). */
 export function playStatic() {
@@ -117,7 +115,6 @@ export function playBoot() {
 /** Som do drink sendo servido. */
 export function playPour() {
   unlockAudio();
-  ambience?.pour.play();
 }
 
 function release(target: Deck, fadeMs: number) {

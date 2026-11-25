@@ -238,6 +238,121 @@ function LitPainting({
   );
 }
 
+/** Porta de bronze do elevador: painéis escuros com filetes de latão art déco. */
+function paintElevatorDoor(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const g = ctx.createLinearGradient(0, 0, w, 0);
+  g.addColorStop(0, '#231710');
+  g.addColorStop(0.5, '#3a2618');
+  g.addColorStop(1, '#231710');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#b8893a';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(14, 14, w - 28, h - 28);
+  // leque art déco no alto e filetes descendo
+  const cx = w / 2;
+  for (let i = -3; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx, h * 0.26);
+    ctx.lineTo(cx + i * (w * 0.12), 30);
+    ctx.stroke();
+  }
+  for (const x of [w * 0.3, w * 0.5, w * 0.7]) {
+    ctx.beginPath();
+    ctx.moveTo(x, h * 0.3);
+    ctx.lineTo(x, h - 30);
+    ctx.stroke();
+  }
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, h * 0.3, w - 56, h * 0.62);
+}
+
+/** Mostrador de ponteiro acima da porta, parado no PH (a cobertura). */
+function paintElevatorDial(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = '#1a120b';
+  ctx.fillRect(0, 0, w, h);
+  const cx = w / 2;
+  const cy = h * 0.95;
+  const r = w * 0.4;
+  ctx.fillStyle = '#d9b46a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '600 22px "Bodoni Moda", serif';
+  const marks = ['T', '10', '20', '30', '40', 'PH'];
+  marks.forEach((m, i) => {
+    const a = Math.PI + (i / (marks.length - 1)) * Math.PI;
+    ctx.fillText(m, cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+  });
+  ctx.strokeStyle = '#ff9a3c';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + r * 0.78, cy - 4);
+  ctx.stroke();
+}
+
+/** Elevador privativo da cobertura, na parede do fundo: é por ele que se chega. */
+function ElevatorDoor({ position }: { position: V3 }) {
+  const geo = useMemo(
+    () => ({
+      frame: crease(
+        merge([
+          box([0.1, 2.38, 0.08], [-0.7, 1.19, 0.04]),
+          box([0.1, 2.38, 0.08], [0.7, 1.19, 0.04]),
+          box([1.5, 0.12, 0.08], [0, 2.44, 0.04]),
+          box([1.62, 0.04, 0.1], [0, 2.52, 0.05]),
+          box([0.13, 0.3, 0.025], [0.93, 1.2, 0.012]),
+        ]),
+        30,
+      ),
+      seam: box([0.012, 2.3, 0.035], [0, 1.15, 0.02]),
+      button: cyl(0.03, 0.03, 0.02, [0.93, 1.2, 0.03], { seg: 16, rot: [HALF_PI, 0, 0] }),
+    }),
+    [],
+  );
+  const mats = useMemo(() => {
+    const door = tex(makeCanvas(256, 768, paintElevatorDoor), { clamp: true });
+    const dial = tex(makeCanvas(256, 128, paintElevatorDial), { clamp: true });
+    return {
+      // a parede do fundo é escura: um pouco de brilho próprio deixa o bronze e o latão aparecerem
+      door: new THREE.MeshStandardMaterial({
+        map: door,
+        roughness: 0.42,
+        metalness: 0.65,
+        emissiveMap: door,
+        emissive: new THREE.Color('#ffffff'),
+        emissiveIntensity: 0.55,
+      }),
+      frame: new THREE.MeshStandardMaterial({
+        color: '#b8893a',
+        roughness: 0.35,
+        metalness: 0.8,
+        emissive: new THREE.Color('#5a3c14'),
+      }),
+      dial: new THREE.MeshBasicMaterial({ map: dial, color: hdr('#ffffff', 1.3) }),
+      button: new THREE.MeshBasicMaterial({ color: hdr('#ffb35c', 2.2), toneMapped: false }),
+    };
+  }, []);
+  return (
+    <group position={position} rotation={[0, Math.PI, 0]} name="elevator">
+      <mesh geometry={geo.frame} material={mats.frame} />
+      {[-0.325, 0.325].map((x) => (
+        <mesh key={x} position={[x, 1.15, 0.015]} material={mats.door}>
+          <boxGeometry args={[0.64, 2.3, 0.03]} />
+        </mesh>
+      ))}
+      <mesh geometry={geo.seam} material={mats.frame} />
+      <mesh position={[0, 2.78, 0.012]} material={mats.dial}>
+        <circleGeometry args={[0.26, 32, 0, Math.PI]} />
+      </mesh>
+      <mesh position={[0, 2.78, 0.008]} material={mats.frame}>
+        <circleGeometry args={[0.3, 32, 0, Math.PI]} />
+      </mesh>
+      <mesh geometry={geo.button} material={mats.button} />
+    </group>
+  );
+}
+
 /** Quadros, pôster, arandelas, mesinhas e a manta: o que dá vida às paredes e ao sofá. */
 export function Decor() {
   const pieces = art();
@@ -259,6 +374,7 @@ export function Decor() {
       />
       <Sconce position={[-2.55, 1.85, south]} rotationY={Math.PI} />
       <Sconce position={[0.15, 1.85, south]} rotationY={Math.PI} />
+      <ElevatorDoor position={[1.75, 0, south]} />
       {/* parede esquerda (oeste): disco emoldurado à direita de quem está no sofá
           e o Caravaggio grande à esquerda */}
       <FramedRecord position={[west, 1.72, -3.2]} rotationY={HALF_PI} />
