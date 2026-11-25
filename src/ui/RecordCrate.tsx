@@ -13,7 +13,15 @@ export function RecordCrate() {
   const [missing, setMissing] = useState<Record<string, boolean>>({});
   const audio = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => () => audio.current?.pause(), []);
+  // uma música de cada vez: ao chegar na versão em texto, o disco do 3D
+  // (e o rádio do carro) param; ao voltar para o 3D, a caixa se cala
+  useEffect(() => {
+    void import('../audio/player').then((m) => {
+      m.stopCarRadio(); // (devolve o disco ao prato, que logo abaixo pausa)
+      m.pause();
+    });
+    return () => audio.current?.pause();
+  }, []);
 
   const toggle = (id: string) => {
     if (playing === id) {
