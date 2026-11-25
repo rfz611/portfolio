@@ -26,6 +26,17 @@ export interface Spot extends Shot {
 
 export const SPOTS: Spot[] = [
   {
+    // começo da visita: saindo do elevador privativo, na parede do fundo,
+    // com a sala inteira na frente e a cidade lá no vidro
+    id: 'geral',
+    label: 'spots.geral',
+    position: [1.75, 1.72, 4.05],
+    target: [-0.7, 0.95, -4.4],
+    hfov: 84,
+    portrait: { position: [1.75, 1.75, 4.05], target: [-0.4, 0.1, -2.2], hfov: 70 },
+    marker: [1.75, 0.012, 3.8],
+  },
+  {
     id: 'sofa',
     label: 'spots.sofa',
     position: [2.5, 0.82, 0.62],
@@ -91,15 +102,6 @@ export const SPOTS: Spot[] = [
     hfov: 82,
     portrait: { hfov: 66 },
     marker: [-0.4, 0.012, -2.35],
-  },
-  {
-    id: 'geral',
-    label: 'spots.geral',
-    position: [0.3, 1.75, 4.05],
-    target: [0.0, 0.45, -2.6],
-    hfov: 80,
-    portrait: { hfov: 66, target: [0.0, 0.0, -1.8] },
-    marker: [0.3, 0.012, 4.05],
   },
   {
     // dentro da garagem, logo depois da passagem do vidro, olhando o carro
