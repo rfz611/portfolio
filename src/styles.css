@@ -1855,3 +1855,164 @@ body:not(.is-3d)::after {
     animation: none;
   }
 }
+
+/* versão em texto: a caixa de discos */
+.crate__now {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'VT323', monospace;
+  font-size: 1.15rem;
+  color: var(--amber);
+}
+
+.crate__led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #3a1a10;
+}
+
+.crate__led.is-on {
+  background: #ff3b2a;
+  box-shadow: 0 0 10px #ff3b2a;
+}
+
+.crate {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 26px 22px;
+  list-style: none;
+  padding: 10px 0 0 !important;
+}
+
+.crate__record {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.crate__record:disabled {
+  cursor: default;
+  filter: grayscale(0.8) brightness(0.6);
+}
+
+.crate__sleeve {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  background: var(--wine);
+  transition: transform 0.35s ease;
+}
+
+.crate__disc {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 4px),
+    radial-gradient(circle, var(--vinyl) 0 70%, #050505 71%);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.crate__label {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #111 0 8%, var(--label) 9%);
+}
+
+.crate__record:not(:disabled):hover .crate__disc,
+.crate__record:focus-visible .crate__disc {
+  transform: translateX(24%);
+}
+
+.crate__record:not(:disabled):hover .crate__sleeve {
+  transform: rotate(-2deg) translateX(-4%);
+}
+
+.crate__record.is-playing .crate__sleeve {
+  transform: translateX(-12%) rotate(-3deg);
+  box-shadow:
+    0 0 0 2px var(--amber),
+    0 12px 28px rgba(0, 0, 0, 0.6);
+}
+
+.crate__record.is-playing .crate__disc {
+  transform: translateX(42%);
+}
+
+.crate__record.is-playing .crate__label {
+  animation: crate-spin 1.8s linear infinite;
+}
+
+.crate__record.is-playing .crate__disc {
+  animation: crate-groove 1.8s linear infinite;
+}
+
+@keyframes crate-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes crate-groove {
+  from {
+    transform: translateX(42%) rotate(0);
+  }
+  to {
+    transform: translateX(42%) rotate(360deg);
+  }
+}
+
+.crate__tag {
+  position: absolute;
+  z-index: 2;
+  left: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--amber);
+  background: rgba(10, 5, 3, 0.8);
+  border: 1px solid rgba(255, 179, 92, 0.4);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.crate__record:hover .crate__tag,
+.crate__record:focus-visible .crate__tag,
+.crate__record.is-playing .crate__tag {
+  opacity: 1;
+}
+
+.crate__title {
+  margin: 10px 0 0;
+  line-height: 1.25;
+}
+
+.crate__title strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.crate__title span {
+  font-size: 0.82rem;
+  opacity: 0.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crate__record.is-playing .crate__label,
+  .crate__record.is-playing .crate__disc {
+    animation: none;
+  }
+}

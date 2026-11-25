@@ -3,8 +3,8 @@ import { certificates } from '../content/certificates';
 import { contactLinks, cvFiles } from '../content/contact';
 import { projects } from '../content/projects';
 import { skillGroups } from '../content/skills';
-import { tracks } from '../content/tracks';
 import { useScene } from '../store/useScene';
+import { RecordCrate } from './RecordCrate';
 
 /** Nome com o sobrenome do meio (Scharf) em neon, como o letreiro da sala. */
 function NeonName({ name }: { name: string }) {
@@ -145,13 +145,7 @@ export function TextPage({ webgl }: { webgl: boolean }) {
 
       <section id="discos" aria-labelledby="t-discos">
         <h2 id="t-discos">{t('records.title')}</h2>
-        <ul className="tracks">
-          {tracks.map((track) => (
-            <li key={track.id}>
-              <strong>{track.title}</strong> <span className="muted">· {track.artist}</span>
-            </li>
-          ))}
-        </ul>
+        <RecordCrate />
       </section>
 
       <section id="contato" aria-labelledby="t-contato">
